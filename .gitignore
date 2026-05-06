@@ -63,3 +63,6 @@ train_stage5.py
 update_memory.py
 verify_s3.py
 verify_s3_v3.py
+execute.py
+skills_registry.json
+created*

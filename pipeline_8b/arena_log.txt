@@ -1,0 +1,12 @@
+=== Arena 7B vs 8B ===
+Start: Mon May  4 04:01:32 CST 2026
+
+============================================================
+  7B vs 8B ARENA — Cezanne Adversarial Debate
+  7B: /mnt/d/models/Mistral-7B-Instruct-v0.1 + /mnt/d/VORTEX_FLAME/soul_lora_v2/cezanne/stage3_cs/final
+  8B: /mnt/d/models/Ministral-8B-Reasoning-Text-34L-ctx1024 + /mnt/d/VORTEX_FLAME/soul_lora_v2/cezanne_8b/stage3/final
+  Questions: 12
+============================================================
+  Loading 7B Cezanne S3-CS...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   0%|          | 1/291 [00:01<05:28,  1.13s/it]Loading weights:   1%|          | 2/291 [00:02<05:55,  1.23s/it]Loading weights:   1%|▏         | 4/291 [00:03<03:14,  1.48it/s]Loading weights:   2%|▏         | 5/291 [00:03<02:58,  1.60it/s]Loading weights:   2%|▏         | 6/291 [00:04<02:47,  1.70it/s]Loading weights:   3%|▎         | 9/291 [00:04<01:22,  3.43it/s]Loading weights:   3%|▎         | 10/291 [00:04<01:13,  3.84it/s]Loading weights:   4%|▍         | 13/291 [00:05<01:03,  4.40it/s]Loading weights:   5%|▍         | 14/291 [00:05<01:19,  3.49it/s]Loading weights:   5%|▌         | 15/291 [00:06<01:40,  2.76it/s]Loading weights:   6%|▌         | 18/291 [00:06<01:00,  4.50it/s]Loading weights:   7%|▋         | 19/291 [00:06<00:57,  4.76it/s]Loading weights:   8%|▊         | 22/291 [00:07<00:55,  4.85it/s]Loading weights:   8%|▊         | 23/291 [00:07<01:11,  3.74it/s]Loading weights:   8%|▊         | 24/291 [00:08<01:25,  3.11it/s]Loading weights:   9%|▉         | 27/291 [00:08<00:54,  4.88it/s]Loading weights:  10%|▉         | 28/291 [00:08<00:52,  4.98it/s]Loading weights:  11%|█         | 31/291 [00:09<00:54,  4.79it/s]Loading weights:  11%|█         | 32/291 [00:10<01:16,  3.40it/s]

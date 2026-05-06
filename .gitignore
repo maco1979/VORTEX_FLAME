@@ -5,6 +5,12 @@ E*/
 *.pt
 *.pth
 *.onnx
+*.ckpt
+*.h5
+*.pkl
+*.parquet
+*.arrow
+*.msgpack
 hf_cache/
 node_modules/
 __pycache__/
@@ -14,3 +20,21 @@ soul_lora_v2/
 cezanne_retrain/logs/
 cezanne_retrain/selfplay_data/
 cezanne_retrain/checkpoints/
+knowledge_base/faiss_index/
+knowledge_base/*.index
+*.env
+*.env.local
+*.log
+gitnexus_index.log
+gitnexus_install.log
+hermes_logs/
+arena_results/
+long-memory/
+soul_training_data/
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+cpolar.exe
+created; tmux list-sessions

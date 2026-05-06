@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>VORTEX FLAME 14灵魂行业知识图谱 v6.0</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#e0e0e0}
+#canvas{position:fixed;top:0;left:0;width:100%;height:100%;cursor:grab}
+#canvas:active{cursor:grabbing}
+#header{position:fixed;top:0;left:0;right:0;height:48px;background:linear-gradient(180deg,rgba(10,10,26,0.95),rgba(10,10,26,0));display:flex;align-items:center;padding:0 20px;z-index:100;pointer-events:none}
+#header h1{font-size:15px;font-weight:600;background:linear-gradient(90deg,#ff6b6b,#feca57,#4ecdc4,#45b7d1,#ff9ff3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px}
+#header .ver{font-size:11px;color:#666;margin-left:8px}
+#breadcrumb{position:fixed;top:52px;left:20px;z-index:100;display:flex;align-items:center;gap:6px;font-size:12px;pointer-events:auto}
+#breadcrumb span{color:#888;cursor:pointer;transition:color .2s}
+#breadcrumb span:hover{color:#fff}
+#breadcrumb span.active{color:#feca57;cursor:default}
+#breadcrumb .sep{color:#444;font-size:10px}
+#stats{position:fixed;top:52px;right:20px;z-index:100;font-size:11px;color:#555;text-align:right;pointer-events:none}
+#legend{position:fixed;bottom:20px;left:20px;z-index:100;background:rgba(10,10,26,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;font-size:11px;backdrop-filter:blur(10px)}
+#legend .title{font-size:12px;font-weight:600;color:#aaa;margin-bottom:8px}
+#legend .row{display:flex;align-items:center;gap:8px;margin:4px 0}
+#legend .dot{width:10px;height:10px;border-radius:50%}
+#legend .line{width:20px;height:2px;border-radius:1px}
+#legend .dash{width:20px;height:0;border-top:2px dashed}
+#controls{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;gap:8px}
+#controls button{width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(10,10,26,0.85);color:#aaa;font-size:18px;cursor:pointer;backdrop-filter:blur(10px);transition:all .2s;display:flex;align-items:center;justify-content:center}
+#controls button:hover{background:rgba(30,30,60,0.9);color:#fff;border-color:rgba(255,255,255,0.2)}
+#soul-tabs{position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;padding:4px}
+.soul-tab{width:36px;height:36px;border-radius:8px 0 0 8px;border:1px solid rgba(255,255,255,0.06);border-right:none;background:rgba(10,10,26,0.7);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;backdrop-filter:blur(5px);writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px}
+.soul-tab:hover{background:rgba(30,30,60,0.9);border-color:rgba(255,255,255,0.15);width:42px}
+.soul-tab.active{width:48px;background:rgba(40,20,60,0.9);border-color:rgba(255,159,243,0.3)}
+#info-panel{position:fixed;top:50%;left:20px;transform:translateY(-50%);width:280px;max-height:70vh;background:rgba(10,10,26,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;z-index:100;backdrop-filter:blur(15px);transition:all .4s cubic-bezier(.4,0,.2,1);opacity:0;pointer-events:none;overflow-y:auto}
+#info-panel.visible{opacity:1;pointer-events:auto}
+#info-panel .close{position:absolute;top:10px;right:14px;cursor:pointer;font-size:18px;color:#666;transition:color .2s}
+#info-panel .close:hover{color:#fff}
+#info-panel .node-name{font-size:20px;font-weight:700;margin-bottom:4px}
+#info-panel .node-id{font-size:11px;color:#555;margin-bottom:12px}
+#info-panel .node-tier{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-bottom:12px}
+#info-panel .section{margin-top:12px}
+#info-panel .section-title{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+#info-panel .conn-list{list-style:none}
+#info-panel .conn-list li{padding:4px 8px;margin:2px 0;border-radius:6px;font-size:12px;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:6px}
+#info-panel .conn-list li:hover{background:rgba(255,255,255,0.05)}
+#info-panel .conn-list .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+#info-panel .soul-detail{margin-top:12px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.03)}
+#info-panel .soul-detail .row{display:flex;justify-content:space-between;font-size:12px;margin:3px 0}
+#info-panel .soul-detail .label{color:#666}
+#tooltip{position:fixed;z-index:200;background:rgba(10,10,26,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;backdrop-filter:blur(10px);max-width:200px}
+#tooltip.visible{opacity:1}
+@media(max-width:768px){
+  #info-panel{left:10px;right:10px;width:auto;top:auto;bottom:60px;transform:none;max-height:40vh}
+  #soul-tabs{top:auto;bottom:60px;right:0;transform:none;flex-direction:row;flex-wrap:wrap;max-width:50vw}
+  .soul-tab{width:28px;height:28px;font-size:9px;letter-spacing:0;border-radius:6px 0 0 6px}
+  #legend{display:none}
+  #header h1{font-size:13px}
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="header"><h1>VORTEX FLAME 14灵魂行业知识图谱</h1><span class="ver">v6.1 · 含商业闭环</span></div>
+<div id="breadcrumb"></div>
+<div id="stats"></div>
+<div id="legend">
+  <div class="title">节点层级</div>
+  <div class="row"><div class="dot" style="background:#ff6b6b"></div>L1 基础学科 (14)</div>
+  <div class="row"><div class="dot" style="background:#4ecdc4"></div>L2 技术科学 (11)</div>
+  <div class="row"><div class="dot" style="background:#45b7d1"></div>L3 行业门类 (23)</div>
+  <div class="row"><div class="dot" style="background:#feca57"></div>L4 具体行业 (32)</div>
+  <div class="row"><div class="dot" style="background:#ff9ff3"></div>L5 灵魂绑定 (14)</div>
+  <div class="row"><div class="dot" style="background:#00d2ff"></div>L6 门店终端 (6)</div>
+  <div class="row"><div class="dot" style="background:#a855f7"></div>L7 本地优先架构(规划中) (1)</div>
+  <div style="margin-top:8px" class="title">边类型</div>
+  <div class="row"><div class="line" style="background:#ff6b6b"></div>depend_on (30)</div>
+  <div class="row"><div class="line" style="background:#4ecdc4"></div>apply_tech (40)</div>
+  <div class="row"><div class="line" style="background:#45b7d1"></div>belongs_to (37)</div>
+  <div class="row"><div class="dash" style="border-color:#dda0dd"></div>soul_science (30)</div>
+  <div class="row"><div class="line" style="background:#ffd700;height:3px"></div>soul_bind (32)</div>
+  <div class="row"><div class="line" style="background:#00d2ff"></div>data_flow 门店→灵魂</div>
+  <div class="row"><div class="line" style="background:#a855f7"></div>upload 门店→联邦云</div>
+  <div class="row"><div class="line" style="background:#22d3ee"></div>evolve 联邦云→灵魂</div>
+  <div class="row"><div class="line" style="background:#f97316"></div>empower 灵魂→门店</div>
+</div>
+<div id="controls">
+  <button id="btn-fit" title="全景">⊞</button>
+  <button id="btn-zin" title="放大">+</button>
+  <button id="btn-zout" title="缩小">−</button>
+  <button id="btn-back" title="返回上层">←</button>
+</div>
+<div id="soul-tabs"></div>
+<div id="info-panel"><span class="close" id="panel-close">✕</span><div id="panel-content"></div></div>
+<div id="tooltip"></div>
+<div id="drill-hint" style="position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(10,10,26,0.9);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 20px;font-size:13px;color:#feca57;backdrop-filter:blur(10px);animation:hintPulse 2s ease-in-out infinite;pointer-events:none;transition:opacity 1s">👆 点击节点展开下一层 · 点击 ← 返回上层</div>
+<style>@keyframes hintPulse{0%,100%{opacity:0.8}50%{opacity:1}}</style>
+
+<script>
+const graphData = {
+  "layers": {
+    "1_basic_sciences": {
+      "nodes": [
+        { "id": "BS_MATH", "name": "数学", "level": 1, "category": "自然科学", "bound_souls": ["cezanne","strategy","einstein","davinci"] },
+        { "id": "BS_LOGIC", "name": "逻辑学", "level": 1, "category": "形式科学", "bound_souls": ["cezanne","montesquieu"] },
+        { "id": "BS_PHYS", "name": "物理学", "level": 1, "category": "自然科学", "bound_souls": ["einstein","galileo","davinci","beethoven"] },
+        { "id": "BS_CHEM", "name": "化学", "level": 1, "category": "自然科学", "bound_souls": ["einstein","darwin","humboldt"] },
+        { "id": "BS_BIO", "name": "生命科学", "level": 1, "category": "自然科学", "bound_souls": ["darwin","yuanlongping"] },
+        { "id": "BS_ASTRO", "name": "天文学", "level": 1, "category": "自然科学", "bound_souls": ["galileo"] },
+        { "id": "BS_EARTH", "name": "地球科学", "level": 1, "category": "自然科学", "bound_souls": ["humboldt"] },
+        { "id": "BS_INFO", "name": "信息科学", "level": 1, "category": "形式科学", "bound_souls": ["cezanne"] },
+        { "id": "BS_COGN", "name": "认知科学", "level": 1, "category": "交叉科学", "bound_souls": ["guizhu","monet","herodotus"] },
+        { "id": "BS_PSYCH", "name": "心理学", "level": 1, "category": "社会科学", "bound_souls": ["guizhu","strategy","vangogh"] },
+        { "id": "BS_AGRIC", "name": "农业科学", "level": 1, "category": "应用科学", "bound_souls": ["yuanlongping"] },
+        { "id": "BS_LAW", "name": "法学", "level": 1, "category": "社会科学", "bound_souls": ["montesquieu"] },
+        { "id": "BS_HIST", "name": "历史学", "level": 1, "category": "人文学科", "bound_souls": ["herodotus"] },
+        { "id": "BS_ART", "name": "艺术学", "level": 1, "category": "人文学科", "bound_souls": ["beethoven","monet","vangogh"] }
+      ]
+    },
+    "2_tech_sciences": {
+      "nodes": [
+        { "id": "TS_COMP", "name": "计算机科学", "level": 2, "bound_souls": ["cezanne"] },
+        { "id": "TS_ELEC", "name": "电子科学", "level": 2, "bound_souls": ["davinci","einstein"] },
+        { "id": "TS_MECH", "name": "机械工程", "level": 2, "bound_souls": ["davinci"] },
+        { "id": "TS_MAT", "name": "材料科学", "level": 2, "bound_souls": ["einstein"] },
+        { "id": "TS_BME", "name": "生物医学工程", "level": 2, "bound_souls": ["darwin"] },
+        { "id": "TS_CIVIL", "name": "土木工程", "level": 2, "bound_souls": ["davinci"] },
+        { "id": "TS_ENERGY", "name": "能源科学", "level": 2, "bound_souls": ["einstein"] },
+        { "id": "TS_ENV", "name": "环境科学", "level": 2, "bound_souls": ["humboldt"] },
+        { "id": "TS_AERO", "name": "航空航天", "level": 2, "bound_souls": ["galileo"] },
+        { "id": "TS_AGRI", "name": "农业工程", "level": 2, "bound_souls": ["yuanlongping"] },
+        { "id": "TS_ACOUST", "name": "声学音频", "level": 2, "bound_souls": ["beethoven"] }
+      ]
+    },
+    "3_industry_categories": {
+      "nodes": [
+        { "id": "IC_A", "name": "农林牧渔", "level": 3, "type": "经济", "bound_souls": ["yuanlongping"] },
+        { "id": "IC_B", "name": "采矿业", "level": 3, "type": "经济", "bound_souls": ["humboldt"] },
+        { "id": "IC_C", "name": "制造业", "level": 3, "type": "经济", "bound_souls": ["davinci","einstein","cezanne"] },
+        { "id": "IC_D", "name": "电力热力", "level": 3, "type": "经济", "bound_souls": ["einstein"] },
+        { "id": "IC_E", "name": "建筑业", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+        { "id": "IC_F", "name": "批发零售", "level": 3, "type": "经济", "bound_souls": ["strategy"] },
+        { "id": "IC_G", "name": "交通运输", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+        { "id": "IC_H", "name": "住宿餐饮", "level": 3, "type": "经济", "bound_souls": ["yuanlongping"] },
+        { "id": "IC_I", "name": "信息技术", "level": 3, "type": "经济", "bound_souls": ["cezanne"] },
+        { "id": "IC_J", "name": "金融业", "level": 3, "type": "经济", "bound_souls": ["strategy"] },
+        { "id": "IC_K", "name": "房地产", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+        { "id": "IC_L", "name": "商务服务", "level": 3, "type": "经济", "bound_souls": ["strategy"] },
+        { "id": "IC_M", "name": "科研技术", "level": 3, "type": "经济", "bound_souls": ["einstein","darwin"] },
+        { "id": "IC_N", "name": "水利环境", "level": 3, "type": "经济", "bound_souls": ["humboldt"] },
+        { "id": "IC_O", "name": "居民服务", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+        { "id": "IC_P", "name": "教育", "level": 3, "type": "经济", "bound_souls": ["monet","herodotus"] },
+        { "id": "IC_Q", "name": "卫生社工", "level": 3, "type": "经济", "bound_souls": ["darwin","guizhu"] },
+        { "id": "IC_R", "name": "文化娱乐", "level": 3, "type": "经济", "bound_souls": ["beethoven","monet","vangogh"] },
+        { "id": "IC_S", "name": "公共管理", "level": 3, "type": "经济", "bound_souls": ["montesquieu"] },
+        { "id": "IC_T", "name": "国际组织", "level": 3, "type": "经济", "bound_souls": ["montesquieu"] },
+        { "id": "IC_GOV", "name": "政府机构", "level": 3, "type": "非经济", "bound_souls": ["montesquieu"] },
+        { "id": "IC_PUB", "name": "事业单位", "level": 3, "type": "非经济", "bound_souls": ["herodotus","darwin"] },
+        { "id": "IC_NPO", "name": "非营利组织", "level": 3, "type": "非经济", "bound_souls": ["guizhu"] }
+      ]
+    },
+    "4_specific_industries": {
+      "nodes": [
+        { "id": "SI_SEMICON", "name": "半导体", "level": 4, "soul_mapping": "einstein" },
+        { "id": "SI_POWER", "name": "电源电力", "level": 4, "soul_mapping": "einstein" },
+        { "id": "SI_NEWENERGY", "name": "新能源", "level": 4, "soul_mapping": "einstein" },
+        { "id": "SI_PCB", "name": "PCB设计", "level": 4, "soul_mapping": "davinci" },
+        { "id": "SI_MOTOR", "name": "电机控制", "level": 4, "soul_mapping": "davinci" },
+        { "id": "SI_AUTO", "name": "自动驾驶", "level": 4, "soul_mapping": "davinci" },
+        { "id": "SI_ROBOT", "name": "机器人", "level": 4, "soul_mapping": "davinci" },
+        { "id": "SI_ARCH", "name": "建筑BIM", "level": 4, "soul_mapping": "davinci" },
+        { "id": "SI_EMBED", "name": "嵌入式", "level": 4, "soul_mapping": "cezanne" },
+        { "id": "SI_IOT", "name": "物联网", "level": 4, "soul_mapping": "cezanne" },
+        { "id": "SI_AUDIO", "name": "音频声学", "level": 4, "soul_mapping": "beethoven" },
+        { "id": "SI_MUSIC_PROD", "name": "音乐制作", "level": 4, "soul_mapping": "beethoven" },
+        { "id": "SI_VISION", "name": "计算机视觉", "level": 4, "soul_mapping": "vangogh" },
+        { "id": "SI_ARTTHER", "name": "艺术疗愈", "level": 4, "soul_mapping": "vangogh" },
+        { "id": "SI_NLP", "name": "NLP", "level": 4, "soul_mapping": "guizhu" },
+        { "id": "SI_CONSULT", "name": "心理咨询", "level": 4, "soul_mapping": "guizhu" },
+        { "id": "SI_FINTECH", "name": "金融科技", "level": 4, "soul_mapping": "strategy" },
+        { "id": "SI_STRATEGY", "name": "战略咨询", "level": 4, "soul_mapping": "strategy" },
+        { "id": "SI_EDU", "name": "AI教育", "level": 4, "soul_mapping": "monet" },
+        { "id": "SI_DESIGN", "name": "创意设计", "level": 4, "soul_mapping": "monet" },
+        { "id": "SI_AERO", "name": "航天工程", "level": 4, "soul_mapping": "galileo" },
+        { "id": "SI_SATCOM", "name": "卫星通信", "level": 4, "soul_mapping": "galileo" },
+        { "id": "SI_MEDDEV", "name": "医疗器械", "level": 4, "soul_mapping": "darwin" },
+        { "id": "SI_BIOPHARM", "name": "生物制药", "level": 4, "soul_mapping": "darwin" },
+        { "id": "SI_ENVPROT", "name": "环保碳中和", "level": 4, "soul_mapping": "humboldt" },
+        { "id": "SI_METEO", "name": "气象预警", "level": 4, "soul_mapping": "humboldt" },
+        { "id": "SI_AGRTECH", "name": "智慧农业", "level": 4, "soul_mapping": "yuanlongping" },
+        { "id": "SI_FOODSAFE", "name": "食品安全", "level": 4, "soul_mapping": "yuanlongping" },
+        { "id": "SI_LEGALTECH", "name": "法律科技", "level": 4, "soul_mapping": "montesquieu" },
+        { "id": "SI_GOVDIG", "name": "数字政府", "level": 4, "soul_mapping": "montesquieu" },
+        { "id": "SI_CULTURE", "name": "文化遗产", "level": 4, "soul_mapping": "herodotus" },
+        { "id": "SI_EDUPUB", "name": "教育出版", "level": 4, "soul_mapping": "herodotus" }
+      ]
+    },
+    "5_soul_mapping": {
+      "nodes": [
+        { "id": "SOUL_EINSTEIN", "name": "爱因斯坦", "level": "soul", "tier": "A", "lora_r": 16, "expert": "物理/数学/化学", "training": "S1✅ S2训练中", "industries": ["SI_SEMICON","SI_POWER","SI_NEWENERGY"] },
+        { "id": "SOUL_CEZANNE", "name": "塞尚", "level": "soul", "tier": "A", "lora_r": 16, "expert": "代码/逻辑", "training": "待训练", "industries": ["SI_EMBED","SI_IOT"] },
+        { "id": "SOUL_GALILEO", "name": "伽利略", "level": "soul", "tier": "A", "lora_r": 16, "expert": "天文/航天", "training": "待训练", "industries": ["SI_AERO","SI_SATCOM"] },
+        { "id": "SOUL_DARWIN", "name": "达尔文", "level": "soul", "tier": "A", "lora_r": 16, "expert": "生命/医学", "training": "待训练", "industries": ["SI_MEDDEV","SI_BIOPHARM"] },
+        { "id": "SOUL_DAVINCI", "name": "达芬奇", "level": "soul", "tier": "B", "lora_r": 16, "expert": "工程/多模态", "training": "待训练", "industries": ["SI_PCB","SI_MOTOR","SI_AUTO","SI_ROBOT","SI_ARCH"] },
+        { "id": "SOUL_STRATEGY", "name": "策略", "level": "soul", "tier": "B", "lora_r": 16, "expert": "博弈/决策", "training": "待训练", "industries": ["SI_FINTECH","SI_STRATEGY"] },
+        { "id": "SOUL_HUMBOLDT", "name": "洪堡", "level": "soul", "tier": "C", "lora_r": 8, "expert": "地球/环保", "training": "待训练", "industries": ["SI_ENVPROT","SI_METEO"] },
+        { "id": "SOUL_YUANLONGPING", "name": "袁隆平", "level": "soul", "tier": "C", "lora_r": 8, "expert": "农业/食品", "training": "待训练", "industries": ["SI_AGRTECH","SI_FOODSAFE"] },
+        { "id": "SOUL_MONTESQUIEU", "name": "孟德斯鸠", "level": "soul", "tier": "C", "lora_r": 8, "expert": "政法/法学", "training": "待训练", "industries": ["SI_LEGALTECH","SI_GOVDIG"] },
+        { "id": "SOUL_GUIZHU", "name": "硅酌居士", "level": "soul", "tier": "D", "lora_r": 8, "expert": "哲学/对话", "training": "待训练", "industries": ["SI_NLP","SI_CONSULT"] },
+        { "id": "SOUL_HERODOTUS", "name": "希罗多德", "level": "soul", "tier": "D", "lora_r": 8, "expert": "历史/文明", "training": "待训练", "industries": ["SI_CULTURE","SI_EDUPUB"] },
+        { "id": "SOUL_BEETHOVEN", "name": "贝多芬", "level": "soul", "tier": "E", "lora_r": 8, "expert": "音乐全栈", "training": "待训练", "industries": ["SI_AUDIO","SI_MUSIC_PROD"] },
+        { "id": "SOUL_MONET", "name": "莫奈", "level": "soul", "tier": "E", "lora_r": 8, "expert": "美学/创意", "training": "待训练", "industries": ["SI_EDU","SI_DESIGN"] },
+        { "id": "SOUL_VANGOGH", "name": "梵高", "level": "soul", "tier": "E", "lora_r": 8, "expert": "情绪/艺术", "training": "待训练", "industries": ["SI_VISION","SI_ARTTHER"] }
+      ]
+    },
+    "6_stores": {
+      "nodes": [
+        { "id": "STORE_ZH", "name": "珠海门店", "level": "store", "city": "珠海", "focus": "跨境贸易/新能源" },
+        { "id": "STORE_SZ", "name": "深圳门店", "level": "store", "city": "深圳", "focus": "工厂自动化/嵌入式" },
+        { "id": "STORE_GZ", "name": "广州门店", "level": "store", "city": "广州", "focus": "音频工程/音乐" },
+        { "id": "STORE_FS", "name": "佛山门店", "level": "store", "city": "佛山", "focus": "餐饮供应链/农业" },
+        { "id": "STORE_DG", "name": "东莞门店", "level": "store", "city": "东莞", "focus": "电子制造/嵌入式" },
+        { "id": "STORE_ZS", "name": "中山门店", "level": "store", "city": "中山", "focus": "灯饰设计/创意" }
+      ]
+    },
+    "7_fed_cloud": {
+      "nodes": [
+        { "id": "FED_CLOUD", "name": "本地优先架构(规划中)", "level": "cloud", "desc": "模型进化·权重管理·云端仅用于更新" }
+      ]
+    }
+  },
+  "edges": [
+    { "source": "TS_COMP", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_COMP", "target": "BS_LOGIC", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_COMP", "target": "BS_INFO", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ELEC", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ELEC", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_MECH", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_MECH", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_MAT", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_MAT", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_MAT", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_BME", "target": "BS_BIO", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_BME", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_BME", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_CIVIL", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_CIVIL", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ENERGY", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ENERGY", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ENV", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ENV", "target": "BS_BIO", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ENV", "target": "BS_EARTH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AERO", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AERO", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AERO", "target": "BS_ASTRO", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AGRI", "target": "BS_BIO", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AGRI", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AGRI", "target": "BS_EARTH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_AGRI", "target": "BS_AGRIC", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ACOUST", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ACOUST", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+    { "source": "TS_ACOUST", "target": "BS_ART", "type": "depend_on", "weight": 0.6 },
+    { "source": "IC_A", "target": "TS_AGRI", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_A", "target": "TS_ENV", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_B", "target": "TS_MECH", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_B", "target": "TS_MAT", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_C", "target": "TS_MECH", "type": "apply_tech", "weight": 0.8 },
+    { "source": "IC_C", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.8 },
+    { "source": "IC_C", "target": "TS_MAT", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_C", "target": "TS_COMP", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_D", "target": "TS_ENERGY", "type": "apply_tech", "weight": 0.8 },
+    { "source": "IC_D", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_E", "target": "TS_CIVIL", "type": "apply_tech", "weight": 0.8 },
+    { "source": "IC_E", "target": "TS_MECH", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_F", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_G", "target": "TS_MECH", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_G", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_H", "target": "TS_AGRI", "type": "apply_tech", "weight": 0.4 },
+    { "source": "IC_I", "target": "TS_COMP", "type": "apply_tech", "weight": 0.9 },
+    { "source": "IC_I", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_J", "target": "TS_COMP", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_K", "target": "TS_CIVIL", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_L", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_M", "target": "TS_COMP", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_M", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_M", "target": "TS_BME", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_M", "target": "TS_MAT", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_N", "target": "TS_ENV", "type": "apply_tech", "weight": 0.8 },
+    { "source": "IC_N", "target": "TS_CIVIL", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_O", "target": "TS_MECH", "type": "apply_tech", "weight": 0.4 },
+    { "source": "IC_O", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.4 },
+    { "source": "IC_P", "target": "TS_COMP", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_Q", "target": "TS_BME", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_R", "target": "TS_COMP", "type": "apply_tech", "weight": 0.6 },
+    { "source": "IC_R", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_R", "target": "TS_ACOUST", "type": "apply_tech", "weight": 0.7 },
+    { "source": "IC_S", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_T", "target": "TS_COMP", "type": "apply_tech", "weight": 0.4 },
+    { "source": "IC_GOV", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+    { "source": "IC_PUB", "target": "TS_BME", "type": "apply_tech", "weight": 0.4 },
+    { "source": "IC_PUB", "target": "TS_COMP", "type": "apply_tech", "weight": 0.4 },
+    { "source": "IC_NPO", "target": "TS_COMP", "type": "apply_tech", "weight": 0.3 },
+    { "source": "SI_SEMICON", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_POWER", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_POWER", "target": "IC_D", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_NEWENERGY", "target": "IC_D", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_PCB", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_MOTOR", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_AUTO", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_ROBOT", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_ARCH", "target": "IC_E", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_EMBED", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_EMBED", "target": "IC_I", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_IOT", "target": "IC_I", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_AUDIO", "target": "IC_R", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_MUSIC_PROD", "target": "IC_R", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_VISION", "target": "IC_I", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_ARTTHER", "target": "IC_Q", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_ARTTHER", "target": "IC_R", "type": "belongs_to", "weight": 0.6 },
+    { "source": "SI_NLP", "target": "IC_I", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_CONSULT", "target": "IC_Q", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_FINTECH", "target": "IC_J", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_STRATEGY", "target": "IC_L", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_EDU", "target": "IC_P", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_DESIGN", "target": "IC_R", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_AERO", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_SATCOM", "target": "IC_I", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_MEDDEV", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_MEDDEV", "target": "IC_Q", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_BIOPHARM", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_BIOPHARM", "target": "IC_M", "type": "belongs_to", "weight": 0.7 },
+    { "source": "SI_ENVPROT", "target": "IC_N", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_METEO", "target": "IC_N", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_AGRTECH", "target": "IC_A", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_FOODSAFE", "target": "IC_A", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_LEGALTECH", "target": "IC_S", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_GOVDIG", "target": "IC_S", "type": "belongs_to", "weight": 0.9 },
+    { "source": "SI_CULTURE", "target": "IC_R", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SI_EDUPUB", "target": "IC_P", "type": "belongs_to", "weight": 0.8 },
+    { "source": "SOUL_EINSTEIN", "target": "BS_PHYS", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_EINSTEIN", "target": "BS_CHEM", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_EINSTEIN", "target": "BS_MATH", "type": "soul_science", "weight": 0.6 },
+    { "source": "SOUL_CEZANNE", "target": "BS_MATH", "type": "soul_science", "weight": 0.8 },
+    { "source": "SOUL_CEZANNE", "target": "BS_LOGIC", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_CEZANNE", "target": "BS_INFO", "type": "soul_science", "weight": 0.8 },
+    { "source": "SOUL_GALILEO", "target": "BS_ASTRO", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_GALILEO", "target": "BS_PHYS", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_DARWIN", "target": "BS_BIO", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_DARWIN", "target": "BS_CHEM", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_DAVINCI", "target": "BS_PHYS", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_DAVINCI", "target": "BS_MATH", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_STRATEGY", "target": "BS_MATH", "type": "soul_science", "weight": 0.8 },
+    { "source": "SOUL_STRATEGY", "target": "BS_PSYCH", "type": "soul_science", "weight": 0.6 },
+    { "source": "SOUL_HUMBOLDT", "target": "BS_EARTH", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_HUMBOLDT", "target": "BS_CHEM", "type": "soul_science", "weight": 0.6 },
+    { "source": "SOUL_YUANLONGPING", "target": "BS_AGRIC", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_YUANLONGPING", "target": "BS_BIO", "type": "soul_science", "weight": 0.6 },
+    { "source": "SOUL_MONTESQUIEU", "target": "BS_LAW", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_MONTESQUIEU", "target": "BS_LOGIC", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_GUIZHU", "target": "BS_PSYCH", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_GUIZHU", "target": "BS_COGN", "type": "soul_science", "weight": 0.8 },
+    { "source": "SOUL_HERODOTUS", "target": "BS_HIST", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_HERODOTUS", "target": "BS_COGN", "type": "soul_science", "weight": 0.5 },
+    { "source": "SOUL_BEETHOVEN", "target": "BS_ART", "type": "soul_science", "weight": 0.9 },
+    { "source": "SOUL_BEETHOVEN", "target": "BS_PHYS", "type": "soul_science", "weight": 0.6 },
+    { "source": "SOUL_MONET", "target": "BS_ART", "type": "soul_science", "weight": 0.8 },
+    { "source": "SOUL_MONET", "target": "BS_COGN", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_VANGOGH", "target": "BS_ART", "type": "soul_science", "weight": 0.8 },
+    { "source": "SOUL_VANGOGH", "target": "BS_PSYCH", "type": "soul_science", "weight": 0.7 },
+    { "source": "SOUL_EINSTEIN", "target": "SI_SEMICON", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_EINSTEIN", "target": "SI_POWER", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_EINSTEIN", "target": "SI_NEWENERGY", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DAVINCI", "target": "SI_PCB", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DAVINCI", "target": "SI_MOTOR", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DAVINCI", "target": "SI_AUTO", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DAVINCI", "target": "SI_ROBOT", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DAVINCI", "target": "SI_ARCH", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_CEZANNE", "target": "SI_EMBED", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_CEZANNE", "target": "SI_IOT", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_BEETHOVEN", "target": "SI_AUDIO", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_BEETHOVEN", "target": "SI_MUSIC_PROD", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_VANGOGH", "target": "SI_VISION", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_VANGOGH", "target": "SI_ARTTHER", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_GUIZHU", "target": "SI_NLP", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_GUIZHU", "target": "SI_CONSULT", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_STRATEGY", "target": "SI_FINTECH", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_STRATEGY", "target": "SI_STRATEGY", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_MONET", "target": "SI_EDU", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_MONET", "target": "SI_DESIGN", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_GALILEO", "target": "SI_AERO", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_GALILEO", "target": "SI_SATCOM", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DARWIN", "target": "SI_MEDDEV", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_DARWIN", "target": "SI_BIOPHARM", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_HUMBOLDT", "target": "SI_ENVPROT", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_HUMBOLDT", "target": "SI_METEO", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_YUANLONGPING", "target": "SI_AGRTECH", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_YUANLONGPING", "target": "SI_FOODSAFE", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_MONTESQUIEU", "target": "SI_LEGALTECH", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_MONTESQUIEU", "target": "SI_GOVDIG", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_HERODOTUS", "target": "SI_CULTURE", "type": "soul_bind", "weight": 1.0 },
+    { "source": "SOUL_HERODOTUS", "target": "SI_EDUPUB", "type": "soul_bind", "weight": 1.0 },
+    { "source": "STORE_ZH", "target": "SOUL_EINSTEIN", "type": "data_flow", "weight": 0.9 },
+    { "source": "STORE_SZ", "target": "SOUL_DAVINCI", "type": "data_flow", "weight": 0.9 },
+    { "source": "STORE_SZ", "target": "SOUL_CEZANNE", "type": "data_flow", "weight": 0.8 },
+    { "source": "STORE_GZ", "target": "SOUL_BEETHOVEN", "type": "data_flow", "weight": 0.9 },
+    { "source": "STORE_FS", "target": "SOUL_YUANLONGPING", "type": "data_flow", "weight": 0.8 },
+    { "source": "STORE_DG", "target": "SOUL_CEZANNE", "type": "data_flow", "weight": 0.7 },
+    { "source": "STORE_ZS", "target": "SOUL_MONET", "type": "data_flow", "weight": 0.7 },
+    { "source": "STORE_ZH", "target": "FED_CLOUD", "type": "upload", "weight": 0.8 },
+    { "source": "STORE_SZ", "target": "FED_CLOUD", "type": "upload", "weight": 0.8 },
+    { "source": "STORE_GZ", "target": "FED_CLOUD", "type": "upload", "weight": 0.8 },
+    { "source": "STORE_FS", "target": "FED_CLOUD", "type": "upload", "weight": 0.8 },
+    { "source": "STORE_DG", "target": "FED_CLOUD", "type": "upload", "weight": 0.8 },
+    { "source": "STORE_ZS", "target": "FED_CLOUD", "type": "upload", "weight": 0.8 },
+    { "source": "FED_CLOUD", "target": "SOUL_EINSTEIN", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_CEZANNE", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_GALILEO", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_DARWIN", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_DAVINCI", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_STRATEGY", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_BEETHOVEN", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_GUIZHU", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_HUMBOLDT", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_YUANLONGPING", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_MONTESQUIEU", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_HERODOTUS", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_MONET", "type": "evolve", "weight": 0.9 },
+    { "source": "FED_CLOUD", "target": "SOUL_VANGOGH", "type": "evolve", "weight": 0.9 },
+    { "source": "SOUL_EINSTEIN", "target": "STORE_ZH", "type": "empower", "weight": 1.0 },
+    { "source": "SOUL_DAVINCI", "target": "STORE_SZ", "type": "empower", "weight": 1.0 },
+    { "source": "SOUL_CEZANNE", "target": "STORE_SZ", "type": "empower", "weight": 1.0 },
+    { "source": "SOUL_BEETHOVEN", "target": "STORE_GZ", "type": "empower", "weight": 1.0 },
+    { "source": "SOUL_YUANLONGPING", "target": "STORE_FS", "type": "empower", "weight": 1.0 },
+    { "source": "SOUL_MONET", "target": "STORE_ZS", "type": "empower", "weight": 1.0 }
+  ]
+};
+
+const LAYER_COLORS = { "1": "#ff6b6b", "2": "#4ecdc4", "3": "#45b7d1", "4": "#feca57", "soul": "#ff9ff3", "store": "#00d2ff", "cloud": "#a855f7" };
+const TIER_COLORS = { "A": "#ff4757", "B": "#ff6348", "C": "#ffa502", "D": "#2ed573", "E": "#1e90ff" };
+const EDGE_COLORS = { "depend_on": "#ff6b6b", "apply_tech": "#4ecdc4", "belongs_to": "#45b7d1", "soul_science": "#dda0dd", "soul_bind": "#ffd700", "data_flow": "#00d2ff", "upload": "#a855f7", "evolve": "#22d3ee", "empower": "#f97316" };
+const LAYER_NAMES = { "1": "基础学科", "2": "技术科学", "3": "行业门类", "4": "具体行业", "soul": "灵魂绑定", "store": "门店终端", "cloud": "本地优先架构(规划中)" };
+const LAYER_ORDER = ["cloud", "store", "soul", "1", "2", "3", "4"];
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let W, H, dpr;
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resize();
+window.addEventListener("resize", resize);
+
+const allNodes = [];
+const nodeMap = {};
+const allEdges = [];
+const nodeDetails = {};
+
+for (const [key, layer] of Object.entries(graphData.layers)) {
+  for (const n of layer.nodes) {
+    if (!nodeMap[n.id]) {
+      const lvl = String(n.level || "soul");
+      let color = LAYER_COLORS[lvl] || "#999";
+      let radius = lvl === "1" ? 22 : lvl === "2" ? 17 : lvl === "3" ? 13 : lvl === "4" ? 9 : lvl === "store" ? 18 : lvl === "cloud" ? 28 : 20;
+      if (lvl === "soul" && n.tier) {
+        color = TIER_COLORS[n.tier] || "#ff9ff3";
+        radius = n.tier === "A" ? 24 : n.tier === "B" ? 20 : 16;
+      }
+      const node = { id: n.id, name: n.name, level: lvl, color, radius, tier: n.tier || null, x: W / 2 + (Math.random() - 0.5) * 200, y: H / 2 + (Math.random() - 0.5) * 200, vx: 0, vy: 0 };
+      allNodes.push(node);
+      nodeMap[n.id] = node;
+      nodeDetails[n.id] = n;
+    }
+  }
+}
+
+for (const e of graphData.edges) {
+  if (nodeMap[e.source] && nodeMap[e.target]) {
+    allEdges.push({ source: nodeMap[e.source], target: nodeMap[e.target], type: e.type, weight: e.weight });
+  }
+}
+
+const stars = [];
+for (let i = 0; i < 300; i++) {
+  stars.push({ x: Math.random() * 4000 - 2000, y: Math.random() * 4000 - 2000, r: Math.random() * 1.5 + 0.3, a: Math.random() * 0.6 + 0.1, speed: Math.random() * 0.0005 + 0.0002 });
+}
+
+const flowParticles = [];
+allEdges.filter(e => e.type === "soul_bind").forEach(e => {
+  for (let i = 0; i < 3; i++) {
+    flowParticles.push({ edge: e, t: Math.random(), speed: 0.003 + Math.random() * 0.004, size: 2 + Math.random() * 2, color: "#ffd700" });
+  }
+});
+allEdges.filter(e => e.type === "upload").forEach(e => {
+  for (let i = 0; i < 2; i++) {
+    flowParticles.push({ edge: e, t: Math.random(), speed: 0.002 + Math.random() * 0.003, size: 1.5 + Math.random() * 1.5, color: "#a855f7" });
+  }
+});
+allEdges.filter(e => e.type === "evolve").forEach(e => {
+  flowParticles.push({ edge: e, t: Math.random(), speed: 0.002 + Math.random() * 0.003, size: 1.5 + Math.random() * 1.5, color: "#22d3ee" });
+});
+allEdges.filter(e => e.type === "empower").forEach(e => {
+  flowParticles.push({ edge: e, t: Math.random(), speed: 0.003 + Math.random() * 0.003, size: 2 + Math.random() * 1.5, color: "#f97316" });
+});
+
+const trailParticles = [];
+let mouseX = 0, mouseY = 0, lastMX = 0, lastMY = 0;
+
+const transform = { x: 0, y: 0, k: 1 };
+let focusedNode = null;
+let hoveredNode = null;
+let drillPath = [];
+let animating = false;
+let animProgress = 0;
+let animFrom = { x: 0, y: 0, k: 1 };
+let animTo = { x: 0, y: 0, k: 1 };
+
+let expandedNodes = new Set();
+let expandedEdges = new Set();
+
+function getBaseNodeIds() {
+  const ids = new Set();
+  for (const n of allNodes) {
+    if (n.level === "store" || n.level === "cloud") ids.add(n.id);
+  }
+  return ids;
+}
+
+function getExpandedNodeIds(focusId) {
+  const ids = new Set();
+  const focus = nodeMap[focusId];
+  if (!focus) return ids;
+  ids.add(focusId);
+  if (focus.level === "cloud") {
+    allEdges.forEach(e => {
+      if (e.type === "evolve" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "upload" && e.target.id === focusId) ids.add(e.source.id);
+    });
+  } else if (focus.level === "store") {
+    allEdges.forEach(e => {
+      if (e.type === "data_flow" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "empower" && e.target.id === focusId) ids.add(e.source.id);
+      if (e.type === "upload" && e.source.id === focusId) ids.add(e.target.id);
+    });
+  } else if (focus.level === "soul") {
+    allEdges.forEach(e => {
+      if (e.type === "soul_bind" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "soul_science" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "data_flow" && e.target.id === focusId) ids.add(e.source.id);
+      if (e.type === "evolve" && e.target.id === focusId) ids.add(e.source.id);
+    });
+  } else if (focus.level === "4") {
+    allEdges.forEach(e => {
+      if (e.type === "belongs_to" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "soul_bind" && e.target.id === focusId) ids.add(e.source.id);
+    });
+  } else if (focus.level === "3") {
+    allEdges.forEach(e => {
+      if (e.type === "apply_tech" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "belongs_to" && e.target.id === focusId) ids.add(e.source.id);
+    });
+  } else if (focus.level === "2") {
+    allEdges.forEach(e => {
+      if (e.type === "depend_on" && e.source.id === focusId) ids.add(e.target.id);
+      if (e.type === "apply_tech" && e.target.id === focusId) ids.add(e.source.id);
+    });
+  } else if (focus.level === "1") {
+    allEdges.forEach(e => {
+      if (e.type === "depend_on" && e.target.id === focusId) ids.add(e.source.id);
+    });
+  }
+  return ids;
+}
+
+function rebuildView() {
+  expandedNodes.clear();
+  expandedEdges.clear();
+  const base = getBaseNodeIds();
+  base.forEach(id => expandedNodes.add(id));
+  drillPath.forEach(step => {
+    const exp = getExpandedNodeIds(step.focusId);
+    exp.forEach(id => expandedNodes.add(id));
+  });
+  allEdges.forEach((e, i) => {
+    if (expandedNodes.has(e.source.id) && expandedNodes.has(e.target.id)) expandedEdges.add(i);
+  });
+  if (typeof simulation !== 'undefined') {
+    const visEdges = allEdges.filter((e, i) => expandedEdges.has(i));
+    simulation.force("link", d3.forceLink(visEdges).id(d => d.id).distance(d => {
+      if (d.type === "soul_bind") return 180;
+      if (d.type === "soul_science") return 200;
+      if (d.type === "upload") return 250;
+      if (d.type === "evolve") return 280;
+      if (d.type === "empower") return 260;
+      if (d.type === "data_flow") return 220;
+      return 120;
+    }).strength(0.3));
+    simulation.force("charge", d3.forceManyBody().strength(d => {
+      if (!expandedNodes.has(d.id)) return 0;
+      const lvl = d.level;
+      if (lvl === "cloud") return -1200;
+      if (lvl === "store") return -500;
+      if (lvl === "soul") return -600;
+      if (lvl === "1") return -400;
+      if (lvl === "2") return -300;
+      return -200;
+    }));
+    simulation.force("collision", d3.forceCollide().radius(d => expandedNodes.has(d.id) ? d.radius + 8 : 0));
+    simulation.alpha(0.5).restart();
+  }
+}
+
+const simulation = d3.forceSimulation(allNodes)
+  .force("link", d3.forceLink(allEdges).id(d => d.id).distance(d => {
+    if (d.type === "soul_bind") return 180;
+    if (d.type === "soul_science") return 200;
+    if (d.type === "upload") return 250;
+    if (d.type === "evolve") return 280;
+    if (d.type === "empower") return 260;
+    if (d.type === "data_flow") return 220;
+    return 120;
+  }).strength(0.3))
+  .force("charge", d3.forceManyBody().strength(d => {
+    const lvl = d.level;
+    if (lvl === "cloud") return -1200;
+    if (lvl === "store") return -500;
+    if (lvl === "soul") return -600;
+    if (lvl === "1") return -400;
+    if (lvl === "2") return -300;
+    return -200;
+  }))
+  .force("center", d3.forceCenter(W / 2, H / 2))
+  .force("x", d3.forceX(W / 2).strength(0.02))
+  .force("y", d3.forceY(H / 2).strength(0.02))
+  .force("collision", d3.forceCollide().radius(d => d.radius + 8))
+  .alphaDecay(0.02)
+  .on("tick", () => {});
+
+rebuildView();
+
+const zoom = d3.zoom()
+  .scaleExtent([0.15, 5])
+  .on("zoom", (event) => {
+    if (!animating) {
+      transform.x = event.transform.x;
+      transform.y = event.transform.y;
+      transform.k = event.transform.k;
+    }
+  });
+d3.select(canvas).call(zoom);
+
+function screenToWorld(sx, sy) {
+  return { x: (sx - transform.x) / transform.k, y: (sy - transform.y) / transform.k };
+}
+
+function zoomFitVisible(duration) {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let count = 0;
+  allNodes.forEach(n => {
+    if (!expandedNodes.has(n.id)) return;
+    if (n.x < minX) minX = n.x;
+    if (n.x > maxX) maxX = n.x;
+    if (n.y < minY) minY = n.y;
+    if (n.y > maxY) maxY = n.y;
+    count++;
+  });
+  if (count === 0) return;
+  const pad = 80;
+  const dx = maxX - minX + pad * 2;
+  const dy = maxY - minY + pad * 2;
+  const k = Math.min(W / dx, H / dy, 2);
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const tx = W / 2 - cx * k;
+  const ty = H / 2 - cy * k;
+  d3.select(canvas).transition().duration(duration || 800).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+}
+
+function zoomToNode(node, k) {
+  const scale = k || 1.5;
+  const tx = W / 2 - node.x * scale;
+  const ty = H / 2 - node.y * scale;
+  d3.select(canvas).transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+}
+
+document.getElementById("btn-fit").onclick = () => zoomFitVisible(600);
+document.getElementById("btn-zin").onclick = () => {
+  d3.select(canvas).transition().duration(300).call(zoom.scaleBy, 1.4);
+};
+document.getElementById("btn-zout").onclick = () => {
+  d3.select(canvas).transition().duration(300).call(zoom.scaleBy, 0.7);
+};
+document.getElementById("btn-back").onclick = () => {
+  if (drillPath.length > 0) {
+    const prev = drillPath.pop();
+    focusedNode = null;
+    hideInfoPanel();
+    rebuildView();
+    d3.select(canvas).transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(prev.x, prev.y).scale(prev.k));
+    updateBreadcrumb();
+  } else {
+    zoomFitVisible(600);
+  }
+};
+
+function getConnections(nodeId) {
+  const conns = { in: [], out: [] };
+  allEdges.forEach(e => {
+    if (e.source.id === nodeId) conns.out.push({ node: e.target, type: e.type, weight: e.weight });
+    if (e.target.id === nodeId) conns.in.push({ node: e.source, type: e.type, weight: e.weight });
+  });
+  return conns;
+}
+
+function showInfoPanel(node) {
+  const panel = document.getElementById("info-panel");
+  const content = document.getElementById("panel-content");
+  const detail = nodeDetails[node.id];
+  const conns = getConnections(node.id);
+  const lvl = node.level;
+  const layerName = LAYER_NAMES[lvl] || "未知";
+
+  let html = `<div class="node-name" style="color:${node.color}">${node.name}</div>`;
+  html += `<div class="node-id">${node.id} · ${layerName}</div>`;
+
+  if (node.tier) {
+    const tierBg = { A: "rgba(255,71,87,0.2)", B: "rgba(255,99,72,0.2)", C: "rgba(255,165,2,0.2)", D: "rgba(46,213,115,0.2)", E: "rgba(30,144,255,0.2)" };
+    html += `<span class="node-tier" style="background:${tierBg[node.tier]};color:${TIER_COLORS[node.tier]}">Tier ${node.tier} · r=${detail.lora_r}</span>`;
+  }
+
+  if (lvl === "soul" && detail.expert) {
+    html += `<div class="soul-detail">`;
+    html += `<div class="row"><span class="label">专长</span><span>${detail.expert}</span></div>`;
+    html += `<div class="row"><span class="label">训练</span><span>${detail.training}</span></div>`;
+    html += `<div class="row"><span class="label">绑定行业</span><span>${detail.industries.length}个</span></div>`;
+    html += `</div>`;
+  }
+
+  if (conns.out.length) {
+    html += `<div class="section"><div class="section-title">→ 连出 (${conns.out.length})</div><ul class="conn-list">`;
+    conns.out.forEach(c => {
+      html += `<li data-id="${c.node.id}"><span class="dot" style="background:${EDGE_COLORS[c.type]}"></span>${c.node.name}<span style="color:#555;font-size:10px;margin-left:auto">${c.type}</span></li>`;
+    });
+    html += `</ul></div>`;
+  }
+
+  if (conns.in.length) {
+    html += `<div class="section"><div class="section-title">← 连入 (${conns.in.length})</div><ul class="conn-list">`;
+    conns.in.forEach(c => {
+      html += `<li data-id="${c.node.id}"><span class="dot" style="background:${EDGE_COLORS[c.type]}"></span>${c.node.name}<span style="color:#555;font-size:10px;margin-left:auto">${c.type}</span></li>`;
+    });
+    html += `</ul></div>`;
+  }
+
+  content.innerHTML = html;
+  panel.classList.add("visible");
+
+  content.querySelectorAll("li[data-id]").forEach(li => {
+    li.onclick = () => {
+      const target = nodeMap[li.dataset.id];
+      if (target) {
+        if (!expandedNodes.has(target.id)) {
+          drillPath.push({ focusId: target.id, name: target.name, x: transform.x, y: transform.y, k: transform.k });
+          rebuildView();
+          zoomFitVisible(600);
+        }
+        focusedNode = target;
+        zoomToNode(target, 1.8);
+        showInfoPanel(target);
+        updateBreadcrumb();
+      }
+    };
+  });
+}
+
+function hideInfoPanel() {
+  document.getElementById("info-panel").classList.remove("visible");
+}
+
+document.getElementById("panel-close").onclick = hideInfoPanel;
+
+function updateBreadcrumb() {
+  const bc = document.getElementById("breadcrumb");
+  let html = `<span onclick="drillPath=[];focusedNode=null;hideInfoPanel();rebuildView();zoomFitVisible(600);updateBreadcrumb()">🏠 全景</span>`;
+  drillPath.forEach((item, i) => {
+    const isLast = i === drillPath.length - 1 && !focusedNode;
+    html += `<span class="sep">›</span><span${isLast ? ' class="active"' : ''} onclick="drillPath.splice(${i + 1});focusedNode=null;hideInfoPanel();rebuildView();zoomFitVisible(600);updateBreadcrumb()">${item.name}</span>`;
+  });
+  if (focusedNode) {
+    html += `<span class="sep">›</span><span class="active">${focusedNode.name}</span>`;
+  }
+  bc.innerHTML = html;
+}
+
+const soulTabData = graphData.layers["5_soul_mapping"].nodes;
+const soulTabsEl = document.getElementById("soul-tabs");
+soulTabData.forEach(s => {
+  const tab = document.createElement("div");
+  tab.className = "soul-tab";
+  tab.style.color = TIER_COLORS[s.tier];
+  tab.textContent = s.name.substring(0, 2);
+  tab.title = s.name + " (" + s.tier + ")";
+  tab.onclick = () => {
+    const node = nodeMap[s.id];
+    if (node) {
+      document.querySelectorAll(".soul-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      if (!expandedNodes.has(node.id)) {
+        drillPath.push({ focusId: s.id, name: node.name, x: transform.x, y: transform.y, k: transform.k });
+        rebuildView();
+        zoomFitVisible(600);
+      }
+      focusedNode = node;
+      zoomToNode(node, 1.8);
+      showInfoPanel(node);
+      updateBreadcrumb();
+    }
+  };
+  soulTabsEl.appendChild(tab);
+});
+
+function updateStats() {
+  const el = document.getElementById("stats");
+  el.textContent = `${expandedNodes.size}/${allNodes.length}节点 · ${expandedEdges.size}/${allEdges.length}边 · ${(transform.k * 100).toFixed(0)}%`;
+}
+
+function findNodeAt(wx, wy) {
+  for (let i = allNodes.length - 1; i >= 0; i--) {
+    const n = allNodes[i];
+    if (!expandedNodes.has(n.id)) continue;
+    const dx = n.x - wx;
+    const dy = n.y - wy;
+    const r = n.radius + 4;
+    if (dx * dx + dy * dy < r * r) return n;
+  }
+  return null;
+}
+
+const tooltip = document.getElementById("tooltip");
+canvas.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  const wp = screenToWorld(e.clientX, e.clientY);
+  const node = findNodeAt(wp.x, wp.y);
+  if (node && node !== hoveredNode) {
+    hoveredNode = node;
+    canvas.style.cursor = "pointer";
+    const detail = nodeDetails[node.id];
+    tooltip.innerHTML = `<strong style="color:${node.color}">${node.name}</strong><br><span style="color:#888">${LAYER_NAMES[node.level]}${node.tier ? " · Tier " + node.tier : ""}</span>`;
+    tooltip.classList.add("visible");
+  } else if (!node && hoveredNode) {
+    hoveredNode = null;
+    canvas.style.cursor = "grab";
+    tooltip.classList.remove("visible");
+  }
+  if (hoveredNode) {
+    tooltip.style.left = (e.clientX + 14) + "px";
+    tooltip.style.top = (e.clientY - 10) + "px";
+  }
+  const dx = mouseX - lastMX;
+  const dy = mouseY - lastMY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) {
+    trailParticles.push({ x: mouseX, y: mouseY, life: 1, size: 2 + Math.random() * 2 });
+    lastMX = mouseX;
+    lastMY = mouseY;
+  }
+});
+
+canvas.addEventListener("click", (e) => {
+  const wp = screenToWorld(e.clientX, e.clientY);
+  const node = findNodeAt(wp.x, wp.y);
+  if (node) {
+    const exp = getExpandedNodeIds(node.id);
+    const hasNew = [...exp].some(id => !expandedNodes.has(id));
+    if (hasNew) {
+      drillPath.push({ focusId: node.id, name: node.name, x: transform.x, y: transform.y, k: transform.k });
+      focusedNode = node;
+      rebuildView();
+      zoomFitVisible(600);
+      showInfoPanel(node);
+      updateBreadcrumb();
+    } else {
+      focusedNode = node;
+      zoomToNode(node, 1.8);
+      showInfoPanel(node);
+      updateBreadcrumb();
+    }
+  }
+});
+
+canvas.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    const wp = screenToWorld(t.clientX, t.clientY);
+    const node = findNodeAt(wp.x, wp.y);
+    if (node) {
+      const exp = getExpandedNodeIds(node.id);
+      const hasNew = [...exp].some(id => !expandedNodes.has(id));
+      if (hasNew) {
+        drillPath.push({ focusId: node.id, name: node.name, x: transform.x, y: transform.y, k: transform.k });
+        focusedNode = node;
+        rebuildView();
+        zoomFitVisible(600);
+        showInfoPanel(node);
+        updateBreadcrumb();
+      } else {
+        focusedNode = node;
+        zoomToNode(node, 1.8);
+        showInfoPanel(node);
+        updateBreadcrumb();
+      }
+    }
+  }
+}, { passive: true });
+
+let time = 0;
+
+function draw() {
+  time += 0.016;
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.translate(transform.x, transform.y);
+  ctx.scale(transform.k, transform.k);
+
+  ctx.fillStyle = "rgba(200,220,255,0.15)";
+  stars.forEach(s => {
+    const a = s.a * (0.5 + 0.5 * Math.sin(time * 2 + s.x));
+    ctx.globalAlpha = a;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  allEdges.forEach((e, i) => {
+    if (!expandedEdges.has(i)) return;
+    const sx = e.source.x, sy = e.source.y;
+    const tx = e.target.x, ty = e.target.y;
+    const isHighlight = hoveredNode && (e.source === hoveredNode || e.target === hoveredNode);
+    const isFocusHighlight = focusedNode && (e.source === focusedNode || e.target === focusedNode);
+    const alpha = isHighlight ? 0.7 : isFocusHighlight ? 0.5 : 0.15;
+    const lw = isHighlight ? 2 : isFocusHighlight ? 1.5 : 0.8;
+    const color = EDGE_COLORS[e.type];
+
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(tx, ty);
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = lw / transform.k;
+
+    if (e.type === "soul_science") {
+      ctx.setLineDash([6, 4]);
+    } else {
+      ctx.setLineDash([]);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+  ctx.globalAlpha = 1;
+
+  flowParticles.forEach(p => {
+    if (!expandedNodes.has(p.edge.source.id) || !expandedNodes.has(p.edge.target.id)) return;
+    p.t += p.speed;
+    if (p.t > 1) p.t -= 1;
+    const e = p.edge;
+    const x = e.source.x + (e.target.x - e.source.x) * p.t;
+    const y = e.source.y + (e.target.y - e.source.y) * p.t;
+    const c = p.color || "#ffd700";
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, p.size * 3);
+    glow.addColorStop(0, c + "cc");
+    glow.addColorStop(0.5, c + "33");
+    glow.addColorStop(1, c + "00");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, p.size * 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.arc(x, y, p.size * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  allNodes.forEach(n => {
+    if (!expandedNodes.has(n.id)) return;
+    const isHovered = n === hoveredNode;
+    const isFocused = n === focusedNode;
+    const isConnected = hoveredNode && allEdges.some(e => (e.source === hoveredNode && e.target === n) || (e.target === hoveredNode && e.source === n));
+    const dimmed = hoveredNode && !isHovered && !isConnected;
+
+    let r = n.radius;
+    if (isHovered) r *= 1.3;
+    if (isFocused) r *= 1.2;
+
+    if (isFocused || isHovered) {
+      const glow = ctx.createRadialGradient(n.x, n.y, r * 0.5, n.x, n.y, r * 3);
+      glow.addColorStop(0, n.color + "40");
+      glow.addColorStop(1, n.color + "00");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = dimmed ? 0.2 : 1;
+    ctx.fillStyle = n.color;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (n.level === "soul") {
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    if (n.level === "cloud") {
+      ctx.strokeStyle = "rgba(168,85,247,0.5)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r + 6, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(168,85,247,0.15)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    if (n.level === "store") {
+      ctx.strokeStyle = "rgba(0,210,255,0.4)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    const showLabel = transform.k > 0.3 || isHovered || isFocused || (n.level === "soul" && transform.k > 0.2) || (n.level === "store" && transform.k > 0.2) || n.level === "cloud";
+    if (showLabel) {
+      ctx.globalAlpha = dimmed ? 0.15 : (isHovered || isFocused ? 1 : 0.85);
+      ctx.fillStyle = "#fff";
+      ctx.font = `${isHovered || isFocused ? "bold " : ""}${Math.max(10, 12 / Math.sqrt(transform.k))}px "Segoe UI",system-ui,sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(n.name, n.x, n.y + r + 4);
+    }
+    ctx.globalAlpha = 1;
+  });
+
+  ctx.restore();
+
+  trailParticles.forEach((p, i) => {
+    p.life -= 0.03;
+    if (p.life <= 0) { trailParticles.splice(i, 1); return; }
+    ctx.globalAlpha = p.life * 0.4;
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  if (trailParticles.length > 50) trailParticles.splice(0, trailParticles.length - 50);
+
+  updateStats();
+  requestAnimationFrame(draw);
+}
+
+setTimeout(() => zoomFitVisible(1200), 1500);
+setTimeout(() => { const h = document.getElementById("drill-hint"); if (h) h.style.opacity = "0"; }, 6000);
+setTimeout(() => { const h = document.getElementById("drill-hint"); if (h) h.remove(); }, 7000);
+draw();
+</script>
+</body>
+</html>

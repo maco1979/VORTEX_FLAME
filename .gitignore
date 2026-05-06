@@ -1,0 +1,16 @@
+E*/
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+*.onnx
+hf_cache/
+node_modules/
+__pycache__/
+*.pyc
+.gitnexus/
+soul_lora_v2/
+cezanne_retrain/logs/
+cezanne_retrain/selfplay_data/
+cezanne_retrain/checkpoints/

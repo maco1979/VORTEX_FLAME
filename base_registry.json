@@ -1,0 +1,92 @@
+{
+  "version": "2.0",
+  "description": "VORTEX FLAME Base Model Registry - 7B/8B Separated",
+  "updated": "2026-05-03",
+  "bases": {
+    "7b": {
+      "model_id": "Mistral-7B-Instruct-v0.1",
+      "path": "E:\\models\\Mistral-7B-Instruct-v0.1-Cezanne",
+      "params": "7.24B",
+      "layers": 32,
+      "ctx": 32768,
+      "architecture": "MistralForCausalLM",
+      "quant": "4bit NF4",
+      "vram_inference": "4.2GB",
+      "vram_training": "8.5GB",
+      "gpu": "RTX 3060 12GB",
+      "strength": "fast inference, low VRAM, stable training",
+      "limitation": "shorter reasoning chains (3-5 steps), single-layer causal"
+    },
+    "8b": {
+      "model_id": "Ministral-8B-Reasoning-Text-34L",
+      "path": "D:\\models\\Ministral-8B-Reasoning-Text-34L-ctx1024",
+      "original_path": "D:\\models\\Ministral-8B-Instruct-2412",
+      "params": "8.49B",
+      "layers": 34,
+      "ctx": 1024,
+      "architecture": "Mistral3ForConditionalGeneration",
+      "quant": "4bit NF4",
+      "vram_inference": "6.9GB",
+      "vram_training": "7.8GB (seq_len=128, grad_accum=4)",
+      "vram_training_limit": "11.7GB (seq_len=256, grad_accum=8 - DANGER)",
+      "gpu": "RTX 3060 12GB",
+      "strength": "deep reasoning (8-15 steps), multi-layer causal chains, formal proofs",
+      "limitation": "tight VRAM, ctx=1024 only, no vision",
+      "surgery_notes": "vision_tower + multi_modal_projector removed, ctx 262144->1024, layers kept at 34"
+    }
+  },
+  "soul_mapping": {
+    "cezanne": {
+      "base": "7b",
+      "soul_name": "Cezanne",
+      "lora_path": "soul_lora_v2/cezanne",
+      "data_path": "soul_training_data/cezanne",
+      "log_path": "hermes_logs/cezanne",
+      "stages_completed": ["stage1", "stage2"],
+      "strategy": "short_chain"
+    },
+    "cezanne_pro": {
+      "base": "8b",
+      "soul_name": "Cezanne_PRO",
+      "lora_path": "soul_lora_v2/cezanne_8b",
+      "data_path": "soul_training_data/cezanne_8b",
+      "log_path": "hermes_logs/cezanne_8b",
+      "stages_completed": ["stage1"],
+      "stages_in_progress": ["stage2"],
+      "strategy": "long_chain"
+    }
+  },
+  "training_strategy": {
+    "7b_short_chain": {
+      "reasoning_steps": "3-5",
+      "output_format": "direct answer",
+      "logic_depth": "single-layer causal",
+      "counterfactual": "simple hypothesis",
+      "math_proof": "conclusion + brief process",
+      "output_token_target": "100-300"
+    },
+    "8b_long_chain": {
+      "reasoning_steps": "8-15",
+      "output_format": "annotated step-by-step with basis",
+      "logic_depth": "multi-layer nested causal chain",
+      "counterfactual": "complex counterfactual + uncertainty annotation",
+      "math_proof": "complete inductive/deductive proof",
+      "output_token_target": "500-1000"
+    }
+  },
+  "vram_budget_8b": {
+    "total": 12288,
+    "model_4bit": 4800,
+    "lora_adapters": 300,
+    "optimizer_states": 800,
+    "activations_seq128": 1200,
+    "activations_seq256": 2400,
+    "activations_seq512": 4800,
+    "kv_cache_seq128": 140,
+    "kv_cache_seq256": 280,
+    "gradient_checkpointing_savings": "40-50%",
+    "safe_config": {"seq_len": 128, "grad_accum": 4, "batch": 1, "estimated": 7800},
+    "moderate_config": {"seq_len": 256, "grad_accum": 4, "batch": 1, "estimated": 10200},
+    "danger_config": {"seq_len": 256, "grad_accum": 8, "batch": 1, "estimated": 12100}
+  }
+}

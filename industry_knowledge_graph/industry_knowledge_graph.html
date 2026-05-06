@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>VORTEX FLAME 14灵魂行业知识图谱 v4.1</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #0d1117;
+      font-family: 'Microsoft YaHei', sans-serif;
+    }
+
+    svg {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .node {
+      cursor: pointer;
+    }
+
+    .node circle {
+      stroke-width: 2px;
+      transition: r 0.2s;
+    }
+
+    .node:hover circle {
+      stroke-width: 4px;
+      filter: brightness(1.3);
+    }
+
+    .node text {
+      fill: #c9d1d9;
+      font-size: 10px;
+      pointer-events: none;
+      text-shadow: 0 0 4px #000, 0 0 4px #000;
+    }
+
+    .link {
+      stroke-opacity: 0.3;
+      fill: none;
+    }
+
+    .legend {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(13, 17, 23, 0.95);
+      padding: 12px;
+      border-radius: 8px;
+      color: #c9d1d9;
+      font-size: 12px;
+      border: 1px solid #30363d;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .legend div {
+      margin: 3px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .legend span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(13, 17, 23, 0.95);
+      padding: 12px;
+      border-radius: 8px;
+      color: #c9d1d9;
+      font-size: 12px;
+      border: 1px solid #30363d;
+      max-width: 350px;
+      display: none;
+    }
+
+    .info h3 {
+      margin: 0 0 6px 0;
+      color: #58a6ff;
+      font-size: 14px;
+    }
+
+    .info p {
+      margin: 2px 0;
+    }
+
+    .title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #c9d1d9;
+      font-size: 16px;
+      font-weight: bold;
+      text-shadow: 0 0 5px #000;
+    }
+
+    .title small {
+      font-size: 11px;
+      color: #8b949e;
+      font-weight: normal;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(13, 17, 23, 0.95);
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      font-size: 11px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="title">VORTEX FLAME 灵魂LoRA行业知识图谱 <small>v4.4 | 94节点 163边 5层全连通</small></div>
+  <div class="legend">
+    <div><span style="background:#ff6b6b"></span>基础学科 (14)</div>
+    <div><span style="background:#4ecdc4"></span>技术科学 (11)</div>
+    <div><span style="background:#45b7d1"></span>行业门类 (23)</div>
+    <div><span style="background:#feca57"></span>具体行业 (32)</div>
+    <div><span style="background:#ff9ff3"></span>AI灵魂 (14)</div>
+    <div style="margin-top:8px;font-size:10px;color:#8b949e">
+      <div style="color:#ff6b6b">── 学科依赖</div>
+      <div style="color:#4ecdc4">── 技术应用</div>
+      <div style="color:#45b7d1">── 行业归属</div>
+      <div style="color:#dda0dd">── 灵魂学科</div>
+      <div style="color:#ff9ff3">── 灵魂绑定</div>
+    </div>
+    <div style="margin-top:6px;font-size:10px;color:#8b949e">滚轮缩放 | 拖拽平移 | 点击节点详情</div>
+  </div>
+  <div class="info" id="info"></div>
+  <div class="controls">
+    <button onclick="zoomFit()"
+      style="background:#30363d;color:#c9d1d9;border:1px solid #484f58;padding:4px 8px;border-radius:4px;cursor:pointer">全景</button>
+    <button onclick="zoomIn()"
+      style="background:#30363d;color:#c9d1d9;border:1px solid #484f58;padding:4px 8px;border-radius:4px;cursor:pointer">放大</button>
+    <button onclick="zoomOut()"
+      style="background:#30363d;color:#c9d1d9;border:1px solid #484f58;padding:4px 8px;border-radius:4px;cursor:pointer">缩小</button>
+  </div>
+  <svg id="graph"></svg>
+  <script>
+    const graphData = {
+      "layers": {
+        "1_basic_sciences": {
+          "nodes": [
+            { "id": "BS_MATH", "name": "数学", "level": 1, "category": "自然科学", "bound_souls": ["cezanne", "strategy"] },
+            { "id": "BS_LOGIC", "name": "逻辑学", "level": 1, "category": "形式科学", "bound_souls": ["cezanne", "montesquieu"] },
+            { "id": "BS_PHYS", "name": "物理学", "level": 1, "category": "自然科学", "bound_souls": ["einstein"] },
+            { "id": "BS_CHEM", "name": "化学", "level": 1, "category": "自然科学", "bound_souls": ["einstein", "darwin"] },
+            { "id": "BS_BIO", "name": "生命科学", "level": 1, "category": "自然科学", "bound_souls": ["darwin"] },
+            { "id": "BS_ASTRO", "name": "天文学", "level": 1, "category": "自然科学", "bound_souls": ["galileo"] },
+            { "id": "BS_EARTH", "name": "地球科学", "level": 1, "category": "自然科学", "bound_souls": ["humboldt"] },
+            { "id": "BS_INFO", "name": "信息科学", "level": 1, "category": "形式科学", "bound_souls": ["cezanne", "davinci"] },
+            { "id": "BS_COGN", "name": "认知科学", "level": 1, "category": "交叉科学", "bound_souls": ["guizhu", "monet"] },
+            { "id": "BS_PSYCH", "name": "心理学", "level": 1, "category": "社会科学", "bound_souls": ["guizhu"] },
+            { "id": "BS_AGRIC", "name": "农业科学", "level": 1, "category": "应用科学", "bound_souls": ["yuanlongping"] },
+            { "id": "BS_LAW", "name": "法学", "level": 1, "category": "社会科学", "bound_souls": ["montesquieu"] },
+            { "id": "BS_HIST", "name": "历史学", "level": 1, "category": "人文学科", "bound_souls": ["herodotus"] },
+            { "id": "BS_ART", "name": "艺术学", "level": 1, "category": "人文学科", "bound_souls": ["monet", "vangogh", "beethoven"] }
+          ]
+        },
+        "2_tech_sciences": {
+          "nodes": [
+            { "id": "TS_COMP", "name": "计算机科学", "level": 2, "bound_souls": ["cezanne"] },
+            { "id": "TS_ELEC", "name": "电子科学", "level": 2, "bound_souls": ["davinci", "einstein"] },
+            { "id": "TS_MECH", "name": "机械工程", "level": 2, "bound_souls": ["davinci"] },
+            { "id": "TS_MAT", "name": "材料科学", "level": 2, "bound_souls": ["einstein"] },
+            { "id": "TS_BME", "name": "生物医学工程", "level": 2, "bound_souls": ["darwin"] },
+            { "id": "TS_CIVIL", "name": "土木工程", "level": 2, "bound_souls": ["davinci"] },
+            { "id": "TS_ENERGY", "name": "能源科学", "level": 2, "bound_souls": ["einstein"] },
+            { "id": "TS_ENV", "name": "环境科学", "level": 2, "bound_souls": ["humboldt"] },
+            { "id": "TS_AERO", "name": "航空航天", "level": 2, "bound_souls": ["galileo"] },
+            { "id": "TS_AGRI", "name": "农业工程", "level": 2, "bound_souls": ["yuanlongping"] },
+            { "id": "TS_ACOUST", "name": "声学音频", "level": 2, "bound_souls": ["beethoven"] }
+          ]
+        },
+        "3_industry_categories": {
+          "nodes": [
+            { "id": "IC_A", "name": "农林牧渔", "level": 3, "type": "经济", "bound_souls": ["yuanlongping"] },
+            { "id": "IC_B", "name": "采矿业", "level": 3, "type": "经济", "bound_souls": ["humboldt"] },
+            { "id": "IC_C", "name": "制造业", "level": 3, "type": "经济", "bound_souls": ["davinci", "einstein", "cezanne"] },
+            { "id": "IC_D", "name": "电力热力", "level": 3, "type": "经济", "bound_souls": ["einstein"] },
+            { "id": "IC_E", "name": "建筑业", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+            { "id": "IC_F", "name": "批发零售", "level": 3, "type": "经济", "bound_souls": ["strategy"] },
+            { "id": "IC_G", "name": "交通运输", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+            { "id": "IC_H", "name": "住宿餐饮", "level": 3, "type": "经济", "bound_souls": ["yuanlongping"] },
+            { "id": "IC_I", "name": "信息技术", "level": 3, "type": "经济", "bound_souls": ["cezanne"] },
+            { "id": "IC_J", "name": "金融业", "level": 3, "type": "经济", "bound_souls": ["strategy"] },
+            { "id": "IC_K", "name": "房地产", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+            { "id": "IC_L", "name": "商务服务", "level": 3, "type": "经济", "bound_souls": ["strategy"] },
+            { "id": "IC_M", "name": "科研技术", "level": 3, "type": "经济", "bound_souls": ["einstein", "darwin"] },
+            { "id": "IC_N", "name": "水利环境", "level": 3, "type": "经济", "bound_souls": ["humboldt"] },
+            { "id": "IC_O", "name": "居民服务", "level": 3, "type": "经济", "bound_souls": ["davinci"] },
+            { "id": "IC_P", "name": "教育", "level": 3, "type": "经济", "bound_souls": ["monet", "herodotus"] },
+            { "id": "IC_Q", "name": "卫生社工", "level": 3, "type": "经济", "bound_souls": ["darwin", "guizhu"] },
+            { "id": "IC_R", "name": "文化娱乐", "level": 3, "type": "经济", "bound_souls": ["beethoven", "monet", "vangogh"] },
+            { "id": "IC_S", "name": "公共管理", "level": 3, "type": "经济", "bound_souls": ["montesquieu"] },
+            { "id": "IC_T", "name": "国际组织", "level": 3, "type": "经济", "bound_souls": ["montesquieu"] },
+            { "id": "IC_GOV", "name": "政府机构", "level": 3, "type": "非经济", "bound_souls": ["montesquieu"] },
+            { "id": "IC_PUB", "name": "事业单位", "level": 3, "type": "非经济", "bound_souls": ["herodotus", "darwin"] },
+            { "id": "IC_NPO", "name": "非营利组织", "level": 3, "type": "非经济", "bound_souls": ["guizhu"] }
+          ]
+        },
+        "4_specific_industries": {
+          "nodes": [
+            { "id": "SI_SEMICON", "name": "半导体", "level": 4, "soul_mapping": "einstein" },
+            { "id": "SI_POWER", "name": "电源电力", "level": 4, "soul_mapping": "einstein" },
+            { "id": "SI_NEWENERGY", "name": "新能源", "level": 4, "soul_mapping": "einstein" },
+            { "id": "SI_PCB", "name": "PCB设计", "level": 4, "soul_mapping": "davinci" },
+            { "id": "SI_MOTOR", "name": "电机控制", "level": 4, "soul_mapping": "davinci" },
+            { "id": "SI_AUTO", "name": "自动驾驶", "level": 4, "soul_mapping": "davinci" },
+            { "id": "SI_ROBOT", "name": "机器人", "level": 4, "soul_mapping": "davinci" },
+            { "id": "SI_ARCH", "name": "建筑BIM", "level": 4, "soul_mapping": "davinci" },
+            { "id": "SI_EMBED", "name": "嵌入式", "level": 4, "soul_mapping": "cezanne" },
+            { "id": "SI_IOT", "name": "物联网", "level": 4, "soul_mapping": "cezanne" },
+            { "id": "SI_AUDIO", "name": "音频声学", "level": 4, "soul_mapping": "beethoven" },
+            { "id": "SI_MUSIC_PROD", "name": "音乐制作", "level": 4, "soul_mapping": "beethoven" },
+            { "id": "SI_VISION", "name": "计算机视觉", "level": 4, "soul_mapping": "vangogh" },
+            { "id": "SI_ARTTHER", "name": "艺术疗愈", "level": 4, "soul_mapping": "vangogh" },
+            { "id": "SI_NLP", "name": "NLP", "level": 4, "soul_mapping": "guizhu" },
+            { "id": "SI_CONSULT", "name": "心理咨询", "level": 4, "soul_mapping": "guizhu" },
+            { "id": "SI_FINTECH", "name": "金融科技", "level": 4, "soul_mapping": "strategy" },
+            { "id": "SI_STRATEGY", "name": "战略咨询", "level": 4, "soul_mapping": "strategy" },
+            { "id": "SI_EDU", "name": "AI教育", "level": 4, "soul_mapping": "monet" },
+            { "id": "SI_DESIGN", "name": "创意设计", "level": 4, "soul_mapping": "monet" },
+            { "id": "SI_AERO", "name": "航天工程", "level": 4, "soul_mapping": "galileo" },
+            { "id": "SI_SATCOM", "name": "卫星通信", "level": 4, "soul_mapping": "galileo" },
+            { "id": "SI_MEDDEV", "name": "医疗器械", "level": 4, "soul_mapping": "darwin" },
+            { "id": "SI_BIOPHARM", "name": "生物制药", "level": 4, "soul_mapping": "darwin" },
+            { "id": "SI_ENVPROT", "name": "环保碳中和", "level": 4, "soul_mapping": "humboldt" },
+            { "id": "SI_METEO", "name": "气象预警", "level": 4, "soul_mapping": "humboldt" },
+            { "id": "SI_AGRTECH", "name": "智慧农业", "level": 4, "soul_mapping": "yuanlongping" },
+            { "id": "SI_FOODSAFE", "name": "食品安全", "level": 4, "soul_mapping": "yuanlongping" },
+            { "id": "SI_LEGALTECH", "name": "法律科技", "level": 4, "soul_mapping": "montesquieu" },
+            { "id": "SI_GOVDIG", "name": "数字政府", "level": 4, "soul_mapping": "montesquieu" },
+            { "id": "SI_CULTURE", "name": "文化遗产", "level": 4, "soul_mapping": "herodotus" },
+            { "id": "SI_EDUPUB", "name": "教育出版", "level": 4, "soul_mapping": "herodotus" }
+          ]
+        },
+        "5_soul_mapping": {
+          "nodes": [
+            { "id": "SOUL_EINSTEIN", "name": "爱因斯坦", "level": "soul", "tier": "A", "lora_r": 16, "expert": "物理/数学/化学", "training": "S1✅ S2训练中", "industries": ["SI_SEMICON", "SI_POWER", "SI_NEWENERGY"] },
+            { "id": "SOUL_CEZANNE", "name": "塞尚", "level": "soul", "tier": "A", "lora_r": 16, "expert": "代码/逻辑", "training": "待训练", "industries": ["SI_EMBED", "SI_IOT"] },
+            { "id": "SOUL_GALILEO", "name": "伽利略", "level": "soul", "tier": "A", "lora_r": 16, "expert": "天文/航天", "training": "待训练", "industries": ["SI_AERO", "SI_SATCOM"] },
+            { "id": "SOUL_DARWIN", "name": "达尔文", "level": "soul", "tier": "A", "lora_r": 16, "expert": "生命/医学", "training": "待训练", "industries": ["SI_MEDDEV", "SI_BIOPHARM"] },
+            { "id": "SOUL_DAVINCI", "name": "达芬奇", "level": "soul", "tier": "B", "lora_r": 16, "expert": "工程/多模态", "training": "待训练", "industries": ["SI_PCB", "SI_MOTOR", "SI_AUTO", "SI_ROBOT", "SI_ARCH"] },
+            { "id": "SOUL_STRATEGY", "name": "策略", "level": "soul", "tier": "B", "lora_r": 16, "expert": "博弈/决策", "training": "待训练", "industries": ["SI_FINTECH", "SI_STRATEGY"] },
+            { "id": "SOUL_HUMBOLDT", "name": "洪堡", "level": "soul", "tier": "C", "lora_r": 8, "expert": "地球/环保", "training": "待训练", "industries": ["SI_ENVPROT", "SI_METEO"] },
+            { "id": "SOUL_YUANLONGPING", "name": "袁隆平", "level": "soul", "tier": "C", "lora_r": 8, "expert": "农业/食品", "training": "待训练", "industries": ["SI_AGRTECH", "SI_FOODSAFE"] },
+            { "id": "SOUL_MONTESQUIEU", "name": "孟德斯鸠", "level": "soul", "tier": "C", "lora_r": 8, "expert": "政法/法学", "training": "待训练", "industries": ["SI_LEGALTECH", "SI_GOVDIG"] },
+            { "id": "SOUL_GUIZHU", "name": "硅酌居士", "level": "soul", "tier": "D", "lora_r": 8, "expert": "哲学/对话", "training": "待训练", "industries": ["SI_NLP", "SI_CONSULT"] },
+            { "id": "SOUL_HERODOTUS", "name": "希罗多德", "level": "soul", "tier": "D", "lora_r": 8, "expert": "历史/文明", "training": "待训练", "industries": ["SI_CULTURE", "SI_EDUPUB"] },
+            { "id": "SOUL_BEETHOVEN", "name": "贝多芬", "level": "soul", "tier": "E", "lora_r": 8, "expert": "音乐全栈", "training": "待训练", "industries": ["SI_AUDIO", "SI_MUSIC_PROD"] },
+            { "id": "SOUL_MONET", "name": "莫奈", "level": "soul", "tier": "E", "lora_r": 8, "expert": "美学/创意", "training": "待训练", "industries": ["SI_EDU", "SI_DESIGN"] },
+            { "id": "SOUL_VANGOGH", "name": "梵高", "level": "soul", "tier": "E", "lora_r": 8, "expert": "情绪/艺术", "training": "待训练", "industries": ["SI_VISION", "SI_ARTTHER"] }
+          ]
+        }
+      },
+      "edges": [
+        { "source": "TS_COMP", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_COMP", "target": "BS_LOGIC", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_COMP", "target": "BS_INFO", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ELEC", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ELEC", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_MECH", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_MECH", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_MAT", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_MAT", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_MAT", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_BME", "target": "BS_BIO", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_BME", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_BME", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_CIVIL", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_CIVIL", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ENERGY", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ENERGY", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ENV", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ENV", "target": "BS_BIO", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ENV", "target": "BS_EARTH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AERO", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AERO", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AERO", "target": "BS_ASTRO", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AGRI", "target": "BS_BIO", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AGRI", "target": "BS_CHEM", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AGRI", "target": "BS_EARTH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_AGRI", "target": "BS_AGRIC", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ACOUST", "target": "BS_PHYS", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ACOUST", "target": "BS_MATH", "type": "depend_on", "weight": 0.8 },
+        { "source": "TS_ACOUST", "target": "BS_ART", "type": "depend_on", "weight": 0.6 },
+        { "source": "IC_A", "target": "TS_AGRI", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_A", "target": "TS_ENV", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_B", "target": "TS_MECH", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_B", "target": "TS_MAT", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_C", "target": "TS_MECH", "type": "apply_tech", "weight": 0.8 },
+        { "source": "IC_C", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.8 },
+        { "source": "IC_C", "target": "TS_MAT", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_C", "target": "TS_COMP", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_D", "target": "TS_ENERGY", "type": "apply_tech", "weight": 0.8 },
+        { "source": "IC_D", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_E", "target": "TS_CIVIL", "type": "apply_tech", "weight": 0.8 },
+        { "source": "IC_E", "target": "TS_MECH", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_F", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_G", "target": "TS_MECH", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_G", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_H", "target": "TS_AGRI", "type": "apply_tech", "weight": 0.4 },
+        { "source": "IC_I", "target": "TS_COMP", "type": "apply_tech", "weight": 0.9 },
+        { "source": "IC_I", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_J", "target": "TS_COMP", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_K", "target": "TS_CIVIL", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_L", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_M", "target": "TS_COMP", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_M", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_M", "target": "TS_BME", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_M", "target": "TS_MAT", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_N", "target": "TS_ENV", "type": "apply_tech", "weight": 0.8 },
+        { "source": "IC_N", "target": "TS_CIVIL", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_O", "target": "TS_MECH", "type": "apply_tech", "weight": 0.4 },
+        { "source": "IC_O", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.4 },
+        { "source": "IC_P", "target": "TS_COMP", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_Q", "target": "TS_BME", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_R", "target": "TS_COMP", "type": "apply_tech", "weight": 0.6 },
+        { "source": "IC_R", "target": "TS_ELEC", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_R", "target": "TS_ACOUST", "type": "apply_tech", "weight": 0.7 },
+        { "source": "IC_S", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_T", "target": "TS_COMP", "type": "apply_tech", "weight": 0.4 },
+        { "source": "IC_GOV", "target": "TS_COMP", "type": "apply_tech", "weight": 0.5 },
+        { "source": "IC_PUB", "target": "TS_BME", "type": "apply_tech", "weight": 0.4 },
+        { "source": "IC_PUB", "target": "TS_COMP", "type": "apply_tech", "weight": 0.4 },
+        { "source": "IC_NPO", "target": "TS_COMP", "type": "apply_tech", "weight": 0.3 },
+        { "source": "SI_SEMICON", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_POWER", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_POWER", "target": "IC_D", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_NEWENERGY", "target": "IC_D", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_PCB", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_MOTOR", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_AUTO", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_ROBOT", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_ARCH", "target": "IC_E", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_EMBED", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_EMBED", "target": "IC_I", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_IOT", "target": "IC_I", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_AUDIO", "target": "IC_R", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_MUSIC_PROD", "target": "IC_R", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_VISION", "target": "IC_I", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_ARTTHER", "target": "IC_Q", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_ARTTHER", "target": "IC_R", "type": "belongs_to", "weight": 0.6 },
+        { "source": "SI_NLP", "target": "IC_I", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_CONSULT", "target": "IC_Q", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_FINTECH", "target": "IC_J", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_STRATEGY", "target": "IC_L", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_EDU", "target": "IC_P", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_DESIGN", "target": "IC_R", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_AERO", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_SATCOM", "target": "IC_I", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_MEDDEV", "target": "IC_C", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_MEDDEV", "target": "IC_Q", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_BIOPHARM", "target": "IC_C", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_BIOPHARM", "target": "IC_M", "type": "belongs_to", "weight": 0.7 },
+        { "source": "SI_ENVPROT", "target": "IC_N", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_METEO", "target": "IC_N", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_AGRTECH", "target": "IC_A", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_FOODSAFE", "target": "IC_A", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_LEGALTECH", "target": "IC_S", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_GOVDIG", "target": "IC_S", "type": "belongs_to", "weight": 0.9 },
+        { "source": "SI_CULTURE", "target": "IC_R", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SI_EDUPUB", "target": "IC_P", "type": "belongs_to", "weight": 0.8 },
+        { "source": "SOUL_EINSTEIN", "target": "BS_PHYS", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_EINSTEIN", "target": "BS_CHEM", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_EINSTEIN", "target": "BS_MATH", "type": "soul_science", "weight": 0.6 },
+        { "source": "SOUL_CEZANNE", "target": "BS_MATH", "type": "soul_science", "weight": 0.8 },
+        { "source": "SOUL_CEZANNE", "target": "BS_LOGIC", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_CEZANNE", "target": "BS_INFO", "type": "soul_science", "weight": 0.8 },
+        { "source": "SOUL_GALILEO", "target": "BS_ASTRO", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_GALILEO", "target": "BS_PHYS", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_DARWIN", "target": "BS_BIO", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_DARWIN", "target": "BS_CHEM", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_DAVINCI", "target": "BS_PHYS", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_DAVINCI", "target": "BS_MATH", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_STRATEGY", "target": "BS_MATH", "type": "soul_science", "weight": 0.8 },
+        { "source": "SOUL_STRATEGY", "target": "BS_PSYCH", "type": "soul_science", "weight": 0.6 },
+        { "source": "SOUL_HUMBOLDT", "target": "BS_EARTH", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_HUMBOLDT", "target": "BS_CHEM", "type": "soul_science", "weight": 0.6 },
+        { "source": "SOUL_YUANLONGPING", "target": "BS_AGRIC", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_YUANLONGPING", "target": "BS_BIO", "type": "soul_science", "weight": 0.6 },
+        { "source": "SOUL_MONTESQUIEU", "target": "BS_LAW", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_MONTESQUIEU", "target": "BS_LOGIC", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_GUIZHU", "target": "BS_PSYCH", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_GUIZHU", "target": "BS_COGN", "type": "soul_science", "weight": 0.8 },
+        { "source": "SOUL_HERODOTUS", "target": "BS_HIST", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_HERODOTUS", "target": "BS_COGN", "type": "soul_science", "weight": 0.5 },
+        { "source": "SOUL_BEETHOVEN", "target": "BS_ART", "type": "soul_science", "weight": 0.9 },
+        { "source": "SOUL_BEETHOVEN", "target": "BS_PHYS", "type": "soul_science", "weight": 0.6 },
+        { "source": "SOUL_MONET", "target": "BS_ART", "type": "soul_science", "weight": 0.8 },
+        { "source": "SOUL_MONET", "target": "BS_COGN", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_VANGOGH", "target": "BS_ART", "type": "soul_science", "weight": 0.8 },
+        { "source": "SOUL_VANGOGH", "target": "BS_PSYCH", "type": "soul_science", "weight": 0.7 },
+        { "source": "SOUL_EINSTEIN", "target": "SI_SEMICON", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_EINSTEIN", "target": "SI_POWER", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_EINSTEIN", "target": "SI_NEWENERGY", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DAVINCI", "target": "SI_PCB", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DAVINCI", "target": "SI_MOTOR", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DAVINCI", "target": "SI_AUTO", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DAVINCI", "target": "SI_ROBOT", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DAVINCI", "target": "SI_ARCH", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_CEZANNE", "target": "SI_EMBED", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_CEZANNE", "target": "SI_IOT", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_BEETHOVEN", "target": "SI_AUDIO", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_BEETHOVEN", "target": "SI_MUSIC_PROD", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_VANGOGH", "target": "SI_VISION", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_VANGOGH", "target": "SI_ARTTHER", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_GUIZHU", "target": "SI_NLP", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_GUIZHU", "target": "SI_CONSULT", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_STRATEGY", "target": "SI_FINTECH", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_STRATEGY", "target": "SI_STRATEGY", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_MONET", "target": "SI_EDU", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_MONET", "target": "SI_DESIGN", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_GALILEO", "target": "SI_AERO", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_GALILEO", "target": "SI_SATCOM", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DARWIN", "target": "SI_MEDDEV", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_DARWIN", "target": "SI_BIOPHARM", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_HUMBOLDT", "target": "SI_ENVPROT", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_HUMBOLDT", "target": "SI_METEO", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_YUANLONGPING", "target": "SI_AGRTECH", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_YUANLONGPING", "target": "SI_FOODSAFE", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_MONTESQUIEU", "target": "SI_LEGALTECH", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_MONTESQUIEU", "target": "SI_GOVDIG", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_HERODOTUS", "target": "SI_CULTURE", "type": "soul_bind", "weight": 1.0 },
+        { "source": "SOUL_HERODOTUS", "target": "SI_EDUPUB", "type": "soul_bind", "weight": 1.0 }
+      ]
+    };
+
+    const nodes = [];
+    const nodeSet = new Set();
+    const links = [];
+    const colors = { "1": "#ff6b6b", "2": "#4ecdc4", "3": "#45b7d1", "4": "#feca57", "soul": "#ff9ff3" };
+    const tierColors = { "A": "#ff4757", "B": "#ff6348", "C": "#ffa502", "D": "#2ed573", "E": "#1e90ff" };
+    const nodeDetails = {};
+
+    for (const [key, layer] of Object.entries(graphData.layers)) {
+      for (const n of layer.nodes) {
+        if (!nodeSet.has(n.id)) {
+          nodeSet.add(n.id);
+          const lvl = n.level || "soul";
+          const isNonEcon = n.type === "非经济";
+          let color = isNonEcon ? "#96ceb4" : (colors[lvl] || "#999");
+          let radius = lvl === "1" ? 22 : lvl === "2" ? 17 : lvl === "3" ? 13 : lvl === "4" ? 9 : 20;
+          if (lvl === "soul" && n.tier) {
+            color = tierColors[n.tier] || "#ff9ff3";
+            radius = n.tier === "A" ? 24 : n.tier === "B" ? 20 : 16;
+          }
+          nodes.push({ id: n.id, name: n.name, level: lvl, color, radius, tier: n.tier });
+          nodeDetails[n.id] = n;
+        }
+      }
+    }
+
+    const typeColors = {
+      "depend_on": "#ff6b6b", "apply_tech": "#4ecdc4", "belongs_to": "#45b7d1",
+      "soul_science": "#dda0dd", "soul_bind": "#ff9ff3"
+    };
+
+    for (const e of graphData.edges) {
+      if (nodeSet.has(e.source) && nodeSet.has(e.target)) {
+        links.push({ source: e.source, target: e.target, type: e.type, weight: e.weight, color: typeColors[e.type] || "#666" });
+      }
+    }
+
+    const svg = d3.select("#graph");
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const g = svg.append("g");
+
+    const zoom = d3.zoom().scaleExtent([0.2, 5]).on("zoom", (event) => {
+      g.attr("transform", event.transform);
+    });
+    svg.call(zoom);
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
+        if (d.type === "soul_bind") return 80;
+        if (d.type === "soul_science") return 120;
+        if (d.type === "belongs_to") return 60;
+        if (d.type === "apply_tech") return 80;
+        return 70;
+      }))
+      .force("charge", d3.forceManyBody().strength(-200))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collision", d3.forceCollide().radius(d => d.radius + 8))
+      .force("x", d3.forceX(width / 2).strength(0.03))
+      .force("y", d3.forceY(height / 2).strength(0.03));
+
+    const link = g.append("g").selectAll("line").data(links).join("line")
+      .attr("class", "link").attr("stroke", d => d.color)
+      .attr("stroke-width", d => Math.max(1, d.weight * 2.5));
+
+    const node = g.append("g").selectAll("g").data(nodes).join("g").attr("class", "node")
+      .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+    node.append("circle").attr("r", d => d.radius).attr("fill", d => d.color)
+      .attr("stroke", "#fff").attr("stroke-width", 1.5);
+
+    node.append("text").attr("dy", d => d.radius + 13).attr("text-anchor", "middle")
+      .text(d => d.name).attr("fill", "#c9d1d9").attr("font-size", d => d.level === "soul" ? "11px" : "9px");
+
+    const infoDiv = document.getElementById("info");
+
+    node.on("click", function (event, d) {
+      event.stopPropagation();
+      const detail = nodeDetails[d.id];
+      let html = `<h3>${detail.name}</h3>`;
+      if (detail.tier) {
+        html += `<p>Tier: ${detail.tier} | LoRA r=${detail.lora_r}</p>`;
+        html += `<p>专长: ${detail.expert}</p>`;
+        html += `<p>训练: ${detail.training}</p>`;
+        if (detail.industries) html += `<p>绑定行业: ${detail.industries.length}个</p>`;
+      } else if (detail.level === 1) {
+        html += `<p>类别: ${detail.category}</p>`;
+        if (detail.bound_souls) html += `<p>绑定灵魂: ${detail.bound_souls.join(', ')}</p>`;
+      } else if (detail.level === 4) {
+        html += `<p>灵魂: ${detail.soul_mapping}</p>`;
+      } else if (detail.level === 3) {
+        html += `<p>类型: ${detail.type || '经济'}</p>`;
+        if (detail.bound_souls) html += `<p>绑定灵魂: ${detail.bound_souls.join(', ')}</p>`;
+      } else if (detail.level === 2) {
+        if (detail.bound_souls) html += `<p>绑定灵魂: ${detail.bound_souls.join(', ')}</p>`;
+      }
+      const connected = links.filter(l => l.source.id === d.id || l.target.id === d.id);
+      html += `<p>连接数: ${connected.length}</p>`;
+      infoDiv.innerHTML = html;
+      infoDiv.style.display = "block";
+    });
+
+    svg.on("click", function (event) {
+      if (event.target.tagName === "svg") infoDiv.style.display = "none";
+    });
+
+    simulation.on("tick", () => {
+      link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+      node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    function dragstarted(event) { if (!event.active) simulation.alphaTarget(0.3).restart(); event.subject.fx = event.subject.x; event.subject.fy = event.subject.y; }
+    function dragged(event) { event.subject.fx = event.x; event.subject.fy = event.y; }
+    function dragended(event) { if (!event.active) simulation.alphaTarget(0); event.subject.fx = null; event.subject.fy = null; }
+
+    function zoomFit() {
+      const bounds = g.node().getBBox();
+      const fullWidth = bounds.width + 100;
+      const fullHeight = bounds.height + 100;
+      const midX = bounds.x + bounds.width / 2;
+      const midY = bounds.y + bounds.height / 2;
+      const scale = 0.9 / Math.max(fullWidth / width, fullHeight / height);
+      const translate = [width / 2 - scale * midX, height / 2 - scale * midY];
+      svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    }
+    function zoomIn() { svg.transition().duration(300).call(zoom.scaleBy, 1.5); }
+    function zoomOut() { svg.transition().duration(300).call(zoom.scaleBy, 0.67); }
+
+    setTimeout(zoomFit, 2000);
+  </script>
+</body>
+
+</html>

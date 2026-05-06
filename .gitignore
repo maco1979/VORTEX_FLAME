@@ -40,5 +40,7 @@ cpolar.exe
 VORTEX_FLAME_待办清单.txt
 VORTEX_FLAME_项目记忆*.txt
 VORTEX_FLAME_投资人*
-voice_test/开发*/
-industry_knowledge_graph/VORTEX_FLAME_*
+voice_test/
+industry_knowledge_graph/
+pipeline_8b/
+CayleyNet/

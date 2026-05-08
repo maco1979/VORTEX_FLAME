@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="魔方AI">
+  <link rel="manifest" href="manifest.json">
+  <title>宇宙魔方AI · 找到你的AI专家</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-deep: #0a0a1a;
+      --bg-card: rgba(15, 15, 35, 0.95);
+      --glass: rgba(20, 20, 50, 0.8);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-hover: rgba(78, 205, 196, 0.3);
+      --accent: #00ffcc;
+      --accent2: #9c88ff;
+      --accent3: #ff6b9d;
+      --primary-btn: linear-gradient(135deg, #4ecdc4, #45b7d1);
+      --btn-on-dark: linear-gradient(135deg, rgba(78, 205, 196, 0.16), rgba(69, 183, 209, 0.12));
+      --glass-elev: rgba(255, 255, 255, 0.03);
+      --muted-ink: rgba(220, 235, 255, 0.12);
+      --gold: #ffd93d;
+      --text-primary: #ffffff;
+      --text-secondary: #b8c5d6;
+      --text-muted: #6c7b95;
+      --radius: 20px;
+      --radius-sm: 12px;
+      --shadow-glow: 0 0 40px rgba(0, 255, 204, 0.1);
+      --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 2px rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none
+    }
+
+    /* Common UI components */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      user-select: none;
+    }
+
+    .btn-primary {
+      background: var(--primary-btn);
+      color: #04202a;
+      box-shadow: 0 8px 30px rgba(78, 205, 196, 0.18);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--muted-ink);
+      color: var(--text-secondary);
+      box-shadow: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .muted-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.02);
+    }
+
+    /* Subtle card float for premium feel */
+    .card-animate {
+      animation: cardFloat 6s ease-in-out infinite;
+    }
+
+    @keyframes cardFloat {
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    /* Design system: typography, spacing, palette */
+    :root {
+      --brand-1: #4ecdc4;
+      /* teal */
+      --brand-2: #45b7d1;
+      /* cyan */
+      --brand-3: #9c88ff;
+      /* violet */
+      --accent-strong: #00ffd1;
+      --neutral-900: #04060a;
+      --neutral-800: #0b1220;
+      --surface-1: rgba(12, 18, 34, 0.96);
+      --glass-1: rgba(255, 255, 255, 0.03);
+      --muted-1: rgba(190, 205, 225, 0.12);
+      --success: #4ecdc4;
+      --danger: #ff6b6b;
+      --info: #9c88ff;
+
+      --font-sans: 'Inter', system-ui, -apple-system, 'Noto Sans SC', sans-serif;
+      --type-xxl: 40px;
+      --type-xl: 28px;
+      --type-lg: 18px;
+      --type-md: 14px;
+      --type-sm: 12px;
+
+      --space-xs: 6px;
+      --space-sm: 12px;
+      --space-md: 20px;
+      --space-lg: 28px;
+      --space-xl: 40px;
+    }
+
+    /* Typography utility */
+    h1,
+    .display-1 {
+      font-family: var(--font-sans);
+      font-weight: 900;
+      color: #eef8ff
+    }
+
+    h1.display-1 {
+      font-size: var(--type-xl);
+      letter-spacing: -0.02em
+    }
+
+    /* Hero cards and badges */
+    .hero-card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: var(--space-sm);
+    }
+
+    .qs-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #04202a;
+      background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+      box-shadow: 0 8px 26px rgba(78, 205, 196, 0.14);
+      margin-left: 8px;
+    }
+
+    .qs-badge.soon {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      font-weight: 700
+    }
+
+    .qs-step.btn {
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    /* Legend dots refined */
+    #legend .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    /* Controls spacing */
+    .control-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px
+    }
+
+    body {
+      background: linear-gradient(180deg, #05070f 0%, #070b16 45%, #050914 100%);
+      overflow: hidden;
+      min-height: 100vh;
+      font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      color: var(--text-primary);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      opacity: 0;
+      animation: fadeIn 1s ease-out 0.3s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    #bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(0, 255, 204, 0.14) 0%, transparent 43%),
+        radial-gradient(circle at 82% 18%, rgba(156, 136, 255, 0.16) 0%, transparent 44%),
+        radial-gradient(circle at 38% 82%, rgba(255, 159, 243, 0.14) 0%, transparent 42%),
+        linear-gradient(180deg, rgba(3, 8, 23, 0.95) 0%, rgba(7, 11, 28, 1) 100%);
+      animation: bgFloat 20s ease-in-out infinite;
+      filter: blur(0.5px);
+    }
+
+    @keyframes bgFloat {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+      }
+
+      33% {
+        transform: translate(10px, -10px) scale(1.05);
+        opacity: 0.5;
+      }
+
+      66% {
+        transform: translate(-10px, 10px) scale(0.95);
+        opacity: 0.4;
+      }
+    }
+
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    #particles::before,
+    #particles::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(0, 255, 204, 0.6);
+      border-radius: 50%;
+      animation: particleMove 10s linear infinite;
+    }
+
+    /* Deployment status & log */
+    .deploy-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .deploy-log {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      font-size: 13px;
+      max-height: 220px;
+      overflow: auto;
+    }
+
+    .deploy-log a {
+      color: var(--accent-strong);
+      text-decoration: underline;
+    }
+
+    #particles::before {
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    #particles::after {
+      top: 70%;
+      left: 80%;
+      animation-delay: 5s;
+      background: rgba(156, 136, 255, 0.6);
+    }
+
+    @keyframes particleMove {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(100px, -100px) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    #canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      touch-action: none;
+      z-index: 1
+    }
+
+    #canvas:active {
+      cursor: grabbing
+    }
+
+    #header {
+      position: fixed;
+      top: 28px;
+      left: 28px;
+      z-index: 100;
+      width: 460px;
+      max-width: calc(100vw - 56px);
+      border-radius: 32px;
+      padding: 24px;
+      background: rgba(9, 18, 42, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      -webkit-backdrop-filter: blur(34px);
+      backdrop-filter: blur(34px);
+      box-shadow: 0 40px 120px rgba(2, 10, 30, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      pointer-events: auto;
+      display: grid;
+      gap: 18px;
+      transition: all .3s ease
+    }
+
+    #header.collapsed {
+      width: auto;
+      padding: 12px 16px;
+      gap: 0;
+      cursor: pointer
+    }
+
+    #header.collapsed #search-wrap,
+    #header.collapsed #hero-panel,
+    #header.collapsed .header-cta,
+    #header.collapsed #breadcrumb,
+    #header.collapsed #layer-info {
+      display: none
+    }
+
+    #header.collapsed .brand {
+      margin: 0
+    }
+
+    #header.collapsed .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      font-size: 14px
+    }
+
+    #header.collapsed h1 {
+      font-size: 16px
+    }
+
+    #header.collapsed .sub {
+      display: none
+    }
+
+    #header .brand {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .brand-info {
+      display: grid;
+      gap: 6px;
+    }
+
+    #header .brand-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(78, 205, 196, 0.18), rgba(69, 183, 209, 0.14));
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      color: #4ecdc4;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+
+    #header h1 {
+      font-size: 24px;
+      font-weight: 900;
+      color: #edf6ff;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+
+    @keyframes brandShift {
+
+      0%,
+      100% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+    }
+
+    #header .sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    #search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    #hero-panel {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .hero-card {
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+      min-height: 124px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform .25s ease, background .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-3px);
+      background: rgba(78, 205, 196, 0.08);
+      border-color: rgba(78, 205, 196, 0.16);
+    }
+
+    .hero-card .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .hero-card .card-headline {
+      font-size: 16px;
+      font-weight: 700;
+      color: #edf6ff;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .hero-card .card-copy {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* Header CTA */
+    .header-cta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .header-cta .btn {
+      padding: 10px 16px;
+      border-radius: 14px;
+    }
+
+    /* Chat input styling unified */
+    .chat-input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.02);
+      color: #eef8ff;
+      font-size: 13px;
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+      transition: box-shadow .12s ease, border-color .12s ease;
+    }
+
+    .chat-input:focus {
+      box-shadow: 0 6px 24px rgba(78, 205, 196, 0.08);
+      border-color: rgba(78, 205, 196, 0.22);
+    }
+
+    #search-input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border-radius: 28px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+      transition: all .3s;
+      letter-spacing: 0.5px
+    }
+
+    #search-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 300
+    }
+
+    #search-input:focus {
+      border-color: var(--glass-border-hover);
+      background: rgba(15, 15, 40, 0.85);
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.06), var(--shadow-glow)
+    }
+
+    #search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+      pointer-events: none
+    }
+
+    #search-results {
+      position: absolute;
+      top: 50px;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border-hover);
+      border-radius: var(--radius);
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+      -webkit-backdrop-filter: blur(30px);
+      backdrop-filter: blur(30px);
+      box-shadow: var(--shadow-card), 0 0 40px rgba(78, 205, 196, 0.05)
+    }
+
+    #search-results.visible {
+      display: block
+    }
+
+    .sr-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background .15s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03)
+    }
+
+    .sr-item:last-child {
+      border-bottom: none
+    }
+
+    .sr-item:hover {
+      background: rgba(78, 205, 196, 0.08)
+    }
+
+    .sr-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .sr-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e0e0e0
+    }
+
+    .sr-type {
+      font-size: 10px;
+      color: #666;
+      margin-left: auto
+    }
+
+    .sr-status {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px
+    }
+
+    #breadcrumb {
+      position: relative;
+      top: auto;
+      left: auto;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+      font-weight: 500;
+      padding-top: 8px;
+      margin-top: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    #breadcrumb span {
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    #breadcrumb span:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    #breadcrumb span.active {
+      color: var(--accent);
+      cursor: default;
+      background: rgba(78, 205, 196, 0.08);
+    }
+
+    #breadcrumb .sep {
+      color: #999;
+      font-size: 10px;
+      padding: 0;
+      cursor: default;
+    }
+
+    #breadcrumb .sep:hover {
+      background: transparent;
+      color: #999;
+    }
+
+    #layer-info {
+      position: relative;
+      top: auto;
+      right: auto;
+      z-index: 1;
+      text-align: left;
+      pointer-events: auto;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #layer-info .layer-name {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #edf6ff;
+    }
+
+    #layer-info .layer-hint {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    #quick-start {
+      position: fixed;
+      top: 160px;
+      right: 28px;
+      z-index: 100;
+      background: rgba(8, 14, 30, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 22px;
+      width: 240px;
+      max-height: calc(100vh - 180px);
+      overflow: hidden;
+      -webkit-backdrop-filter: blur(32px);
+      backdrop-filter: blur(32px);
+      box-shadow: 0 28px 80px rgba(2, 10, 30, 0.45), inset 0 0 1px rgba(255, 255, 255, 0.04);
+      pointer-events: auto;
+      transition: all .3s ease
+    }
+
+    #quick-start.collapsed {
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer
+    }
+
+    #quick-start.collapsed .qs-title,
+    #quick-start.collapsed .qs-step {
+      display: none
+    }
+
+    #quick-start.collapsed::after {
+      content: '⚡';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px
+    }
+
+    #quick-start::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(78, 205, 196, 0.12), transparent 55%);
+      pointer-events: none;
+    }
+
+    #quick-start .qs-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 18px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    #quick-start .qs-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 12px 14px;
+      border-radius: 18px;
+      transition: all .25s ease;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+    }
+
+    #quick-start .qs-step:hover {
+      background: rgba(78, 205, 196, 0.08);
+      border-color: rgba(78, 205, 196, 0.16);
+      transform: translateX(-2px);
+    }
+
+    #quick-start .qs-step .qs-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    #quick-start .qs-step .qs-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-left: auto;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    #quick-start .qs-step .qs-badge.ready {
+      background: rgba(78, 205, 196, 0.14);
+      color: var(--accent);
+    }
+
+    #quick-start .qs-step .qs-badge.soon {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+
+    #legend {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      z-index: 100;
+      background: rgba(11, 17, 38, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 18px 22px;
+      width: 248px;
+      font-size: 12px;
+      -webkit-backdrop-filter: blur(32px);
+      backdrop-filter: blur(32px);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), inset 0 0 1px rgba(255, 255, 255, 0.04);
+      pointer-events: auto;
+      transition: all .3s ease
+    }
+
+    #legend.collapsed {
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer
+    }
+
+    #legend.collapsed .title,
+    #legend.collapsed .row,
+    #legend.collapsed .arrow,
+    #legend.collapsed .status-row {
+      display: none
+    }
+
+    #legend.collapsed::after {
+      content: '🗺️';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px
+    }
+
+    #legend .title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    #legend .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+      font-weight: 500;
+      color: #d8e5ff;
+      line-height: 1.5;
+    }
+
+    #legend .row:not(:last-child) {
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    #legend .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px currentColor;
+      flex-shrink: 0;
+    }
+
+    #legend .arrow {
+      color: rgba(255, 255, 255, 0.24);
+      font-size: 12px;
+      margin: 0 0 4px 0;
+      text-align: center;
+      display: block;
+      line-height: 1;
+    }
+
+    #legend .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    #legend .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid;
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      pointer-events: auto
+    }
+
+    #controls button {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(12, 18, 40, 0.92);
+      color: #cbd9ff;
+      font-size: 18px;
+      cursor: pointer;
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      transition: all .25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    #controls button:hover {
+      background: linear-gradient(135deg, rgba(78, 205, 196, 0.18), rgba(69, 183, 209, 0.18));
+      color: #ffffff;
+      border-color: rgba(78, 205, 196, 0.32);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28), 0 0 18px rgba(78, 205, 196, 0.14);
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    #info-panel {
+      position: fixed;
+      bottom: 24px;
+      left: 28px;
+      width: 380px;
+      max-height: calc(100vh - 80px);
+      background: rgba(9, 16, 32, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 26px;
+      z-index: 100;
+      -webkit-backdrop-filter: blur(36px);
+      backdrop-filter: blur(36px);
+      transition: all .35s cubic-bezier(.4, 0, .2, 1);
+      opacity: 0;
+      pointer-events: none;
+      overflow-y: auto;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3), inset 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    #info-panel.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      animation: panelEnter 0.3s ease-out;
+    }
+
+    @keyframes panelEnter {
+      0% {
+        transform: translateY(24px) scale(0.96);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    #info-panel .close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-muted);
+      transition: all .2s ease;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+
+    #info-panel .close:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    #info-panel .node-name {
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+      color: #f8fbff;
+    }
+
+    #info-panel .node-type {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    #info-panel .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 3px 4px 3px 0;
+      letter-spacing: 0.3px
+    }
+
+    #info-panel .section {
+      margin-top: 18px
+    }
+
+    #info-panel .section-title {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      font-weight: 700
+    }
+
+    #info-panel .desc {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      font-weight: 400
+    }
+
+    #info-panel .child-list {
+      list-style: none
+    }
+
+    #info-panel .child-list li {
+      padding: 8px 12px;
+      margin: 4px 0;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500
+    }
+
+    #info-panel .child-list li:hover {
+      background: rgba(78, 205, 196, 0.06);
+      transform: translateX(2px)
+    }
+
+    #info-panel .child-list .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px currentColor
+    }
+
+    #info-panel .child-list .status-icon {
+      font-size: 10px;
+      margin-left: auto;
+      flex-shrink: 0
+    }
+
+    #info-panel .action-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .25s;
+      text-align: center;
+      letter-spacing: 0.5px;
+      font-family: inherit
+    }
+
+    #info-panel .action-btn.primary {
+      background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(78, 205, 196, 0.25)
+    }
+
+    #info-panel .action-btn.primary:hover {
+      box-shadow: 0 6px 28px rgba(78, 205, 196, 0.4);
+      transform: translateY(-2px)
+    }
+
+    #info-panel .action-btn.secondary {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      border: 1px solid var(--glass-border)
+    }
+
+    #info-panel .action-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary)
+    }
+
+    #info-panel .cross-domain {
+      background: rgba(254, 202, 87, 0.04);
+      border: 1px solid rgba(254, 202, 87, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-top: 12px
+    }
+
+    #info-panel .cross-domain .cd-title {
+      font-size: 10px;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase
+    }
+
+    #info-panel .cross-domain .cd-item {
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 4px 0;
+      cursor: pointer;
+      transition: all .2s;
+      font-weight: 500
+    }
+
+    #info-panel .cross-domain .cd-item:hover {
+      color: var(--gold);
+      transform: translateX(3px)
+    }
+
+    #tooltip {
+      position: fixed;
+      z-index: 200;
+      background: rgba(12, 18, 34, 0.96);
+      border: 1px solid rgba(78, 205, 196, 0.18);
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .15s ease;
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+      max-width: 280px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), 0 0 18px rgba(78, 205, 196, 0.08);
+    }
+
+    #tooltip.visible {
+      opacity: 1;
+    }
+
+    #drill-hint {
+      position: fixed;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(7, 12, 24, 0.92);
+      border: 1px solid rgba(78, 205, 196, 0.18);
+      border-radius: 999px;
+      padding: 14px 28px;
+      font-size: 13px;
+      color: #d3fbff;
+      -webkit-backdrop-filter: blur(22px);
+      backdrop-filter: blur(22px);
+      animation: hintPulse 2.5s ease-in-out infinite;
+      pointer-events: none;
+      transition: opacity 1s;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), 0 0 22px rgba(78, 205, 196, 0.08);
+    }
+
+    @keyframes hintPulse {
+
+      0%,
+      100% {
+        opacity: 0.5;
+        transform: translateX(-50%) scale(0.98)
+      }
+
+      50% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1)
+      }
+    }
+
+    #chat-window {
+      position: fixed;
+      bottom: 28px;
+      right: 78px;
+      width: 420px;
+      height: 520px;
+      background: rgba(8, 14, 28, 0.96);
+      border: 1px solid rgba(78, 205, 196, 0.16);
+      border-radius: 28px;
+      z-index: 150;
+      display: none;
+      flex-direction: row;
+      -webkit-backdrop-filter: blur(34px);
+      backdrop-filter: blur(34px);
+      overflow: hidden;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.38), inset 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    #chat-window .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      background: transparent;
+    }
+
+    #chat-window .chat-sidebar {
+      width: 110px;
+      padding: 14px 10px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    #kbd-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 90;
+      font-size: 10px;
+      color: rgba(226, 251, 255, 0.88);
+      display: flex;
+      gap: 18px;
+      pointer-events: none;
+      background: rgba(5, 12, 24, 0.85);
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    }
+
+    #kbd-hint kbd {
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.07);
+      color: #f8fbff;
+      font-family: inherit;
+      font-size: 10px;
+    }
+
+    @media(max-width:768px) {
+      #info-panel {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        top: auto;
+        bottom: 60px;
+        transform: none;
+        max-height: 40vh
+      }
+
+      #legend {
+        display: none
+      }
+
+      #quick-start {
+        display: none
+      }
+
+      #search-wrap {
+        width: 100%;
+      }
+
+      #hero-panel {
+        grid-template-columns: 1fr;
+      }
+
+      #kbd-hint {
+        display: none
+      }
+
+      #header {
+        left: 10px;
+        right: 10px;
+        width: auto;
+      }
+
+      #header h1 {
+        font-size: 18px
+      }
+
+      #chat-window {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        bottom: 0;
+        height: 60vh;
+        border-radius: 16px 16px 0 0
+      }
+
+      #chat-window .chat-sidebar {
+        display: none
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="bg-animation"></div>
+  <div id="particles"></div>
+  <canvas id="canvas"></canvas>
+  <div id="header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-cube"></i></div>
+      <div class="brand-info">
+        <h1>宇宙魔方AI</h1>
+        <span class="sub">找到你的行业AI专家</span>
+      </div>
+    </div>
+    <div id="search-wrap">
+      <span id="search-icon"><i class="fas fa-search"></i></span>
+      <input id="search-input" type="text" placeholder="搜索行业、灵魂、工具..." autocomplete="off">
+      <div id="search-results"></div>
+    </div>
+    <div id="hero-panel">
+      <div class="hero-card">
+        <div>
+          <div class="card-title">智能大脑</div>
+          <div class="card-headline">一键联动行业与工具</div>
+        </div>
+        <div class="card-copy">自动呈现关联图谱，帮助你快速发现最优落地方案。</div>
+      </div>
+      <div class="hero-card">
+        <div>
+          <div class="card-title">云端洞察</div>
+          <div class="card-headline">全局关系更清晰</div>
+        </div>
+        <div class="card-copy">实时显示当前层级与状态，让你的探索更有方向感。</div>
+      </div>
+      <div class="hero-card">
+        <div>
+          <div class="card-title">流程导航</div>
+          <div class="card-headline">操作更顺手</div>
+        </div>
+        <div class="card-copy">右侧面板和快捷工具支持快速扩展、收敛和返回上层。</div>
+      </div>
+    </div>
+    <div class="header-cta">
+      <button id="btn-explore" class="btn btn-primary" onclick="goRoot();">开始探索</button>
+      <button id="btn-demo" class="btn btn-ghost" onclick="toggleQuickStart()">快速体验</button>
+    </div>
+    <div id="breadcrumb"></div>
+    <div id="layer-info">
+      <div class="layer-name" id="layer-name"></div>
+      <div class="layer-hint" id="layer-hint"></div>
+    </div>
+  </div>
+  <div id="quick-start">
+    <div class="qs-title">快速体验</div>
+    <button class="qs-step btn btn-ghost" onclick="quickPath('IND_NRG')">
+      <div class="qs-dot" style="background:#4ecdc4"></div>能源电力<span class="qs-badge ready">可用</span>
+    </button>
+    <button class="qs-step btn btn-ghost" onclick="openChat('S_EINSTEIN')">
+      <div class="qs-dot" style="background:#ff9ff3"></div>爱因斯坦问答<span class="qs-badge ready">对话</span>
+    </button>
+    <button class="qs-step btn btn-ghost" onclick="quickPath('T_MATLAB')">
+      <div class="qs-dot" style="background:#a29bfe"></div>MATLAB<span class="qs-badge ready">可用</span>
+    </button>
+    <button class="qs-step btn btn-ghost" onclick="quickPath('S_CEZANNE')">
+      <div class="qs-dot" style="background:#feca57"></div>塞尚·软件开发<span class="qs-badge ready">Iter2</span>
+    </button>
+    <button class="qs-step btn btn-ghost">
+      <div class="qs-dot" style="background:#555"></div>达芬奇·工程<span class="qs-badge soon">待训练</span>
+    </button>
+    <button class="qs-step btn btn-ghost">
+      <div class="qs-dot" style="background:#555"></div>贝多芬·音乐<span class="qs-badge soon">待训练</span>
+    </button>
+  </div>
+  <div id="legend">
+    <div class="title">用户路径</div>
+    <div class="row">
+      <div class="dot" style="background:#feca57;color:#feca57"></div>你的需求
+    </div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="dot" style="background:#4ecdc4;color:#4ecdc4"></div>行业分类
+    </div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="dot" style="background:#ff9ff3;color:#ff9ff3"></div>灵魂专家
+    </div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="dot" style="background:#a29bfe;color:#a29bfe"></div>工具链
+    </div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="dot" style="background:#45b7d1;color:#45b7d1"></div>部署方案
+    </div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="dot" style="background:#00d2ff;color:#00d2ff"></div>应用入口
+    </div>
+    <div style="margin-top:10px" class="title">状态</div>
+    <div class="status-row">
+      <div class="status-dot" style="background:#4ecdc4;border-color:#4ecdc4"></div>可用
+    </div>
+    <div class="status-row">
+      <div class="status-dot" style="background:transparent;border-color:#feca57"></div>训练中
+    </div>
+    <div class="status-row">
+      <div class="status-dot" style="background:transparent;border-color:#444"></div>待训练
+    </div>
+  </div>
+  <div id="controls">
+    <button id="btn-fit" class="btn btn-ghost control-btn" title="全景">⊞</button>
+    <button id="btn-zin" class="btn btn-ghost control-btn" title="放大">+</button>
+    <button id="btn-zout" class="btn btn-ghost control-btn" title="缩小">-</button>
+    <button id="btn-back" class="btn btn-ghost control-btn" title="返回上层">←</button>
+  </div>
+  <div id="info-panel" role="region" aria-label="节点详情" aria-hidden="true" tabindex="0"><span class="close"
+      id="panel-close" aria-label="关闭面板">✕</span>
+    <div id="panel-content"></div>
+  </div>
+  <div id="tooltip"></div>
+  <div id="drill-hint">点击节点展开 · 需求→行业→灵魂→工具→方案→应用</div>
+  <div id="kbd-hint"><span><kbd>/</kbd> 搜索</span><span><kbd>Esc</kbd> 返回</span></div>
+  <div id="chat-window">
+    <div class="chat-main">
+      <div
+        style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="chat-soul-dot" style="width:10px;height:10px;border-radius:50%;background:#ff9ff3"></div><span
+            id="chat-title" style="font-size:14px;font-weight:600;color:#e0e0e0"></span>
+        </div>
+        <span style="cursor:pointer;font-size:18px;color:#555" onclick="closeChat()">✕</span>
+      </div>
+      <div id="chat-messages"
+        style="flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px"></div>
+      <div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:8px">
+        <button onclick="startVoice()" id="voice-btn" class="btn btn-ghost" title="语音输入" style="display:none"><i
+            class="fas fa-microphone"></i></button>
+        <input id="chat-input" type="text" placeholder="输入问题..." class="chat-input"
+          onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()" class="btn btn-primary">发送</button>
+      </div>
+    </div>
+    <div id="chat-tools" class="chat-sidebar"></div>
+  </div>
+
+  <script>
+    (function () {
+      document.addEventListener('contextmenu', function (e) { e.preventDefault(); return false; });
+      document.addEventListener('dragstart', function (e) { e.preventDefault(); return false; });
+      document.addEventListener('selectstart', function (e) { if (e.target.id === 'search-input' || e.target.id === 'chat-input') return; e.preventDefault(); return false; });
+    })();
+
+    const N = {
+      NEED: { n: "我要一个私人AI", t: "need", c: "#feca57", d: "从需求出发，找到你的行业AI专家", s: "active" },
+      IND_NRG: { n: "能源电力", t: "industry", c: "#4ecdc4", d: "半导体·新能源·电力仿真·核能", s: "active" },
+      IND_MFG: { n: "计算机科学", t: "industry", c: "#4ecdc4", d: "软件开发·AI编程·嵌入式·IoT", s: "training" },
+      IND_ENG: { n: "工程建筑", t: "industry", c: "#4ecdc4", d: "PCB设计·电机·汽车电子·BIM", s: "locked" },
+      IND_FIN: { n: "金融投资", t: "industry", c: "#4ecdc4", d: "量化交易·风控·投研·商业智能", s: "locked" },
+      IND_MED: { n: "医疗健康", t: "industry", c: "#4ecdc4", d: "医疗器械·生物制药·健康监测", s: "locked" },
+      IND_AGR: { n: "农业食品", t: "industry", c: "#4ecdc4", d: "智慧农业·食品安全·作物识别", s: "locked" },
+      IND_ENV: { n: "环保气象", t: "industry", c: "#4ecdc4", d: "碳中和·气象预警·环保监测", s: "locked" },
+      IND_AERO: { n: "航天卫星", t: "industry", c: "#4ecdc4", d: "航天工程·卫星通信·轨道计算", s: "locked" },
+      IND_MUS: { n: "音乐音频", t: "industry", c: "#4ecdc4", d: "音乐制作·音频工程·声学", s: "locked" },
+      IND_ART: { n: "视觉艺术", t: "industry", c: "#4ecdc4", d: "计算机视觉·艺术疗愈·创意设计", s: "locked" },
+      IND_EDU: { n: "教育创意", t: "industry", c: "#4ecdc4", d: "AI教育·课件设计·美学", s: "locked" },
+      IND_LAW: { n: "法律政务", t: "industry", c: "#4ecdc4", d: "法律科技·数字政府·合同审查", s: "locked" },
+      IND_HIS: { n: "文化出版", t: "industry", c: "#4ecdc4", d: "文化遗产·历史研究·出版排版", s: "locked" },
+      IND_TALK: { n: "心理咨询", t: "industry", c: "#4ecdc4", d: "NLP·对话系统·情绪分析·疗愈", s: "locked" },
+      S_EINSTEIN: { n: "爱因斯坦", t: "soul", c: "#ff9ff3", tier: "A", expert: "物理·化学·数学", domain: "能源电力·半导体·新能源", cross: ["S_CEZANNE", "S_GALILEO", "S_DAVINCI", "S_DARWIN", "S_BEETHOVEN"], status: "云端已部署", s: "active" },
+      S_CEZANNE: { n: "塞尚", t: "soul", c: "#feca57", tier: "A", expert: "数学·逻辑·软件开发", domain: "计算机科学·AI编程·嵌入式·IoT", cross: ["S_EINSTEIN", "S_DAVINCI", "S_STRATEGY"], status: "云端已部署", s: "active" },
+      S_DAVINCI: { n: "达芬奇", t: "soul", c: "#ff9ff3", tier: "B", expert: "物理·数学·信息科学", domain: "工程建筑·PCB·电机·机器人·BIM", cross: ["S_EINSTEIN", "S_CEZANNE"], status: "待训练", s: "locked" },
+      S_GALILEO: { n: "伽利略", t: "soul", c: "#ff9ff3", tier: "A", expert: "物理·天文·天体物理", domain: "航天卫星·卫星通信", cross: ["S_EINSTEIN"], status: "待训练", s: "locked" },
+      S_DARWIN: { n: "达尔文", t: "soul", c: "#ff9ff3", tier: "A", expert: "生命科学·化学", domain: "医疗健康·生物制药·基因", cross: ["S_EINSTEIN"], status: "待训练", s: "locked" },
+      S_STRATEGY: { n: "策略", t: "soul", c: "#ff9ff3", tier: "B", expert: "数学·心理学", domain: "金融投资·战略咨询·决策", cross: ["S_CEZANNE", "S_DAVINCI", "S_GUIZHU", "S_VANGOGH"], status: "待训练", s: "locked" },
+      S_HUMBOLDT: { n: "洪堡", t: "soul", c: "#ff9ff3", tier: "C", expert: "地球科学·空间科学", domain: "环保气象·碳中和·灾害预警", cross: ["S_GALILEO", "S_EINSTEIN"], status: "待训练", s: "locked" },
+      S_YUANLONGPING: { n: "袁隆平", t: "soul", c: "#ff9ff3", tier: "C", expert: "农业科学", domain: "农业食品·智慧农业·食安检测", cross: ["S_DARWIN", "S_HUMBOLDT"], status: "待训练", s: "locked" },
+      S_MONTESQUIEU: { n: "孟德斯鸠", t: "soul", c: "#ff9ff3", tier: "C", expert: "逻辑学·法学", domain: "法律政务·数字政府·合规", cross: ["S_CEZANNE", "S_STRATEGY"], status: "待训练", s: "locked" },
+      S_GUIZHU: { n: "硅酌居士", t: "soul", c: "#ff9ff3", tier: "D", expert: "心理学·认知科学", domain: "心理咨询·NLP·对话疗愈", cross: ["S_STRATEGY", "S_VANGOGH", "S_MONET", "S_DARWIN"], status: "待训练", s: "locked" },
+      S_HERODOTUS: { n: "希罗多德", t: "soul", c: "#ff9ff3", tier: "D", expert: "历史学·认知科学", domain: "文化出版·数字文博·教育出版", cross: ["S_MONET", "S_GUIZHU"], status: "待训练", s: "locked" },
+      S_BEETHOVEN: { n: "贝多芬", t: "soul", c: "#ff9ff3", tier: "E", expert: "艺术学·物理(声学)", domain: "音乐音频·声学工程·音乐制作", cross: ["S_EINSTEIN"], status: "待训练", s: "locked" },
+      S_MONET: { n: "莫奈", t: "soul", c: "#ff9ff3", tier: "E", expert: "艺术学·认知科学", domain: "教育创意·在线教育·品牌设计", cross: ["S_VANGOGH", "S_BEETHOVEN", "S_HERODOTUS", "S_GUIZHU"], status: "待训练", s: "locked" },
+      S_VANGOGH: { n: "梵高", t: "soul", c: "#ff9ff3", tier: "E", expert: "艺术学·心理学", domain: "视觉艺术·计算机视觉·艺术疗愈", cross: ["S_MONET", "S_STRATEGY", "S_GUIZHU"], status: "待训练", s: "locked" },
+      T_ANSYS: { n: "Ansys", t: "tool", c: "#a29bfe", cat: "CAE仿真", tier: "S", pop: 95, hot: ["结构静力学", "模态分析", "热传导"], s: "active" },
+      T_COMSOL: { n: "COMSOL", t: "tool", c: "#a29bfe", cat: "CAE仿真", tier: "A", pop: 82, hot: ["电磁场仿真", "流固耦合", "电化学"], s: "active" },
+      T_MATLAB: { n: "MATLAB", t: "tool", c: "#a29bfe", cat: "数值计算", tier: "S", pop: 98, hot: ["信号处理", "控制系统", "Simulink"], s: "active" },
+      T_FLUENT: { n: "Fluent", t: "tool", c: "#a29bfe", cat: "CFD仿真", tier: "A", pop: 85, hot: ["管道流场", "传热辐射", "多相流"], s: "active" },
+      T_ASPEN: { n: "Aspen", t: "tool", c: "#a29bfe", cat: "化工仿真", tier: "A", pop: 75, hot: ["精馏塔", "反应器", "换热网络"], s: "active" },
+      T_TRAE: { n: "TRAE", t: "tool", c: "#a29bfe", cat: "AI编程IDE", tier: "S", pop: 95, hot: ["智能补全", "MCP工具链", "多模型切换"], s: "active" },
+      T_TRAE_CLOUD: { n: "TRAE (云端)", t: "tool", c: "#7b69ff", cat: "AI编程IDE", tier: "S", pop: 95, url: "http://localhost:8080", hot: ["在线IDE", "云端部署"], s: "active" },
+      T_TRAE_LOCAL: { n: "TRAE (本地)", t: "tool", c: "#23d3c1", cat: "AI编程IDE", tier: "S", pop: 80, url: "file:///D:/VORTEX_FLAME/tools/trae/README.html", hot: ["私有化部署", "离线模型"], s: "active" },
+      T_GITNEXUS: { n: "GitNexus", t: "tool", c: "#a29bfe", cat: "代码知识图谱", tier: "A", pop: 78, hot: ["影响分析", "执行流追踪", "安全重构"], s: "active" },
+      T_VLLM: { n: "vLLM", t: "tool", c: "#a29bfe", cat: "推理引擎", tier: "S", pop: 92, hot: ["OpenAI兼容API", "LoRA动态加载", "PagedAttention"], s: "training" },
+      T_DOCKER: { n: "Docker", t: "tool", c: "#a29bfe", cat: "DevOps", tier: "S", pop: 92, hot: ["容器化", "Compose编排", "GPU部署"], s: "locked" },
+      T_PIO: { n: "PlatformIO", t: "tool", c: "#a29bfe", cat: "嵌入式", tier: "A", pop: 72, hot: ["STM32开发", "ESP32 IoT", "OTA升级"], s: "locked" },
+      T_ACAD: { n: "AutoCAD", t: "tool", c: "#a29bfe", cat: "CAD制图", tier: "S", pop: 90, hot: ["机械零件图", "建筑平面图", "AutoLISP"], s: "locked" },
+      T_SW: { n: "SolidWorks", t: "tool", c: "#a29bfe", cat: "CAD建模", tier: "S", pop: 88, hot: ["零件建模", "装配体", "钣金设计"], s: "locked" },
+      T_ADL: { n: "Altium", t: "tool", c: "#a29bfe", cat: "PCB设计", tier: "A", pop: 85, hot: ["原理图", "PCB布线", "信号完整性"], s: "locked" },
+      T_ROS2: { n: "ROS2", t: "tool", c: "#a29bfe", cat: "机器人", tier: "A", pop: 78, hot: ["节点通信", "导航栈", "机械臂"], s: "locked" },
+      T_REVIT: { n: "Revit", t: "tool", c: "#a29bfe", cat: "BIM建筑", tier: "A", pop: 80, hot: ["建筑模型", "MEP管线", "施工图"], s: "locked" },
+      T_STK: { n: "STK", t: "tool", c: "#a29bfe", cat: "航天仿真", tier: "S", pop: 82, hot: ["轨道设计", "链路分析", "星座仿真"], s: "locked" },
+      T_ASTRO: { n: "Astropy", t: "tool", c: "#a29bfe", cat: "天文计算", tier: "A", pop: 78, hot: ["坐标变换", "历表计算", "FITS数据"], s: "locked" },
+      T_AF: { n: "AlphaFold", t: "tool", c: "#a29bfe", cat: "生物信息", tier: "S", pop: 92, hot: ["结构预测", "蛋白对接", "蛋白设计"], s: "locked" },
+      T_PYMOL: { n: "PyMOL", t: "tool", c: "#a29bfe", cat: "分子可视化", tier: "A", pop: 80, hot: ["结构渲染", "对接分析"], s: "locked" },
+      T_BLAST: { n: "BLAST", t: "tool", c: "#a29bfe", cat: "生物信息", tier: "S", pop: 88, hot: ["核酸比对", "蛋白比对"], s: "locked" },
+      T_SLICER: { n: "3D Slicer", t: "tool", c: "#a29bfe", cat: "医学影像", tier: "A", pop: 72, hot: ["CT分割", "手术规划"], s: "locked" },
+      T_WIND: { n: "Wind终端", t: "tool", c: "#a29bfe", cat: "金融数据", tier: "S", pop: 88, hot: ["行情数据", "财务分析", "宏观指标"], s: "locked" },
+      T_PBI: { n: "Power BI", t: "tool", c: "#a29bfe", cat: "商业智能", tier: "A", pop: 85, hot: ["数据看板", "DAX计算", "Power Query"], s: "locked" },
+      T_QL: { n: "QuantLib", t: "tool", c: "#a29bfe", cat: "量化交易", tier: "B", pop: 68, hot: ["期权定价", "收益率曲线"], s: "locked" },
+      T_QGIS: { n: "QGIS", t: "tool", c: "#a29bfe", cat: "GIS", tier: "S", pop: 85, hot: ["地图制作", "遥感分析", "空间分析"], s: "locked" },
+      T_GEE: { n: "GEE", t: "tool", c: "#a29bfe", cat: "遥感云", tier: "A", pop: 82, hot: ["大尺度遥感", "时序分析"], s: "locked" },
+      T_PIX4D: { n: "Pix4D", t: "tool", c: "#a29bfe", cat: "无人机测绘", tier: "A", pop: 75, hot: ["正射影像", "作物监测"], s: "locked" },
+      T_ENVI: { n: "ENVI", t: "tool", c: "#a29bfe", cat: "遥感分析", tier: "A", pop: 72, hot: ["高光谱", "作物识别"], s: "locked" },
+      T_PKU: { n: "北大法宝", t: "tool", c: "#a29bfe", cat: "法律数据库", tier: "S", pop: 85, hot: ["法规检索", "案例检索"], s: "locked" },
+      T_ALPHA: { n: "Alpha法律", t: "tool", c: "#a29bfe", cat: "法律AI", tier: "A", pop: 75, hot: ["合同审查", "文书生成"], s: "locked" },
+      T_LC: { n: "LangChain", t: "tool", c: "#a29bfe", cat: "RAG框架", tier: "S", pop: 88, hot: ["RAG问答", "对话记忆", "Agent工具"], s: "locked" },
+      T_MIL: { n: "Milvus", t: "tool", c: "#a29bfe", cat: "向量数据库", tier: "A", pop: 78, hot: ["向量索引", "混合检索"], s: "locked" },
+      T_WSP: { n: "Whisper", t: "tool", c: "#a29bfe", cat: "语音AI", tier: "A", pop: 82, hot: ["语音转文字", "录音分析"], s: "locked" },
+      T_OMEKA: { n: "Omeka", t: "tool", c: "#a29bfe", cat: "数字展览", tier: "A", pop: 68, hot: ["数字藏品", "口述历史"], s: "locked" },
+      T_ZOT: { n: "Zotero", t: "tool", c: "#a29bfe", cat: "文献管理", tier: "A", pop: 82, hot: ["文献整理", "引文格式化"], s: "locked" },
+      T_SUNO: { n: "Suno AI", t: "tool", c: "#a29bfe", cat: "AI音乐", tier: "S", pop: 95, hot: ["歌词创作", "风格迁移", "BGM生成"], s: "locked" },
+      T_ABL: { n: "Ableton", t: "tool", c: "#a29bfe", cat: "DAW", tier: "S", pop: 88, hot: ["电子制作", "现场Set", "采样切片"], s: "locked" },
+      T_IZO: { n: "iZotope", t: "tool", c: "#a29bfe", cat: "音频处理", tier: "A", pop: 78, hot: ["母带处理", "人声处理", "降噪"], s: "locked" },
+      T_FIG: { n: "Figma", t: "tool", c: "#a29bfe", cat: "UI设计", tier: "S", pop: 92, hot: ["组件设计", "原型交互", "AI助手"], s: "locked" },
+      T_CANVA: { n: "Canva", t: "tool", c: "#a29bfe", cat: "平面设计", tier: "S", pop: 90, hot: ["社交海报", "演示文稿", "品牌套件"], s: "locked" },
+      T_MJ: { n: "Midjourney", t: "tool", c: "#a29bfe", cat: "AI绘画", tier: "S", pop: 88, hot: ["概念设计", "风格一致", "品牌视觉"], s: "locked" },
+      T_CUI: { n: "ComfyUI", t: "tool", c: "#a29bfe", cat: "AI绘画", tier: "S", pop: 90, hot: ["文生图", "ControlNet", "IP-Adapter"], s: "locked" },
+      T_FLUX: { n: "FLUX", t: "tool", c: "#a29bfe", cat: "AI绘画", tier: "S", pop: 88, hot: ["写实人像", "产品渲染", "文字嵌入"], s: "locked" },
+      T_RW: { n: "Runway", t: "tool", c: "#a29bfe", cat: "AI视频", tier: "A", pop: 82, hot: ["文生视频", "图生视频", "风格化"], s: "locked" },
+      T_CN: { n: "ControlNet", t: "tool", c: "#a29bfe", cat: "精确控制", tier: "A", pop: 85, hot: ["OpenPose", "Canny边缘", "Depth深度"], s: "locked" },
+      SOL_PRIV: { n: "私有化部署", t: "solution", c: "#45b7d1", d: "本地算力+离线运行，数据不出门", price: "按需定制", s: "active" },
+      SOL_CLOUD: { n: "云端体验", t: "solution", c: "#45b7d1", d: "先在线体验效果，满意再私有化", price: "免费体验", s: "active" },
+      SOL_MOBILE: { n: "手机端部署", t: "solution", c: "#45b7d1", d: "蒸馏压缩版，手机离线运行", price: "按灵魂订阅", s: "locked" },
+      SOL_STORE: { n: "应用集成", t: "solution", c: "#45b7d1", d: "应用/集成交付（Web/Mobile/嵌入式/企业系统接入）", price: "年费制", s: "locked" },
+      STORE_ZH: { n: "移动端应用", t: "app", c: "#00d2ff", platform: "mobile", focus: "跨境贸易·新能源·半导体", s: "locked" },
+      STORE_SZ: { n: "Web 应用", t: "app", c: "#00d2ff", platform: "web", focus: "工厂自动化·嵌入式·机器人", s: "locked" },
+      STORE_GZ: { n: "企业集成", t: "app", c: "#00d2ff", platform: "enterprise", focus: "音频工程·音乐制作·声学", s: "locked" },
+      STORE_FS: { n: "边缘/IoT 集成", t: "app", c: "#00d2ff", platform: "iot", focus: "餐饮供应链·智慧农业", s: "locked" },
+      STORE_DG: { n: "SDK/插件", t: "app", c: "#00d2ff", platform: "sdk", focus: "电子制造·PCB设计·电机", s: "locked" },
+      STORE_ZS: { n: "定制组件", t: "app", c: "#00d2ff", platform: "custom", focus: "灯饰设计·创意·视觉AI", s: "locked" }
+    };
+
+    const TREE = {
+      NEED: ["IND_NRG", "IND_MFG", "IND_ENG", "IND_FIN", "IND_MED", "IND_AGR", "IND_ENV", "IND_AERO", "IND_MUS", "IND_ART", "IND_EDU", "IND_LAW", "IND_HIS", "IND_TALK"],
+      IND_NRG: ["S_EINSTEIN"], IND_MFG: ["S_CEZANNE"], IND_ENG: ["S_DAVINCI"], IND_FIN: ["S_STRATEGY"],
+      IND_MED: ["S_DARWIN"], IND_AGR: ["S_YUANLONGPING"], IND_ENV: ["S_HUMBOLDT"], IND_AERO: ["S_GALILEO"],
+      IND_MUS: ["S_BEETHOVEN"], IND_ART: ["S_VANGOGH"], IND_EDU: ["S_MONET"], IND_LAW: ["S_MONTESQUIEU"],
+      IND_HIS: ["S_HERODOTUS"], IND_TALK: ["S_GUIZHU"],
+      S_EINSTEIN: ["T_ANSYS", "T_COMSOL", "T_MATLAB", "T_FLUENT", "T_ASPEN"],
+      S_CEZANNE: ["T_TRAE_CLOUD", "T_TRAE_LOCAL", "T_GITNEXUS", "T_VLLM", "T_DOCKER", "T_PIO"],
+      S_DAVINCI: ["T_ACAD", "T_SW", "T_ADL", "T_ROS2", "T_REVIT"],
+      S_GALILEO: ["T_STK", "T_ASTRO"],
+      S_DARWIN: ["T_AF", "T_PYMOL", "T_BLAST", "T_SLICER"],
+      S_STRATEGY: ["T_WIND", "T_PBI", "T_QL"],
+      S_HUMBOLDT: ["T_QGIS", "T_GEE"],
+      S_YUANLONGPING: ["T_PIX4D", "T_ENVI"],
+      S_MONTESQUIEU: ["T_PKU", "T_ALPHA"],
+      S_GUIZHU: ["T_LC", "T_MIL", "T_WSP"],
+      S_HERODOTUS: ["T_OMEKA", "T_ZOT"],
+      S_BEETHOVEN: ["T_SUNO", "T_ABL", "T_IZO"],
+      S_MONET: ["T_FIG", "T_CANVA", "T_MJ"],
+      S_VANGOGH: ["T_CUI", "T_FLUX", "T_RW", "T_CN"],
+      T_ANSYS: ["SOL_PRIV", "SOL_CLOUD"], T_COMSOL: ["SOL_PRIV", "SOL_CLOUD"], T_MATLAB: ["SOL_PRIV", "SOL_CLOUD", "SOL_MOBILE"],
+      T_FLUENT: ["SOL_PRIV", "SOL_CLOUD"], T_ASPEN: ["SOL_PRIV", "SOL_CLOUD"],
+      T_TRAE: ["SOL_PRIV", "SOL_CLOUD", "SOL_MOBILE"], T_TRAE_CLOUD: ["SOL_CLOUD", "SOL_MOBILE"], T_TRAE_LOCAL: ["SOL_PRIV", "SOL_MOBILE"], T_GITNEXUS: ["SOL_PRIV", "SOL_CLOUD"], T_VLLM: ["SOL_PRIV", "SOL_CLOUD"], T_DOCKER: ["SOL_PRIV"],
+      T_PIO: ["SOL_PRIV"],
+      T_ACAD: ["SOL_PRIV", "SOL_STORE"], T_SW: ["SOL_PRIV", "SOL_STORE"], T_ADL: ["SOL_PRIV", "SOL_STORE"],
+      T_ROS2: ["SOL_PRIV"], T_REVIT: ["SOL_PRIV", "SOL_STORE"],
+      T_STK: ["SOL_PRIV"], T_ASTRO: ["SOL_PRIV", "SOL_CLOUD"],
+      T_AF: ["SOL_PRIV", "SOL_CLOUD"], T_PYMOL: ["SOL_PRIV"],
+      T_BLAST: ["SOL_PRIV", "SOL_CLOUD"], T_SLICER: ["SOL_PRIV"],
+      T_WIND: ["SOL_CLOUD"], T_PBI: ["SOL_CLOUD"], T_QL: ["SOL_PRIV", "SOL_CLOUD"],
+      T_QGIS: ["SOL_PRIV"], T_GEE: ["SOL_CLOUD"],
+      T_PIX4D: ["SOL_PRIV"], T_ENVI: ["SOL_PRIV"],
+      T_PKU: ["SOL_CLOUD"], T_ALPHA: ["SOL_CLOUD"],
+      T_LC: ["SOL_PRIV"], T_MIL: ["SOL_PRIV"], T_WSP: ["SOL_PRIV", "SOL_CLOUD"],
+      T_OMEKA: ["SOL_PRIV"], T_ZOT: ["SOL_PRIV", "SOL_CLOUD"],
+      T_SUNO: ["SOL_CLOUD", "SOL_MOBILE"], T_ABL: ["SOL_PRIV"], T_IZO: ["SOL_PRIV"],
+      T_FIG: ["SOL_CLOUD"], T_CANVA: ["SOL_CLOUD"], T_MJ: ["SOL_CLOUD"],
+      T_CUI: ["SOL_PRIV"], T_FLUX: ["SOL_PRIV"], T_RW: ["SOL_CLOUD"], T_CN: ["SOL_PRIV"],
+      SOL_PRIV: ["STORE_ZH", "STORE_SZ"], SOL_CLOUD: ["STORE_ZH", "STORE_SZ", "STORE_GZ"],
+      SOL_MOBILE: ["STORE_ZH"], SOL_STORE: ["STORE_ZH", "STORE_SZ", "STORE_GZ", "STORE_FS", "STORE_DG", "STORE_ZS"]
+    };
+
+    const SOUL_AGENTS = {
+      S_EINSTEIN: { endpoint: 'https://r4h5llxk63kllhpz5slfgztn.agents.do-ai.run/api/v1/chat/completions', key: 'hl6riJwP8KTWRR_ozhoXFKAyDXg5wV9X' },
+      S_CEZANNE: { endpoint: 'https://ohm73sys6o5vhf4zl3rnphsy.agents.do-ai.run/api/v1/chat/completions', key: 'BtaCgz2ja0ti2zfY93tVvAYz-iIsy4yr' }
+    };
+
+    async function openDeployment(id) {
+      const node = (typeof N !== 'undefined' && N[id]) ? N[id] : null;
+      if (!node) return;
+      if (node.url && (node.url.startsWith('http://') || node.url.startsWith('https://'))) {
+        window.open(node.url, '_blank');
+        return;
+      }
+      if (node.t === 'soul') {
+        openChat(id);
+        return;
+      }
+      alert('该工具的云端部署功能即将上线，敬请期待。');
+    }
+
+    const PARENT = {};
+    Object.entries(TREE).forEach(([pid, cids]) => { cids.forEach(cid => { PARENT[cid] = pid; }); });
+
+    const TL = { need: "你的需求", industry: "行业分类", soul: "灵魂专家", tool: "工具链", solution: "部署方案", store: "应用入口" };
+    const TH = { need: "选择你的行业，找到专属AI专家", industry: "点击进入该行业", soul: "点击查看问答入口和工具链", tool: "点击查看部署方案", solution: "点击查看应用集成入口", store: "应用终端" };
+    const SL = { active: "可用", training: "训练中", locked: "待训练" };
+    const SC = { active: "#4ecdc4", training: "#feca57", locked: "#444" };
+
+    function gc(id) { return (TREE[id] || []).map(cid => { const nd = N[cid]; return nd ? { id: cid, ...nd } : null; }).filter(Boolean); }
+    function gp(id) { return PARENT[id] || null; }
+
+    function escapeHtml(s) { if (!s) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, dpr;
+    let transform = d3.zoomIdentity;
+    let cur = null;
+    let ring = [];
+    let path = [];
+    let hovered = null;
+    let particles = [];
+    let stars = [];
+    let nebulae = [];
+    let frameCount = 0;
+
+    function resize() { dpr = window.devicePixelRatio || 1; W = window.innerWidth; H = window.innerHeight; canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < 300; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.5 + 0.2, a: Math.random() * 0.6 + 0.1, s: Math.random() * 0.002 + 0.0003 });
+    }
+
+    function initNebulae() {
+      nebulae = [];
+      var colors = ['rgba(78,205,196,', 'rgba(162,155,254,', 'rgba(255,159,243,', 'rgba(254,202,87,', 'rgba(69,183,209,', 'rgba(255,107,107,'];
+      for (let i = 0; i < 6; i++) {
+        nebulae.push({
+          x: Math.random() * W, y: Math.random() * H,
+          r: 250 + Math.random() * 350,
+          c: colors[i % colors.length],
+          a: 0.012 + Math.random() * 0.008,
+          dx: (Math.random() - 0.5) * 0.12,
+          dy: (Math.random() - 0.5) * 0.08
+        });
+      }
+    }
+
+    function layoutRing() {
+      if (!cur) return; cur.x = W / 2; cur.y = H / 2;
+      const n = ring.length; if (n === 0) return;
+      const rr = Math.max(160, Math.min(320, Math.min(W, H) * 0.26));
+      ring.forEach((nd, i) => { const a = (i / n) * Math.PI * 2 - Math.PI / 2; nd.x = W / 2 + Math.cos(a) * rr; nd.y = H / 2 + Math.sin(a) * rr; });
+    }
+
+    function initParticles() {
+      particles = [];
+      if (!cur) return;
+      ring.forEach(nd => {
+        for (let i = 0; i < 4; i++) particles.push({ sx: cur.x, sy: cur.y, tx: nd.x, ty: nd.y, t: Math.random(), sp: 0.003 + Math.random() * 0.005, c: nd.c, size: 1.5 + Math.random() * 2.5, trail: [] });
+      });
+    }
+
+    var anim = null;
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+    function drillInto(id) {
+      const nd = N[id]; if (!nd) return;
+      const oldCur = cur;
+      const oldRing = ring.slice();
+      const newCur = { id, ...nd, x: W / 2, y: H / 2 };
+      const newRing = gc(id);
+      path.push(cur); cur = newCur; ring = newRing;
+      layoutRing();
+      const targetPositions = ring.map(nd2 => ({ x: nd2.x, y: nd2.y }));
+      const clickedOld = oldRing.find(r => r.id === id);
+      const fromX = clickedOld ? clickedOld.x : W / 2;
+      const fromY = clickedOld ? clickedOld.y : H / 2;
+      ring.forEach((nd2, i) => { nd2.x = W / 2; nd2.y = H / 2; });
+      cur.x = fromX; cur.y = fromY;
+      transform = d3.zoomIdentity; d3.select(canvas).call(zoom.transform, transform);
+      initParticles(); updateBC(); updateLI();
+      document.getElementById('info-panel').classList.remove('visible');
+      var startTime = null; var duration = 600;
+      if (anim) cancelAnimationFrame(anim);
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var p = Math.min(1, (ts - startTime) / duration);
+        var ep = easeInOut(p);
+        cur.x = fromX + (W / 2 - fromX) * ep;
+        cur.y = fromY + (H / 2 - fromY) * ep;
+        ring.forEach((nd2, i) => {
+          nd2.x = W / 2 + (targetPositions[i].x - W / 2) * ep;
+          nd2.y = H / 2 + (targetPositions[i].y - H / 2) * ep;
+        });
+        if (p < 1) { anim = requestAnimationFrame(step); }
+        else { anim = null; }
+      }
+      anim = requestAnimationFrame(step);
+      setTimeout(() => { document.getElementById('drill-hint').style.opacity = '0'; }, 500);
+    }
+
+    function drillBack() {
+      if (path.length === 0) return;
+      const oldCur = cur;
+      const newCur = path.pop(); ring = gc(newCur.id);
+      layoutRing();
+      const targetPositions = ring.map(nd2 => ({ x: nd2.x, y: nd2.y }));
+      ring.forEach((nd2, i) => { nd2.x = W / 2; nd2.y = H / 2; });
+      cur = newCur; cur.x = W / 2; cur.y = H / 2;
+      transform = d3.zoomIdentity; d3.select(canvas).call(zoom.transform, transform);
+      initParticles(); updateBC(); updateLI();
+      document.getElementById('info-panel').classList.remove('visible');
+      var startTime = null; var duration = 500;
+      if (anim) cancelAnimationFrame(anim);
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var p = Math.min(1, (ts - startTime) / duration);
+        var ep = easeOut(p);
+        ring.forEach((nd2, i) => {
+          nd2.x = W / 2 + (targetPositions[i].x - W / 2) * ep;
+          nd2.y = H / 2 + (targetPositions[i].y - H / 2) * ep;
+        });
+        if (p < 1) { anim = requestAnimationFrame(step); }
+        else { anim = null; }
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    function drillTo(idx) {
+      cur = path[idx]; path = path.slice(0, idx); ring = gc(cur.id);
+      transform = d3.zoomIdentity; d3.select(canvas).call(zoom.transform, transform);
+      layoutRing(); initParticles(); updateBC(); updateLI();
+      document.getElementById('info-panel').classList.remove('visible');
+    }
+
+    function goRoot() {
+      path = []; cur = { id: 'NEED', ...N.NEED, x: W / 2, y: H / 2 }; ring = gc('NEED');
+      transform = d3.zoomIdentity; d3.select(canvas).call(zoom.transform, transform);
+      layoutRing(); initParticles(); updateBC(); updateLI();
+      document.getElementById('info-panel').classList.remove('visible');
+    }
+
+    function quickPath(id) { goRoot(); drillInto(id); }
+
+    function updateBC() {
+      const bc = document.getElementById('breadcrumb');
+      let h = '<span onclick="goRoot()" style="cursor:pointer;color:#4ecdc4">首页</span>';
+      path.forEach((d, i) => { h += ' <span class="sep">›</span> <span onclick="drillTo(' + i + ')" style="cursor:pointer;color:#666">' + d.n + '</span>'; });
+      if (cur && cur.id !== 'NEED') h += ' <span class="sep">›</span> <span class="active">' + cur.n + '</span>';
+      bc.innerHTML = h;
+    }
+
+    function updateLI() {
+      const ln = document.getElementById('layer-name'); const lh = document.getElementById('layer-hint');
+      if (!cur) return; ln.style.color = cur.c; ln.textContent = TL[cur.t] || ''; lh.textContent = TH[cur.t] || '';
+    }
+
+    function getR(nd, isC) {
+      if (isC) return 48;
+      if (nd.t === 'need') return 42; if (nd.t === 'industry') return 28;
+      if (nd.t === 'soul') return 32; if (nd.t === 'tool') return 24;
+      if (nd.t === 'solution') return 26; return 20;
+    }
+
+    function statusAlpha(nd) {
+      if (nd.s === 'active') return 1; if (nd.s === 'training') return 0.85; return 0.45;
+    }
+
+    function hexToRgb(hex) {
+      var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+      return { r: r, g: g, b: b };
+    }
+
+    function drawGlow(x, y, r, color, alpha) {
+      var rgb = hexToRgb(color);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = r * 0.8;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.3)';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function draw() {
+      frameCount++;
+      ctx.save(); ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#030311'; ctx.fillRect(0, 0, W, H);
+
+      nebulae.forEach(nb => {
+        nb.x += nb.dx; nb.y += nb.dy;
+        if (nb.x < -nb.r) nb.x = W + nb.r;
+        if (nb.x > W + nb.r) nb.x = -nb.r;
+        if (nb.y < -nb.r) nb.y = H + nb.r;
+        if (nb.y > H + nb.r) nb.y = -nb.r;
+        var g = ctx.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, nb.r);
+        g.addColorStop(0, nb.c + nb.a + ')');
+        g.addColorStop(0.5, nb.c + (nb.a * 0.3) + ')');
+        g.addColorStop(1, nb.c + '0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(nb.x - nb.r, nb.y - nb.r, nb.r * 2, nb.r * 2);
+      });
+
+      ctx.translate(transform.x, transform.y); ctx.scale(transform.k, transform.k);
+
+      stars.forEach(s => {
+        s.a += Math.sin(Date.now() * s.s) * 0.008;
+        var a = Math.max(0.05, Math.min(0.7, s.a));
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fill();
+      });
+
+      if (cur) {
+        var depth = path.length;
+        var vanishX = W * 0.82;
+        var vanishY = H * 0.18;
+        var prevCx = cur.x, prevCy = cur.y;
+        for (var li = 0; li < depth; li++) {
+          var pn = path[li];
+          var layerDepth = depth - li;
+          var sc = Math.pow(1.25, layerDepth);
+          var al = Math.pow(0.3, layerDepth);
+          if (al < 0.03) continue;
+          var shift = Math.min(1, 0.15 * layerDepth);
+          var cx = cur.x + (vanishX - cur.x) * shift;
+          var cy = cur.y + (vanishY - cur.y) * shift;
+          ctx.save();
+          ctx.globalAlpha = al;
+          ctx.beginPath(); ctx.moveTo(prevCx, prevCy); ctx.lineTo(cx, cy);
+          ctx.strokeStyle = pn.c + '15'; ctx.lineWidth = 1; ctx.setLineDash([3, 6]); ctx.stroke(); ctx.setLineDash([]);
+          var pcr = getR(pn, true) * sc;
+          drawGlow(cx, cy, pcr * 1.5, pn.c, al * 0.3);
+          ctx.beginPath(); ctx.arc(cx, cy, pcr, 0, Math.PI * 2);
+          ctx.strokeStyle = pn.c + '10'; ctx.lineWidth = 1; ctx.stroke();
+          ctx.fillStyle = '#fff'; ctx.font = 'bold ' + Math.max(7, Math.floor(10 / layerDepth)) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          var pnm = pn.n.length > 5 ? pn.n.slice(0, 5) + '..' : pn.n;
+          ctx.fillText(pnm, cx, cy);
+          ctx.restore();
+          prevCx = cx; prevCy = cy;
+        }
+
+        var now = Date.now();
+        var pulse = Math.sin(now * 0.003) * 0.15 + 0.85;
+
+        ring.forEach(nd => {
+          var sa = statusAlpha(nd);
+          var rgb = hexToRgb(nd.c);
+          ctx.beginPath(); ctx.moveTo(cur.x, cur.y); ctx.lineTo(nd.x, nd.y);
+          var lineGrad = ctx.createLinearGradient(cur.x, cur.y, nd.x, nd.y);
+          lineGrad.addColorStop(0, 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + (sa * 0.15) + ')');
+          lineGrad.addColorStop(1, 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + (sa * 0.05) + ')');
+          ctx.strokeStyle = lineGrad; ctx.lineWidth = 1.5; ctx.stroke();
+        });
+
+        particles.forEach(p => {
+          p.t += p.sp; if (p.t > 1) p.t -= 1;
+          var x = p.sx + (p.tx - p.sx) * p.t;
+          var y = p.sy + (p.ty - p.sy) * p.t;
+          p.trail.push({ x: x, y: y });
+          if (p.trail.length > 8) p.trail.shift();
+          p.trail.forEach((tp, ti) => {
+            var ta = (ti / p.trail.length) * 0.6 * (1 - p.t * 0.3);
+            ctx.beginPath(); ctx.arc(tp.x, tp.y, p.size * (ti / p.trail.length) * 0.8, 0, Math.PI * 2);
+            ctx.fillStyle = p.c + Math.floor(ta * 255).toString(16).padStart(2, '0'); ctx.fill();
+          });
+          ctx.beginPath(); ctx.arc(x, y, p.size * 1.2, 0, Math.PI * 2);
+          ctx.fillStyle = p.c + 'ee'; ctx.fill();
+          ctx.beginPath(); ctx.arc(x, y, p.size * 0.6, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff88'; ctx.fill();
+        });
+
+        ring.forEach(nd => {
+          var r = getR(nd, false);
+          var sa = statusAlpha(nd);
+          var isH = hovered === nd;
+          var rgb = hexToRgb(nd.c);
+
+          if (isH) {
+            drawGlow(nd.x, nd.y, r * 2.5, nd.c, 0.3);
+          }
+
+          if (nd.s === 'active') {
+            drawGlow(nd.x, nd.y, r * 1.8, nd.c, 0.15 + Math.sin(now * 0.004) * 0.05);
+          }
+
+          ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, Math.PI * 2);
+          var g = ctx.createRadialGradient(nd.x - r * 0.3, nd.y - r * 0.3, 0, nd.x, nd.y, r);
+          g.addColorStop(0, 'rgba(' + Math.min(255, rgb.r + 60) + ',' + Math.min(255, rgb.g + 60) + ',' + Math.min(255, rgb.b + 60) + ',' + sa + ')');
+          g.addColorStop(0.6, 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + (sa * 0.9) + ')');
+          g.addColorStop(1, 'rgba(' + Math.floor(rgb.r * 0.4) + ',' + Math.floor(rgb.g * 0.4) + ',' + Math.floor(rgb.b * 0.4) + ',' + (sa * 0.6) + ')');
+          ctx.fillStyle = g; ctx.fill();
+
+          ctx.strokeStyle = isH ? 'rgba(255,255,255,0.9)' : 'rgba(' + Math.min(255, rgb.r + 40) + ',' + Math.min(255, rgb.g + 40) + ',' + Math.min(255, rgb.b + 40) + ',' + (sa * 0.5) + ')';
+          ctx.lineWidth = isH ? 3 : 1.5; ctx.stroke();
+
+          if (nd.s === 'locked') {
+            ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(5,5,16,0.4)'; ctx.fill();
+            ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(100,100,100,0.4)'; ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = (r * 0.45) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('🔒', nd.x, nd.y - r * 0.15);
+          }
+
+          if (nd.s === 'active') {
+            ctx.beginPath(); ctx.arc(nd.x + r * 0.65, nd.y - r * 0.65, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#4ecdc4'; ctx.fill();
+            ctx.shadowColor = '#4ecdc4'; ctx.shadowBlur = 6; ctx.fill(); ctx.shadowBlur = 0;
+          }
+
+          if (nd.s === 'training') {
+            var ta = now * 0.005;
+            ctx.beginPath(); ctx.arc(nd.x + r * 0.65, nd.y - r * 0.65, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#feca57'; ctx.fill();
+            ctx.shadowColor = '#feca57'; ctx.shadowBlur = 6; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(nd.x, nd.y, r + 4, ta, ta + Math.PI * 0.5);
+            ctx.strokeStyle = 'rgba(254,202,87,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+          }
+
+          ctx.fillStyle = sa > 0.5 ? '#fff' : '#888';
+          ctx.font = 'bold ' + (nd.n.length > 4 ? '10' : '11') + 'px "Microsoft YaHei",sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          var nm = nd.n.length > 6 ? nd.n.slice(0, 6) + '..' : nd.n;
+          ctx.fillText(nm, nd.x, nd.y + (nd.s === 'locked' ? r * 0.2 : 0));
+        });
+
+        var cr = getR(cur, true);
+        drawGlow(cur.x, cur.y, cr * 3, cur.c, 0.2 * pulse);
+
+        ctx.beginPath(); ctx.arc(cur.x, cur.y, cr + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = cur.c + '30'; ctx.lineWidth = 1; ctx.stroke();
+
+        var orbitAngle = now * 0.001;
+        ctx.beginPath(); ctx.arc(cur.x, cur.y, cr + 12, orbitAngle, orbitAngle + Math.PI * 0.6);
+        ctx.strokeStyle = cur.c + '25'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cur.x, cur.y, cr + 12, orbitAngle + Math.PI, orbitAngle + Math.PI * 1.6);
+        ctx.strokeStyle = cur.c + '15'; ctx.lineWidth = 1.5; ctx.stroke();
+
+        ctx.beginPath(); ctx.arc(cur.x, cur.y, cr, 0, Math.PI * 2);
+        var cg = ctx.createRadialGradient(cur.x - cr * 0.3, cur.y - cr * 0.3, 0, cur.x, cur.y, cr);
+        var curRgb = hexToRgb(cur.c);
+        cg.addColorStop(0, 'rgba(' + Math.min(255, curRgb.r + 80) + ',' + Math.min(255, curRgb.g + 80) + ',' + Math.min(255, curRgb.b + 80) + ',1)');
+        cg.addColorStop(0.5, cur.c);
+        cg.addColorStop(1, 'rgba(' + Math.floor(curRgb.r * 0.5) + ',' + Math.floor(curRgb.g * 0.5) + ',' + Math.floor(curRgb.b * 0.5) + ',0.7)');
+        ctx.fillStyle = cg; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 2.5; ctx.stroke();
+
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 13px "Microsoft YaHei",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        var cn = cur.n.length > 8 ? cur.n.slice(0, 8) + '..' : cur.n;
+        ctx.fillText(cn, cur.x, cur.y - 7);
+        ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '10px "Microsoft YaHei",sans-serif';
+        ctx.fillText(TL[cur.t] || '', cur.x, cur.y + 11);
+      }
+
+      ctx.restore(); requestAnimationFrame(draw);
+    }
+
+    function findNode(mx, my) {
+      const x = (mx - transform.x) / transform.k; const y = (my - transform.y) / transform.k;
+      let closest = null, minD = Infinity;
+      if (cur) { const d = Math.hypot(cur.x - x, cur.y - y); if (d < getR(cur, true) + 5) { closest = { ...cur, isCenter: true, layerIdx: -1 }; minD = d; } }
+      ring.forEach(nd => { const d = Math.hypot(nd.x - x, nd.y - y); const r = getR(nd, false) + 5; if (d < r && d < minD) { closest = { ...nd, isCenter: false, layerIdx: -1 }; minD = d; } });
+      var depth = path.length;
+      var vanishX = W * 0.82;
+      var vanishY = H * 0.18;
+      for (var li = 0; li < depth; li++) {
+        var pn = path[li];
+        var layerDepth = depth - li;
+        var sc = Math.pow(1.25, layerDepth);
+        var al = Math.pow(0.3, layerDepth);
+        if (al < 0.03) continue;
+        var shift = Math.min(1, 0.15 * layerDepth);
+        var cx = cur.x + (vanishX - cur.x) * shift;
+        var cy = cur.y + (vanishY - cur.y) * shift;
+        var pcr = getR(pn, true) * sc;
+        var d = Math.hypot(cx - x, cy - y);
+        if (d < pcr + 5 && d < minD) { closest = { ...pn, isCenter: true, layerIdx: li }; minD = d; }
+      }
+      return closest;
+    }
+
+    function showInfo(nd) {
+      if (!nd) return;
+      const p = document.getElementById('info-panel'); const c = document.getElementById('panel-content');
+      p.setAttribute('aria-hidden', 'false');
+      let h = '<div class="node-name" style="color:' + nd.c + '">' + nd.n + '</div>';
+      h += '<div class="node-type">' + (TL[nd.t] || nd.t) + '</div>';
+      const sl = SL[nd.s] || nd.s; const sc = SC[nd.s] || '#555';
+      h += '<div class="tag" style="background:' + sc + '22;color:' + sc + '">' + sl + '</div>';
+      if (nd.expert) h += '<div class="tag" style="background:' + nd.c + '22;color:' + nd.c + '">' + nd.expert + '</div>';
+      if (nd.tier) h += '<div class="tag" style="background:rgba(255,255,255,0.04);color:#666">Tier ' + nd.tier + '</div>';
+      if (nd.status) h += '<div class="tag" style="background:rgba(254,202,87,0.1);color:#feca57">' + nd.status + '</div>';
+      if (nd.domain) {
+        var dpid = gp(nd.id);
+        h += '<div class="tag" style="background:rgba(78,205,196,0.1);color:#4ecdc4;cursor:pointer" onclick="goToParent(\'' + (dpid || '') + '\')">' + nd.domain + ' ›</div>';
+      }
+      if (nd.price) h += '<div class="tag" style="background:rgba(254,202,87,0.1);color:#feca57">' + nd.price + '</div>';
+      if (nd.city) h += '<div class="tag" style="background:rgba(0,210,255,0.1);color:#00d2ff">' + nd.city + '</div>';
+      if (nd.cat) h += '<div class="tag" style="background:rgba(162,155,254,0.1);color:#a29bfe">' + nd.cat + '</div>';
+      if (nd.pop) h += '<div class="tag" style="background:rgba(254,202,87,0.1);color:#feca57">Pop:' + nd.pop + '</div>';
+      if (nd.d) h += '<div class="desc">' + nd.d + '</div>';
+      if (nd.focus) h += '<div class="section"><div class="section-title">专注领域</div><div class="desc">' + nd.focus + '</div></div>';
+      if (nd.hot) { h += '<div class="section"><div class="section-title">热门模板</div><ul class="child-list">'; nd.hot.forEach(t => { h += '<li><span style="color:#ff6b6b;font-size:10px">🔥</span>' + t + '</li>'; }); h += '</ul></div>'; }
+
+      if (nd.t === 'soul') {
+        h += '<div class="section" style="margin-top:8px">';
+        if (nd.s === 'active' || nd.s === 'training') {
+          h += '<button class="action-btn primary" style="margin-bottom:8px" onclick="openChat(\'' + nd.id + '\')">💬 开始问答</button>';
+        } else {
+          h += '<button class="action-btn secondary" style="margin-bottom:8px" onclick="alert(\'该灵魂模型尚未训练完成，敬请期待\')">🔒 敬请期待</button>';
+        }
+        var toolCh = gc(nd.id);
+        if (toolCh.length > 0) {
+          h += '<button class="action-btn primary" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7)" onclick="drillInto(\'' + nd.id + '\')">🔧 展开技能 (' + toolCh.length + '个工具)</button>';
+        }
+        h += '</div>';
+        if (toolCh.length > 0) {
+          h += '<div class="section"><div class="section-title">工具链</div><ul class="child-list">';
+          toolCh.forEach(t2 => { var tsc = SC[t2.s] || '#555'; h += '<li onclick="drillInto(\'' + nd.id + '\')"><div class="dot" style="background:' + t2.c + '"></div>' + t2.n + '<span class="status-icon" style="color:' + tsc + '">' + (t2.s === 'active' ? '✓' : '🔒') + '</span></li>'; });
+          h += '</ul></div>';
+        }
+        if (nd.cross && nd.cross.length > 0) {
+          h += '<div class="cross-domain"><div class="cd-title">跨领域协作</div>';
+          nd.cross.forEach(cid => { var cs = N[cid]; if (cs) { h += '<div class="cd-item" onclick="handleCrossDomain(\'' + cid + '\')">' + cs.n + ' · ' + cs.expert + (cs.s === 'active' || cs.s === 'training' ? ' ✓' : ' 🔒 需安装') + '</div>'; } });
+          h += '</div>';
+        }
+        var spid = gp(nd.id);
+        if (spid && N[spid]) {
+          var spn = N[spid];
+          h += '<div class="section"><div class="section-title">所属行业</div><ul class="child-list">';
+          h += '<li onclick="goToParent(\'' + spid + '\')"><div class="dot" style="background:' + spn.c + '"></div>' + spn.n + '<span class="status-icon" style="color:#4ecdc4">›</span></li>';
+          h += '</ul></div>';
+        }
+        c.innerHTML = h; p.classList.add('visible'); p.focus(); return;
+      }
+
+      const pid = gp(nd.id);
+      if (pid && N[pid]) { const pn = N[pid]; h += '<div class="section"><div class="section-title">上级节点</div><ul class="child-list"><li onclick="drillInto(\'' + pid + '\')"><div class="dot" style="background:' + pn.c + '"></div>' + pn.n + '</li></ul></div>'; }
+      const ch = gc(nd.id);
+      if (ch.length > 0) { h += '<div class="section"><div class="section-title">下级节点 (' + ch.length + ')</div><ul class="child-list">'; ch.forEach(c2 => { const csc = SC[c2.s] || '#555'; h += '<li onclick="drillInto(\'' + c2.id + '\')"><div class="dot" style="background:' + c2.c + '"></div>' + c2.n + '<span class="status-icon" style="color:' + csc + '">' + (c2.s === 'active' ? '✓' : c2.s === 'training' ? '⏳' : '🔒') + '</span></li>'; }); h += '</ul></div>'; }
+      if (nd.s === 'active' && ch.length > 0) { h += '<button class="action-btn primary" onclick="drillInto(\'' + nd.id + '\')">展开下级 (' + ch.length + ')</button>'; }
+      // deployment button for tools
+      if (nd.t === 'tool') {
+        h += '<div style="margin-top:8px">';
+        h += '<button class="action-btn primary" onclick="openDeployment(\'' + nd.id + '\')">一键部署</button>';
+        h += '<button class="action-btn ghost" onclick="openChat(\'' + nd.id + '\')">咨询</button>';
+        h += '</div>';
+      }
+      else if (nd.s === 'locked') { h += '<button class="action-btn secondary" onclick="alert(\'该功能正在规划中，敬请期待\')">敬请期待</button>'; }
+      c.innerHTML = h; p.classList.add('visible');
+      p.focus();
+    }
+
+    function goToParent(parentId) {
+      if (!parentId || !N[parentId]) return;
+      for (var i = path.length - 1; i >= 0; i--) {
+        if (path[i].id === parentId) { drillTo(i); return; }
+      }
+      drillBack();
+    }
+
+    function handleCrossDomain(soulId) {
+      var cs = N[soulId]; if (!cs) return;
+      if (cs.s === 'active' || cs.s === 'training') { openChat(soulId); }
+      else { alert('跨领域需要安装「' + cs.n + '」灵魂模块\n\n' + cs.expert + '\n\n该灵魂尚未训练完成，训练完成后可在私有工作站中安装。'); }
+    }
+
+    var chatSoul = null;
+
+    function openChat(soulId) {
+      var s = N[soulId]; if (!s) return;
+      chatSoul = { ...s, id: soulId };
+      chatHistory = [];
+      var cw = document.getElementById('chat-window'); cw.style.display = 'flex';
+      document.getElementById('chat-title').textContent = s.n + ' · 问答';
+      document.getElementById('chat-soul-dot').style.background = s.c;
+      var msgs = document.getElementById('chat-messages'); msgs.innerHTML = '';
+      var agent = SOUL_AGENTS[soulId];
+      if (agent) {
+        addChatMsg('system', '已连接 ' + s.n + ' (云端)');
+        addChatMsg('ai', '你好！我是' + s.n + '，擅长' + s.expert + '。请问有什么可以帮你的？');
+      } else {
+        addChatMsg('system', s.n + ' · 本地模式');
+        addChatMsg('ai', '你好！我是' + s.n + '。云端Agent尚未部署，对话功能将在部署完成后开放。');
+      }
+      var toolList = document.getElementById('chat-tools');
+      var tools = gc(soulId);
+      if (tools.length > 0) {
+        toolList.innerHTML = '<div style="font-size:11px;color:#555;margin-bottom:6px">相关工具</div>';
+        tools.forEach(function (t2) { toolList.innerHTML += '<div style="padding:4px 8px;margin:2px 0;border-radius:6px;font-size:11px;cursor:pointer;color:' + (t2.s === 'active' ? '#a29bfe' : '#444') + ';transition:background .2s" onmouseover="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseout="this.style.background=\'transparent\'" onclick="drillInto(\'' + t2.id + '\')">' + (t2.s === 'active' ? '✓' : '🔒') + ' ' + t2.n + '</div>'; });
+      } else { toolList.innerHTML = ''; }
+    }
+
+    function closeChat() { document.getElementById('chat-window').style.display = 'none'; }
+
+    function addChatMsg(role, text) {
+      var msgs = document.getElementById('chat-messages'); var div = document.createElement('div');
+      div.style.cssText = role === 'system' ? 'text-align:center;font-size:11px;color:#444;padding:4px 0' : role === 'ai' ? 'background:rgba(78,205,196,0.08);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;color:#bbb;align-self:flex-start;max-width:85%' : 'background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;color:#e0e0e0;align-self:flex-end;max-width:85%';
+      div.textContent = text; msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    var chatHistory = [];
+
+    function sendChat() {
+      var input = document.getElementById('chat-input'); var text = input.value.trim(); if (!text) return;
+      addChatMsg('user', text); input.value = '';
+      if (!chatSoul) { addChatMsg('ai', '请先选择一个灵魂专家'); return; }
+      var agent = SOUL_AGENTS[chatSoul.id];
+      if (agent) {
+        chatHistory.push({ role: 'user', content: text });
+        addChatMsg('system', '思考中...');
+        var loadingMsgs = document.getElementById('chat-messages');
+        var loadingEl = loadingMsgs.lastElementChild;
+        fetch(agent.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + agent.key },
+          body: JSON.stringify({ messages: chatHistory.slice(-10), stream: false })
+        }).then(function (r) { return r.json(); }).then(function (data) {
+          if (loadingEl) loadingEl.remove();
+          var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+          if (reply) {
+            chatHistory.push({ role: 'assistant', content: reply });
+            addChatMsg('ai', reply);
+          } else {
+            addChatMsg('ai', '收到响应但无法解析内容，请重试。');
+          }
+        }).catch(function (err) {
+          if (loadingEl) loadingEl.remove();
+          addChatMsg('ai', '连接失败: ' + err.message + '\n\n请检查网络连接。');
+        });
+      } else {
+        addChatMsg('ai', '该灵魂模型尚未部署到云端，对话功能将在部署完成后开放。');
+      }
+    }
+
+    function startVoice() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert('当前浏览器不支持语音输入，请使用Chrome或Edge'); return; }
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition; var rec = new SR();
+      rec.lang = 'zh-CN'; rec.continuous = false; rec.interimResults = false;
+      var btn = document.getElementById('voice-btn');
+      btn.style.background = 'rgba(255,107,107,0.2)'; btn.style.borderColor = '#ff6b6b'; btn.style.color = '#ff6b6b';
+      rec.onresult = function (e) { var txt = e.results[0][0].transcript; document.getElementById('chat-input').value = txt; btn.style.background = 'rgba(78,205,196,0.06)'; btn.style.borderColor = 'rgba(78,205,196,0.2)'; btn.style.color = '#4ecdc4'; sendChat(); };
+      rec.onerror = function () { btn.style.background = 'rgba(78,205,196,0.06)'; btn.style.borderColor = 'rgba(78,205,196,0.2)'; btn.style.color = '#4ecdc4'; };
+      rec.onend = function () { btn.style.background = 'rgba(78,205,196,0.06)'; btn.style.borderColor = 'rgba(78,205,196,0.2)'; btn.style.color = '#4ecdc4'; };
+      rec.start();
+    }
+
+    function toggleQuickStart() {
+      var qs = document.getElementById('quick-start');
+      if (!qs) return;
+      if (qs.style.display === 'none' || qs.classList.contains('hidden')) {
+        qs.style.display = 'block'; qs.classList.remove('hidden');
+      } else { qs.style.display = 'none'; qs.classList.add('hidden'); }
+    }
+
+    // === SEARCH ===
+    var searchInput = document.getElementById('search-input');
+    var searchResults = document.getElementById('search-results');
+
+    function searchNodes(query) {
+      if (!query || query.length < 1) { searchResults.classList.remove('visible'); return; }
+      var q = query.toLowerCase();
+      var results = [];
+      Object.entries(N).forEach(function ([id, nd]) {
+        var score = 0;
+        if (nd.n.toLowerCase().includes(q)) score += 10;
+        if (nd.d && nd.d.toLowerCase().includes(q)) score += 3;
+        if (nd.expert && nd.expert.toLowerCase().includes(q)) score += 5;
+        if (nd.cat && nd.cat.toLowerCase().includes(q)) score += 4;
+        if (nd.domain && nd.domain.toLowerCase().includes(q)) score += 3;
+        if (TL[nd.t] && TL[nd.t].toLowerCase().includes(q)) score += 2;
+        if (nd.hot) nd.hot.forEach(function (h) { if (h.toLowerCase().includes(q)) score += 2; });
+        if (score > 0) results.push({ id: id, ...nd, score: score });
+      });
+      results.sort(function (a, b) { return b.score - a.score; });
+      return results.slice(0, 12);
+    }
+
+    function renderSearchResults(results) {
+      if (!results || results.length === 0) { searchResults.classList.remove('visible'); return; }
+      var html = '';
+      results.forEach(function (nd) {
+        var sl = SL[nd.s] || nd.s;
+        var sc = SC[nd.s] || '#555';
+        html += '<div class="sr-item" onclick="navigateToNode(\'' + nd.id + '\')">';
+        html += '<div class="sr-dot" style="background:' + nd.c + ';box-shadow:0 0 6px ' + nd.c + '"></div>';
+        html += '<span class="sr-name">' + nd.n + '</span>';
+        html += '<span class="sr-type">' + (TL[nd.t] || '') + '</span>';
+        html += '<span class="sr-status" style="background:' + sc + '15;color:' + sc + '">' + sl + '</span>';
+        html += '</div>';
+      });
+      searchResults.innerHTML = html;
+      searchResults.classList.add('visible');
+    }
+
+    function navigateToNode(id) {
+      searchInput.value = '';
+      searchResults.classList.remove('visible');
+      searchInput.blur();
+
+      var nodePath = [];
+      var curId = id;
+      while (PARENT[curId]) {
+        nodePath.unshift(curId);
+        curId = PARENT[curId];
+      }
+      nodePath.unshift(curId);
+
+      goRoot();
+      for (var i = 1; i < nodePath.length; i++) {
+        drillInto(nodePath[i]);
+      }
+
+      var nd = N[id];
+      if (nd) {
+        setTimeout(function () { showInfo({ id: id, ...nd }); }, 700);
+      }
+    }
+
+    searchInput.addEventListener('input', function () {
+      var results = searchNodes(this.value);
+      renderSearchResults(results);
+    });
+
+    searchInput.addEventListener('focus', function () {
+      if (this.value.length > 0) {
+        var results = searchNodes(this.value);
+        renderSearchResults(results);
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#search-wrap')) {
+        searchResults.classList.remove('visible');
+      }
+    });
+
+    // === KEYBOARD ===
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        if (searchResults.classList.contains('visible')) {
+          searchResults.classList.remove('visible');
+          searchInput.blur();
+          return;
+        }
+        if (document.getElementById('chat-window').style.display === 'flex') {
+          closeChat(); return;
+        }
+        if (document.getElementById('info-panel').classList.contains('visible')) {
+          document.getElementById('info-panel').classList.remove('visible'); return;
+        }
+        drillBack();
+      }
+      if (e.key === '/' && document.activeElement !== searchInput && document.activeElement !== document.getElementById('chat-input')) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+    });
+
+    // === MOUSE/TOUCH ===
+    canvas.addEventListener('mousemove', e => {
+      const nd = findNode(e.clientX, e.clientY); hovered = nd; canvas.style.cursor = nd ? 'pointer' : 'grab';
+      const tip = document.getElementById('tooltip');
+      if (nd) {
+        let tt = '<div style="color:' + nd.c + ';font-weight:700;font-size:13px">' + nd.n + '</div>';
+        if (nd.expert) tt += '<div style="color:#888;font-size:11px;margin-top:2px">' + nd.expert + '</div>';
+        if (nd.cat) tt += '<div style="color:#888;font-size:11px;margin-top:1px">' + nd.cat + '</div>';
+        const sl = SL[nd.s] || nd.s; const sc = SC[nd.s] || '#555';
+        tt += '<div style="color:' + sc + ';font-size:10px;margin-top:3px">' + sl + '</div>';
+        if (nd.layerIdx !== undefined && nd.layerIdx >= 0) {
+          tt += '<div style="color:#4ecdc4;font-size:10px;margin-top:2px">点击返回该层</div>';
+        } else if (!nd.isCenter) {
+          if (nd.t === 'soul') tt += '<div style="color:#555;font-size:10px;margin-top:2px">点击查看问答入口</div>';
+          else if (nd.t === 'industry') tt += '<div style="color:#555;font-size:10px;margin-top:2px">点击进入该行业</div>';
+          else { const ch = gc(nd.id); if (ch.length > 0) tt += '<div style="color:#555;font-size:10px;margin-top:2px">点击展开 ' + ch.length + ' 个下级</div>'; else tt += '<div style="color:#555;font-size:10px;margin-top:2px">点击查看详情</div>'; }
+        } else { tt += '<div style="color:#555;font-size:10px;margin-top:2px">点击查看详情</div>'; }
+        tip.innerHTML = tt;
+        var tx = e.clientX + 16; var ty = e.clientY - 10;
+        if (tx + 240 > W) tx = e.clientX - 250;
+        if (ty + 100 > H) ty = e.clientY - 100;
+        tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+        tip.classList.add('visible');
+      } else { tip.classList.remove('visible'); }
+    });
+
+    canvas.addEventListener('click', e => {
+      const nd = findNode(e.clientX, e.clientY);
+      if (nd) { e.stopPropagation(); }
+      if (!nd) { document.getElementById('info-panel').classList.remove('visible'); return; }
+      if (nd.layerIdx !== undefined && nd.layerIdx >= 0) { drillTo(nd.layerIdx); return; }
+      if (nd.t === 'soul') { showInfo(nd); }
+      else if (nd.isCenter) { showInfo(nd); }
+      else if (nd.t === 'industry' || nd.t === 'need') { drillInto(nd.id); }
+      else { const ch = gc(nd.id); if (ch.length > 0) { drillInto(nd.id); } else { showInfo(nd); } }
+    });
+
+    var touchStart = null; var touchMoved = false;
+    canvas.addEventListener('touchstart', e => { if (e.touches.length === 1) { touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }; touchMoved = false; } }, { passive: true });
+    canvas.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+    canvas.addEventListener('touchend', e => {
+      if (!touchMoved && touchStart) {
+        var nd = findNode(touchStart.x, touchStart.y);
+        if (!nd) { document.getElementById('info-panel').classList.remove('visible'); return; }
+        if (nd.layerIdx !== undefined && nd.layerIdx >= 0) { drillTo(nd.layerIdx); return; }
+        if (nd.t === 'soul') { showInfo(nd); }
+        else if (nd.isCenter) { showInfo(nd); }
+        else if (nd.t === 'industry' || nd.t === 'need') { drillInto(nd.id); }
+        else { const ch = gc(nd.id); if (ch.length > 0) { drillInto(nd.id); } else { showInfo(nd); } }
+      }
+      touchStart = null;
+    }, { passive: true });
+
+    document.getElementById('panel-close').addEventListener('click', () => {
+      var p = document.getElementById('info-panel');
+      p.classList.remove('visible');
+      p.setAttribute('aria-hidden', 'true');
+      p.blur();
+    });
+
+    const zoom = d3.zoom().scaleExtent([0.3, 4]).touchable(() => ('ontouchstart' in window ? 'touch' : null)).filter(e => { if (e.type === 'dblclick') return false; return true; }).on('zoom', e => { transform = e.transform; });
+    d3.select(canvas).call(zoom).on('touchstart.zoom', null);
+
+    document.getElementById('btn-fit').addEventListener('click', () => { d3.select(canvas).transition().duration(500).call(zoom.transform, d3.zoomIdentity); });
+    document.getElementById('btn-zin').addEventListener('click', () => { d3.select(canvas).transition().duration(300).call(zoom.scaleBy, 1.3); });
+    document.getElementById('btn-zout').addEventListener('click', () => { d3.select(canvas).transition().duration(300).call(zoom.scaleBy, 0.7); });
+    document.getElementById('btn-back').addEventListener('click', drillBack);
+
+    window.addEventListener('resize', () => { resize(); initStars(); initNebulae(); layoutRing(); initParticles(); });
+
+    resize(); initStars(); initNebulae();
+    cur = { id: 'NEED', ...N.NEED, x: W / 2, y: H / 2 }; ring = gc('NEED');
+    layoutRing(); initParticles(); updateBC(); updateLI(); draw();
+    setTimeout(() => { document.getElementById('drill-hint').style.opacity = '0'; }, 6000);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      var vb = document.getElementById('voice-btn');
+      if (vb) vb.style.display = 'block';
+    }
+
+    document.getElementById('quick-start').classList.add('collapsed');
+    document.getElementById('quick-start').addEventListener('click', function (e) {
+      if (this.classList.contains('collapsed')) { this.classList.remove('collapsed'); e.stopPropagation(); }
+    });
+
+    document.getElementById('legend').classList.add('collapsed');
+    document.getElementById('legend').addEventListener('click', function (e) {
+      if (this.classList.contains('collapsed')) { this.classList.remove('collapsed'); e.stopPropagation(); }
+    });
+
+    var headerEl = document.getElementById('header');
+    headerEl.addEventListener('click', function (e) {
+      if (this.classList.contains('collapsed')) { this.classList.remove('collapsed'); e.stopPropagation(); }
+    });
+    headerEl.querySelector('.brand').addEventListener('dblclick', function (e) {
+      headerEl.classList.add('collapsed');
+    });
+
+    document.addEventListener('click', function (e) {
+      var qs = document.getElementById('quick-start');
+      var lg = document.getElementById('legend');
+      var hd = document.getElementById('header');
+      if (qs && !qs.contains(e.target)) qs.classList.add('collapsed');
+      if (lg && !lg.contains(e.target)) lg.classList.add('collapsed');
+      if (hd && !hd.contains(e.target)) hd.classList.add('collapsed');
+    });
+  </script>
+</body>
+
+</html>

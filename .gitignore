@@ -25,7 +25,12 @@ soul_training_data/
 hermes_logs/
 arena_results/
 voice_test/
-industry_knowledge_graph/
+industry_knowledge_graph/*.py
+industry_knowledge_graph/*.json
+industry_knowledge_graph/*.csv
+industry_knowledge_graph/*.txt
+industry_knowledge_graph/data/
+industry_knowledge_graph/__pycache__/
 pipeline_8b/
 CayleyNet/
 *.env

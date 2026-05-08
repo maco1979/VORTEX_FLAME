@@ -71,3 +71,14 @@ verify_s3_v3.py
 execute.py
 skills_registry.json
 created*
+.trae/skills/fkj-audio-fine-tuning/
+.trae/skills/original-music-training/
+.trae/skills/slice-origin-tracker/
+.trae/skills/soul-deep-expansion/
+.trae/skills/slice-training-engine/
+.trae/skills/model-slice/
+.trae/skills/cosmic-cube-ai/
+.trae/skills/mvp-cube-training/
+.trae/skills/einstein-slice-training/
+llama.cpp/
+mistral-7b-cpu/

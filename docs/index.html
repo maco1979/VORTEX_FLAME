@@ -2300,19 +2300,30 @@
 
     var chatHistory = [];
     var FREE_LIMIT = 5;
+    var DAILY_PREMIUM_LIMIT = 50;
     var freeUsed = parseInt(localStorage.getItem('vortex_free_used') || '0');
     var isPremium = localStorage.getItem('vortex_premium') === 'true';
     var AFDIAN_URL = 'https://afdian.com/a/YOUR_SLUG';
 
+    function getTodayKey() { return 'vortex_daily_' + new Date().toISOString().slice(0, 10); }
+    function getDailyUsed() { var k = getTodayKey(); return parseInt(localStorage.getItem(k) || '0'); }
+    function addDailyUsed() { var k = getTodayKey(); localStorage.setItem(k, (getDailyUsed() + 1).toString()); }
+
     function checkFreeLimit() {
-      if (isPremium) return true;
+      if (isPremium) {
+        if (getDailyUsed() >= DAILY_PREMIUM_LIMIT) {
+          addChatMsg('system', '今日对话已达上限（' + DAILY_PREMIUM_LIMIT + '次），明天再来吧～');
+          return false;
+        }
+        return true;
+      }
       if (freeUsed < FREE_LIMIT) return true;
       showPaywall();
       return false;
     }
 
     function useFreeCount() {
-      if (isPremium) return;
+      if (isPremium) { addDailyUsed(); updateFreeCounter(); return; }
       freeUsed++;
       localStorage.setItem('vortex_free_used', freeUsed.toString());
       updateFreeCounter();
@@ -2322,8 +2333,9 @@
       var el = document.getElementById('free-counter');
       if (el) {
         if (isPremium) {
-          el.textContent = '✨ 会员用户';
-          el.style.color = '#ffc107';
+          var left = DAILY_PREMIUM_LIMIT - getDailyUsed();
+          el.textContent = '✨ 今日剩余: ' + left + '次';
+          el.style.color = left <= 5 ? '#ff9ff3' : '#ffc107';
         } else {
           var left = FREE_LIMIT - freeUsed;
           el.textContent = '免费剩余: ' + left + '/' + FREE_LIMIT + '次';

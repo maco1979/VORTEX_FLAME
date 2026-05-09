@@ -1257,7 +1257,7 @@
     }
 
     #chat-window .chat-sidebar {
-      width: 110px;
+      width: 130px;
       padding: 14px 10px;
       overflow-y: auto;
       background: rgba(255, 255, 255, 0.02);
@@ -1489,7 +1489,26 @@
         <button onclick="sendChat()" class="btn btn-primary">发送</button>
       </div>
     </div>
-    <div id="chat-tools" class="chat-sidebar"></div>
+    <div id="chat-tools" class="chat-sidebar">
+      <div style="font-size:11px;color:#555;margin-bottom:6px">TRAE集成</div>
+      <div id="trae-controls" style="display:flex;flex-direction:column;gap:4px;">
+        <button id="trae-connect-btn" class="btn btn-ghost"
+          style="font-size:11px;padding:6px 8px;border:1px solid rgba(78,205,196,0.3);color:#4ecdc4;"
+          onclick="connectToTrae()">
+          <i class="fas fa-plug"></i> 连接TRAE
+        </button>
+        <button id="trae-launch-btn" class="btn btn-ghost"
+          style="font-size:11px;padding:6px 8px;border:1px solid rgba(255,153,255,0.3);color:#ff9ff3;"
+          onclick="launchTraeAgent()">
+          <i class="fas fa-rocket"></i> 启动代理
+        </button>
+        <button id="trae-delegate-btn" class="btn btn-ghost"
+          style="font-size:11px;padding:6px 8px;border:1px solid rgba(255,193,7,0.3);color:#ffc107;"
+          onclick="delegateToSolo()">
+          <i class="fas fa-share"></i> 委派任务
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2147,10 +2166,133 @@
 
     function closeChat() { document.getElementById('chat-window').style.display = 'none'; }
 
+    // 检测文本是否包含代码块
+    function containsCodeBlocks(text) {
+      // 检测代码块标记
+      const codePatterns = [
+        /```[\s\S]*?```/,  // 代码块
+        /`[^`]+`/,        // 行内代码
+        /function\s+\w+\s*\(/,  // 函数定义
+        /class\s+\w+\s*\{/,    // 类定义
+        /import\s+/,      // import语句
+        /const\s+\w+\s*=/,    // const声明
+        /let\s+\w+\s*=/,      // let声明
+        /var\s+\w+\s*=/,      // var声明
+        /(\r\n|\n)[\s\S]*?[\s\S]*(\r\n|\n)/  // 多行文本
+      ];
+
+      // 如果文本长度超过50个字符，或者包含代码标记，则认为是代码
+      return text.length > 50 || codePatterns.some(pattern => pattern.test(text));
+    }
+
+    // 复制到剪贴板
+    function copyToClipboard(text) {
+      // 创建临时textarea元素
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-999999px';
+      textarea.style.top = '-999999px';
+      document.body.appendChild(textarea);
+
+      // 选中文本并复制
+      textarea.select();
+      textarea.setSelectionRange(0, 99999); // 移动端兼容
+
+      try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        // 显示复制成功提示
+        showCopyNotification(successful);
+        return successful;
+      } catch (err) {
+        document.body.removeChild(textarea);
+        console.error('复制失败:', err);
+        showCopyNotification(false);
+        return false;
+      }
+    }
+
+    // 显示复制通知
+    function showCopyNotification(success) {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${success ? '#00ffcc' : '#ff6b9d'};
+        color: ${success ? '#000' : '#fff'};
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      `;
+      notification.textContent = success ? '✓ 复制成功' : '✗ 复制失败';
+
+      // 添加动画样式
+      if (!document.getElementById('copy-notification-style')) {
+        const style = document.createElement('style');
+        style.id = 'copy-notification-style';
+        style.textContent = `
+          @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(notification);
+
+      // 3秒后自动移除
+      setTimeout(() => {
+        notification.style.animation = 'slideIn 0.3s ease-out reverse';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
+
     function addChatMsg(role, text) {
       var msgs = document.getElementById('chat-messages'); var div = document.createElement('div');
-      div.style.cssText = role === 'system' ? 'text-align:center;font-size:11px;color:#444;padding:4px 0' : role === 'ai' ? 'background:rgba(78,205,196,0.08);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;color:#bbb;align-self:flex-start;max-width:85%' : 'background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;color:#e0e0e0;align-self:flex-end;max-width:85%';
-      div.textContent = text; msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
+
+      if (role === 'system') {
+        div.style.cssText = 'text-align:center;font-size:11px;color:#444;padding:4px 0';
+        div.textContent = text;
+      } else if (role === 'ai') {
+        div.style.cssText = 'background:rgba(78,205,196,0.08);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;color:#bbb;align-self:flex-start;max-width:85%';
+
+        var contentDiv = document.createElement('div');
+        contentDiv.style.cssText = 'position:relative;';
+
+        var textDiv = document.createElement('div');
+        textDiv.style.cssText = 'white-space:pre-wrap;word-wrap:break-word;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px;border-left:3px solid #00ffcc;';
+        textDiv.textContent = text;
+        contentDiv.appendChild(textDiv);
+
+        var copyBtn = document.createElement('button');
+        copyBtn.style.cssText = 'position:absolute;right:8px;top:8px;background:rgba(78,205,196,0.2);border:1px solid #00ffcc;color:#00ffcc;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,255,204,0.2);';
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i> 复制';
+        copyBtn.title = '复制内容';
+        copyBtn.onclick = function () { copyToClipboard(text); };
+        copyBtn.onmouseover = function () { this.style.background = 'rgba(78,205,196,0.3)'; this.style.transform = 'scale(1.05)'; };
+        copyBtn.onmouseout = function () { this.style.background = 'rgba(78,205,196,0.2)'; this.style.transform = 'scale(1)'; };
+        contentDiv.appendChild(copyBtn);
+
+        div.appendChild(contentDiv);
+      } else {
+        div.style.cssText = 'background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;color:#e0e0e0;align-self:flex-end;max-width:85%';
+        div.textContent = text;
+      }
+
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
     }
 
     var chatHistory = [];
@@ -2407,6 +2549,106 @@
     headerEl.querySelector('.brand').addEventListener('dblclick', function (e) {
       headerEl.classList.add('collapsed');
     });
+
+    // TRAE集成函数
+    function connectToTrae() {
+      showNotification('正在连接TRAE...');
+      // 模拟连接过程
+      setTimeout(() => {
+        document.getElementById('trae-connect-btn').style.background = 'rgba(78,205,196,0.2)';
+        document.getElementById('trae-connect-btn').innerHTML = '<i class="fas fa-check"></i> 已连接';
+        showNotification('✓ 已连接到TRAE');
+      }, 2000);
+    }
+
+    function launchTraeAgent() {
+      if (!chatSoul) {
+        showNotification('请先选择一个灵魂专家');
+        return;
+      }
+
+      const agentName = chatSoul.n + '-TRAE';
+      showNotification('正在启动TRAE代理: ' + agentName);
+
+      // 模拟启动过程
+      setTimeout(() => {
+        document.getElementById('trae-launch-btn').style.background = 'rgba(255,153,255,0.2)';
+        document.getElementById('trae-launch-btn').innerHTML = '<i class="fas fa-check"></i> 已启动';
+        showNotification('✓ TRAE代理 ' + agentName + ' 已启动');
+      }, 1500);
+    }
+
+    function delegateToSolo() {
+      if (!chatSoul) {
+        showNotification('请先选择一个灵魂专家');
+        return;
+      }
+
+      const input = document.getElementById('chat-input');
+      const task = input.value.trim();
+
+      if (!task) {
+        showNotification('请输入要委派的任务');
+        return;
+      }
+
+      showNotification('正在委派任务到TRAE SOLO...');
+
+      // 模拟委派过程
+      setTimeout(() => {
+        document.getElementById('trae-delegate-btn').style.background = 'rgba(255,193,7,0.2)';
+        document.getElementById('trae-delegate-btn').innerHTML = '<i class="fas fa-check"></i> 已委派';
+        showNotification('✓ 任务已委派到TRAE SOLO');
+        input.value = '';
+
+        // 添加委派成功的系统消息
+        addChatMsg('system', '任务已委派给' + chatSoul.n + '专家，TRAE正在处理...');
+      }, 1000);
+    }
+
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(78,205,196,0.9);
+        color: #000;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      `;
+      notification.textContent = message;
+
+      // 添加动画样式
+      if (!document.getElementById('notification-style')) {
+        const style = document.createElement('style');
+        style.id = 'notification-style';
+        style.textContent = `
+          @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(notification);
+
+      // 3秒后自动移除
+      setTimeout(() => {
+        notification.style.animation = 'slideIn 0.3s ease-out reverse';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
 
     document.addEventListener('click', function (e) {
       var qs = document.getElementById('quick-start');

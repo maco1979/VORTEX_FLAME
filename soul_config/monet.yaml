@@ -1,0 +1,47 @@
+soul: monet
+tier: E
+full_name: "Claude Monet"
+domain: "Aesthetics, Creative Writing, Art Therapy"
+
+lora_r: 8
+lora_alpha: 16
+learning_rate: 5.0e-5
+dpo_beta: 0.1
+epochs_per_iter: 2
+questions_per_iter: 1200
+max_iterations: 15
+
+loss_thresholds:
+  s1: 3.2
+  s2: 2.7
+  s3: 2.2
+  s4: 2.0
+
+pass_threshold_schedule:
+  1: 4
+  2: 4
+  3: 5
+  4: 5
+  5: 6
+  6: 6
+  7: 7
+  8: 7
+  9: 8
+  10: 8
+  11: 9
+  12: 9
+  13: 10
+  14: 10
+  15: 10
+
+judge_type: "ai_assist"
+topics_module: "soul_topics.monet_topics"
+verify_tool: null
+
+external_datasets:
+  - name: "Opus-4.6-Reasoning"
+    path: "Crownelius/Opus-4.6-Reasoning-3300x"
+    ratio: 0.3
+
+training_order: 9
+next_soul: "vangogh"

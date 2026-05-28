@@ -1,0 +1,47 @@
+soul: galileo
+tier: A
+full_name: "Galileo Galilei"
+domain: "Astronomy, Astrophysics, Orbital Mechanics"
+
+lora_r: 16
+lora_alpha: 32
+learning_rate: 5.0e-5
+dpo_beta: 0.1
+epochs_per_iter: 2
+questions_per_iter: 1200
+max_iterations: 15
+
+loss_thresholds:
+  s1: 2.5
+  s2: 2.0
+  s3: 1.6
+  s4: 1.4
+
+pass_threshold_schedule:
+  1: 4
+  2: 4
+  3: 5
+  4: 5
+  5: 6
+  6: 6
+  7: 7
+  8: 7
+  9: 8
+  10: 8
+  11: 9
+  12: 9
+  13: 10
+  14: 10
+  15: 10
+
+judge_type: "verify_tool"
+topics_module: "soul_topics.galileo_topics"
+verify_tool: "tools.galileo_verify"
+
+external_datasets:
+  - name: "Opus-4.6-Reasoning"
+    path: "Crownelius/Opus-4.6-Reasoning-3300x"
+    ratio: 0.3
+
+training_order: 5
+next_soul: "darwin"

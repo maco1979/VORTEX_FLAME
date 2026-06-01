@@ -1,3 +1,8 @@
+# ============================================================
+# CORE ASSETS — NEVER TRACK（权重 / 数据 / 知识 / 密钥）
+# ============================================================
+
+# Model weights
 *.bin
 *.safetensors
 *.gguf
@@ -7,24 +12,74 @@
 *.ckpt
 *.h5
 *.pkl
-*.parquet
-*.arrow
-*.msgpack
-*.faiss
+
+# Checkpoints
+ajepa_checkpoints/
+ajepa_multiclass_checkpoints/
+cvjepa_checkpoints/
+finjepa_checkpoints/
+
+# Soul knowledge bases
+.vf_memory/
+.vf_world_cache/
+soul_memory_store/
+rag_knowledge_bases/
+world_embedding_cache.db/
+
+# Knowledge graphs & indices
+kb_harness/
+kb_mcp/
+kb_skill/
+kb_workflow/
+skill_cache/
+knowledge_base/
+industry_knowledge_graph/
+cezanne_retrain/
+
+# Training data & cache
+code_jepa_data/
+_data/
+data/
+soul_lora_v2/
+
+# Local LLM
+llama.cpp/
+
+# Secrets & config
 *.env
 *.env.local
+.env.*
+
+# Tools (third-party / large)
+tools/
+
+# Logs
 *.log
+hermes_logs/
+
+# ============================================================
+# BUILD ARTIFACTS
+# ============================================================
 *.tar.gz
 *.tgz
 *.zip
 *.7z
 *.rar
+*.parquet
+*.arrow
+*.msgpack
+*.faiss
 node_modules/
 __pycache__/
 *.pyc
 .worktrees/
-soul_memory_store/
-rag_knowledge_bases/
-data/
-soul_lora_v2/
-hermes_logs/
+
+# ============================================================
+# IDE
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

@@ -6,16 +6,15 @@
 ================================================================================
 
 【当前运行】
-  ⏳ E盘训练进程 — PID 15944 (Python312), 占用4354MiB显存, GPU利用率14%
-     ⚠️ SD WebUI部署暂停, 避免影响训练 (需额外4-6GB显存, 同时跑会OOM)
+  ⏳ CAJEPA multiclass训练 — E4 B~4000/6663 (2026-06-01启动, lr=5e-5)
+     ✅ 梯度spike从50-220降至50-52: near-identity init + separated LR (slot_proj=1e-5)
+     ✅ 学习率稳定: lr≈4.95e-05, loss≈2.7(0.3GB VRAM), jepa≈2.1, cont≈2.0
+     ⚠️ spike仍有~1/100步(norm 50, clip到5.0)
   ⏳ Cezanne iter4 Phase1 — Terminal运行中(2026-05-23, 已跑23+/500题)
      ✅ iter3 Phase1完成: 500题, WIN率51.6%(258/500), AvgVSA~0.55-0.65
      ❌ iter3 Phase2-3未执行: 被HARNESS门禁拦截(DPO配对不足), 无权重保存
      ✅ iter3诊断完成(2026-05-24): 根因已定位, 3种修复方案待选择
-        方案A: 手动补跑DPO训练 (推荐, 复用trajectory数据)
-        方案B: 调整MIN_DPO_PAIRS后重跑
-        方案C: 接受现状继续优化iter4+
-     ⏳ 五层JEPA Phase 0数据准备 — WikiArt下载中 (E盘, 2026-05-24)
+  ⏳ 五层JEPA Phase 0数据准备 — WikiArt下载中 (E盘, 2026-05-24)
      ✅ 架构文档: ARCHITECTURE_DOC.py 12章完整输出
      ✅ 模块测试: ART-JEPA/DESIGN-JEPA/FusionLayer/DataManager 全部通过
      ✅ BUG修复: data_manager.py 3处语法错误 + downloader.py 2处类型错误
@@ -69,6 +68,19 @@
      ✅ 创联AI项目: 后端5路由+前端H5+微信小程序+Docker+7个安全BUG修复
      ✗ iter2 Phase3失败: SFT warmup异常, sft_warmup目录为空
   ✗ iter3 Phase2-3被拦截: DPO配对不足(HARNESS门禁), 无权重保存, 已诊断(2026-05-24)
+
+【已完成 — 2026-06-01】
+  ✅ CAJEPA梯度尖刺诊断+修复: near-identity init + separated LR
+     - per_slot_input_proj: W=I+N(0,0.001), 移除LN+GELU
+     - 双LR组: main=5e-5, slot_proj=1e-5
+     - CosineAnnealingLR断点续训: scheduler.last_epoch = saved_step
+  ✅ 全项目诊断清零: 4文件 ~35 Error → 0 (causal_jepa/train_ajepa/skill_evolver/soul_memory)
+  ✅ 知识蒸馏: knowledge_day_0601.json(4DL) + knowledge_b2b_supply_chain.json(5B2B)
+  ✅ Git保护: 客户文件夹撤出+client_data/.gitignore
+  ✅ 自动化系统补齐:
+     - vf_precommit_gate.py: 3道闸门(DIAGNOSTIC/SENSITIVE/GITIGNORE)
+     - vf_knowledge_filter.py: 知识质量三分类(GENERALIZABLE/PROJECT_SPECIFIC/NOISE)
+  ✅ 10种C-JEPA变体审计: 确认基类(CJEPALayer)已继承near-identity修复, 子类不需重复修补
 
 【已完成 — 2026-05-24】
   ✅ 深度代码审计: 全项目逻辑链+BUG挖掘 (2026-05-24)
@@ -235,6 +247,8 @@
   [ ] long_memory.py适配器通用化到其他知识库
   [ ] 多知识库编排: 并发推理+结果聚合
   [ ] 10 C-JEPA变体训练(需GPU): CVJEPA/CAJEPA/CPHYSJEPA/CARTJEPA/CDESIGNJEPA/CFINJEPA/CCODEJEPA/CBIOJEPA/CGEOJEPA/CLAWJEPA
+     ✅ 架构就绪: CJEPALayer基类含near-identity init + per_slot_input_proj, 10子类均继承
+     ⚠️ 训练脚本用单LR组(合成数据够用), 真实数据训练建议加入分离LR组
 
 【P3 — 低优先级 (2026-05-31 摆头重写)】
   [ ] 超参数自动搜索(当前LR/epoch/batch_size硬编码)

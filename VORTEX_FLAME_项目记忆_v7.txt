@@ -5,7 +5,7 @@
      所有Agent统一读写此文件。旧C盘副本标记为只读归档。
   📌 阅读指南: 本文件为追加式时序记录, 旧数字在历史上文中有对应状态。
      最新状态始终在最底部(当前: 第四十部分)。旧部分的141k条目/Epoch 51等
-     为历史快照, 实际当前: 151,214条目 / CAJEPA Epoch~52+ / v4=27 / Phase 1。
+     为历史快照, 实际当前: 151,214条目 / CAJEPA Epoch 4+/50, lr=5e-5 / v4=27 / Phase 1(修复完成)。
 ================================================================================
 
 ================================================================================
@@ -48,7 +48,7 @@ GPU: Tesla V100-SXM2-16GB TCC模式 (Windows原生，不用WSL2)
 | E | Beethoven(音乐声学), Monet(美学创意), VanGogh(艺术视觉) | CAJEPA/CARTJEPA/CARTJEPA | 16,016/6,617/5,010 |
 
 C-JEPA训练优先级（按行业价值排序）：
-  1. CAJEPA (音频因果) — 当前A-JEPA训练中, Epoch ~52+/100
+  1. CAJEPA (音频因果) — 当前multiclass训练中, Epoch 4/50, lr=5e-5, gradient已稳定(near-identity+separated LR)
   2. CCODEJEPA (代码因果) — Cezanne知识库支撑
   3. CPHYSJEPA (物理因果) — Einstein+Galileo知识库支撑
   4. CBIOJEPA (生物因果) — Darwin知识库支撑
@@ -3263,5 +3263,64 @@ Part 40: 🧹 公安项目清扫 — 不属于VORTEX_FLAME (2026-05-31)
   项目记忆: 历史追加记录保留(Part 18等), 不删除历史
 
   用户原话: "什么公安那些不属于现在项目的都去掉"
+
+================================================================================
+Part 41: 🔧 CAJEPA梯度尖刺根治 + 诊断清理 (2026-06-01)
+================================================================================
+
+【根因诊断】
+  CAJEPA在Epoch 1-2反复出现梯度尖刺(50-220x)，降低lr到5e-5无效。
+  根因: 随机初始化的per_slot_input_proj层造成的分布不匹配。
+  per_slot_input_proj是ModuleList[N个Linear]，用于给shared feature上色让Slot Attention竞争。
+  随机初始化(Kaiming)的输出方差~10x输入范围，下游Slot Attention/Predictor面临陌生分布→梯度爆炸。
+
+【两个修复】
+  (A) 近恒等初始化: W ≈ I + N(0, 0.001), b=0
+      移除LayerNorm+GELU(它们会破坏近恒等性质)
+      代码: lin.weight.add_(torch.eye(input_dim)) after normal_(std=0.001)
+  (B) 分离学习率: main_params=5e-5, slot_proj_params=1e-5
+      optimizer = Adam([{"params": other, "lr": base_lr}, {"params": slot_proj, "lr": base_lr/5}])
+
+【训练状态】
+  ✅ 梯度spike从50-220降至50-52(仍有，clip到5.0安全范围内)
+  ✅ 训练稳定运行: E4 B~830/6663, loss≈2.7, jepa≈2.1, cont≈2.0, lr=4.95e-05, VRAM=0.3GB
+  ⏳ 梯度spike仍在~1/100步出现(norm 50+) — 近恒等初始化改善了但未完全消除
+    后续可尝试: 增加separated LR差距(1:10)、逐步提高slot_proj LR(从1e-5→2e-5)、
+    增加gradient clipping阈值到10.0
+
+【会话知识蒸馏】
+  ✅ knowledge_day_0601.json: 4条DL方法论(G/P/N全Generalizable)
+    1. Slot Attention竞争: per-slot投影实现token差异化
+    2. 近恒等初始化: 往预训练模型插层不减梯度
+    3. 分离LR: 新旧参数组不同学习率
+    4. CosineAnnealingLR断点续训: scheduler.last_epoch = saved_step
+  ✅ knowledge_b2b_supply_chain.json: 5条B2B领域模式(客户docx清洗脱敏)
+
+【AJD(10种C-JEPA变体)已正确继承基类修复】
+  CJEPALayer基类(line 692)已包含per_slot_input_proj + 近恒等初始化(line 755-762)
+  所有10个子类(CVJEPA/CAJEPA/CPHYSJEPA/CARTJEPA/CDESIGNJEPA/CFINJEPA/CCODEJEPA/
+  CBIOJEPA/CGEOJEPA/CLAWJEPA)均继承此修复, 不需重复修补。
+
+  jepa_trainer_base.py的train_jepa()使用单LR组(合成数据足够), CosineAnnealingWarmRestarts正确
+  train_finjepa.py使用单LR组(真实OHLCV数据, 当前未运行)
+  train_cvjepa_real.py使用单LR组(3DPW视频数据)
+
+  结论: 其他训练脚本代码结构正确, 不需要和CAJEPA一样的紧急修复。
+  如需在真实数据上大量训练, 建议也加入分离LR组。
+
+【缺失→补齐的自动化系统】
+  ✅ vf_precommit_gate.py — git提交前三道闸门:
+    GATE 1: DIAGNOSTIC(pyright Errors>0拦截)
+    GATE 2: SENSITIVE(扫描客户信息/密钥/敏感路径)
+    GATE 3: GITIGNORE(保护目录覆盖率检查)
+  ✅ vf_knowledge_filter.py — 知识质量三分类器:
+    GENERALIZABLE/ PROJECT_SPECIFIC/ NOISE 自动判定
+    实测: 4条DL知识+5条B2B知识全部判为GENERALIZABLE
+
+【Git保护】
+  ✅ 客户文件夹已从Git移除, 加入.gitignore
+  ✅ client_data/加入.gitignore
+  ⚠️ knowledge_day_0601.json 和 knowledge_b2b_supply_chain.json 已在kb_harness/(gitignore目录)
+     通过 git add -f 强制推送, 后续更新需同样操作
 
 ================================================================================

@@ -3,6 +3,26 @@ tier: A
 full_name: "Paul Cézanne"
 domain: "Code, Logic, Algorithm, Systems"
 
+skills:
+  - id: kwp_engineering
+    name: engineering
+    source: external
+    status: seed
+  - id: kwp_operations
+    name: operations
+    source: external
+    status: seed
+
+tools:
+  - ci_callers
+  - ci_callees
+  - ci_affected
+  - ci_search
+  - ci_context
+  - ci_domain
+  - ci_impact
+  - ci_ask
+
 lora_r: 16
 lora_alpha: 32
 learning_rate: 5.0e-5
@@ -45,3 +65,17 @@ external_datasets:
 
 training_order: 2
 next_soul: "davinci"
+
+# JEPA Perception Layer
+jepa_modality: "code"
+jepa_class: "CCODEJEPA"
+jepa_input_dim: 384
+jepa_num_slots: 7
+jepa_slot_names:
+  - "control_flow"
+  - "data_structures"
+  - "api_calls"
+  - "error_handling"
+  - "side_effects"
+  - "type_system"
+  - "concurrency"

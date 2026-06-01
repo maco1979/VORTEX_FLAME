@@ -1,7 +1,26 @@
 soul: einstein
 tier: A
 full_name: "Albert Einstein"
-domain: "Physics, Quantum Mechanics, Innovation"
+domain: "Physics, Quantum Mechanics, Quantitative Finance, Innovation"
+
+skills:
+  - id: kwp_finance
+    name: finance
+    source: external
+    status: seed
+  - id: kwp_research
+    name: research
+    source: external
+    status: seed
+  - id: kwp_data
+    name: data
+    source: external
+    status: seed
+
+tools:
+  - ci_search
+  - ci_context
+  - ci_impact
 
 lora_r: 16
 lora_alpha: 32
@@ -45,3 +64,19 @@ external_datasets:
 
 training_order: 1
 next_soul: "cezanne"
+
+# JEPA Perception Layer
+jepa_modality: "physics"
+jepa_class: "CPHYSJEPA"
+jepa_input_dim: 512
+jepa_num_slots: 7
+jepa_slot_names:
+  - "kinematics"
+  - "forces"
+  - "energy"
+  - "fields"
+  - "conservation_laws"
+  - "boundary_conditions"
+  - "symmetry"
+jepa_secondary:
+  - "financial"

@@ -1,8 +1,9 @@
 """
-MoE Engine — Concept Interface
-===============================
+MoE Engine — Mixture of Experts Architecture
+==============================================
 Mixture of Experts engine with FP16 Expert + 4bit Base.
-Core implementation is proprietary.
+
+Status: Interface complete. Training in progress on E: drive.
 
 Architecture:
 - Shared Base: Mistral-7B (4bit NF4, frozen, no grad)

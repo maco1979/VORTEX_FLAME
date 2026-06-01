@@ -3,6 +3,25 @@ tier: E
 full_name: "Ludwig van Beethoven"
 domain: "Music, Acoustics, Language Composition"
 
+skills:
+  - id: kwp_writing
+    name: writing
+    source: external
+    status: seed
+  - id: kwp_design
+    name: design
+    source: external
+    status: seed
+  - id: kwp_education
+    name: education
+    source: external
+    status: seed
+
+tools:
+  - ci_search
+  - ci_context
+  - ci_ask
+
 lora_r: 8
 lora_alpha: 16
 learning_rate: 5.0e-5
@@ -45,3 +64,17 @@ external_datasets:
 
 training_order: 7
 next_soul: "guizhu"
+
+# JEPA Perception Layer
+jepa_modality: "audio"
+jepa_class: "CAJEPA"
+jepa_input_dim: 512
+jepa_num_slots: 5
+jepa_slot_names:
+  - "drums_percussion"
+  - "bass"
+  - "vocals"
+  - "melody_lead"
+  - "harmony_pads"
+  - "effects_ambient"
+  - "silence_gap"

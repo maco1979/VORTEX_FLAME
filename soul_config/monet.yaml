@@ -1,7 +1,24 @@
 soul: monet
 tier: E
 full_name: "Claude Monet"
-domain: "Aesthetics, Creative Writing, Art Therapy"
+domain: "Aesthetics, Creative Writing, Art Therapy, Marketing"
+
+skills:
+  - id: kwp_design
+    name: design
+    source: external
+    status: seed
+  - id: kwp_marketing
+    name: marketing
+    source: external
+    status: seed
+  - id: kwp_writing
+    name: writing
+    source: external
+    status: seed
+
+tools:
+  - ci_context
 
 lora_r: 8
 lora_alpha: 16
@@ -45,3 +62,20 @@ external_datasets:
 
 training_order: 9
 next_soul: "vangogh"
+
+# JEPA Perception Layer
+jepa_modality: "art"
+jepa_class: "CARTJEPA"
+jepa_input_dim: 768
+jepa_num_slots: 8
+jepa_slot_names:
+  - "composition"
+  - "color_harmony"
+  - "texture"
+  - "style_period"
+  - "emotional_tone"
+  - "symbolism"
+  - "technique"
+  - "light_quality"
+jepa_secondary:
+  - "visual"

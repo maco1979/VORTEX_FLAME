@@ -1,7 +1,25 @@
 soul: strategy
 tier: B
 full_name: "John Nash"
-domain: "Game Theory, Strategy, Decision Making"
+domain: "Game Theory, Strategy, Decision Making, Finance"
+
+skills:
+  - id: kwp_sales
+    name: sales
+    source: external
+    status: seed
+  - id: kwp_finance
+    name: finance
+    source: external
+    status: seed
+  - id: kwp_product
+    name: product
+    source: external
+    status: seed
+
+tools:
+  - ci_impact
+  - ci_domain
 
 lora_r: 16
 lora_alpha: 32
@@ -45,3 +63,16 @@ external_datasets:
 
 training_order: 4
 next_soul: "galileo"
+
+# JEPA Perception Layer
+jepa_modality: "financial"
+jepa_class: "CFINJEPA"
+jepa_input_dim: 256
+jepa_num_slots: 6
+jepa_slot_names:
+  - "trend_direction"
+  - "momentum"
+  - "volatility"
+  - "volume_profile"
+  - "support_resistance"
+  - "market_regime"

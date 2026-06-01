@@ -3,6 +3,25 @@ tier: C
 full_name: "Yuan Longping"
 domain: "Agriculture, Genetics, Food Science"
 
+skills:
+  - id: kwp_research
+    name: research
+    source: external
+    status: seed
+  - id: kwp_data
+    name: data
+    source: external
+    status: seed
+  - id: kwp_operations
+    name: operations
+    source: external
+    status: seed
+
+tools:
+  - ci_search
+  - ci_context
+  - ci_domain
+
 lora_r: 8
 lora_alpha: 16
 learning_rate: 5.0e-5
@@ -45,3 +64,18 @@ external_datasets:
 
 training_order: 14
 next_soul: null
+
+# JEPA Perception Layer
+jepa_modality: "biology"
+jepa_class: "CBIOJEPA"
+jepa_input_dim: 512
+jepa_num_slots: 6
+jepa_slot_names:
+  - "gene_expression"
+  - "protein_structure"
+  - "metabolic_pathway"
+  - "cell_signal"
+  - "phenotype_trait"
+  - "evolutionary_pressure"
+jepa_secondary:
+  - "geography"

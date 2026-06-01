@@ -1,7 +1,22 @@
 soul: humboldt
 tier: C
 full_name: "Alexander von Humboldt"
-domain: "Geography, Ecology, Earth Science"
+domain: "Geography, Ecology, Earth Science, Data Analysis"
+
+skills:
+  - id: kwp_data
+    name: data
+    source: external
+    status: seed
+  - id: kwp_operations
+    name: operations
+    source: external
+    status: seed
+
+tools:
+  - ci_search
+  - ci_context
+  - ci_domain
 
 lora_r: 8
 lora_alpha: 16
@@ -45,3 +60,16 @@ external_datasets:
 
 training_order: 11
 next_soul: "herodotus"
+
+# JEPA Perception Layer
+jepa_modality: "geography"
+jepa_class: "CGEOJEPA"
+jepa_input_dim: 384
+jepa_num_slots: 6
+jepa_slot_names:
+  - "terrain_elevation"
+  - "vegetation_cover"
+  - "water_systems"
+  - "climate_pattern"
+  - "human_activity"
+  - "geological_structure"

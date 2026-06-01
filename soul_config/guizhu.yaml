@@ -1,7 +1,27 @@
 soul: guizhu
 tier: D
 full_name: "Guizhu Jushi"
-domain: "Philosophy, Logic, Dialogue"
+domain: "Philosophy, Logic, Dialogue, Psychology"
+
+skills:
+  - id: kwp_hr
+    name: hr
+    source: external
+    status: seed
+  - id: kwp_support
+    name: support
+    source: external
+    status: seed
+  - id: kwp_healthcare
+    name: healthcare
+    source: external
+    status: seed
+  - id: kwp_education
+    name: education
+    source: external
+    status: seed
+
+tools: []
 
 lora_r: 8
 lora_alpha: 16
@@ -45,3 +65,17 @@ external_datasets:
 
 training_order: 8
 next_soul: "monet"
+
+# JEPA Perception Layer
+jepa_modality: "law_philosophy"
+jepa_class: "CLAWJEPA"
+jepa_input_dim: 512
+jepa_num_slots: 7
+jepa_slot_names:
+  - "statute_hierarchy"
+  - "case_precedent"
+  - "jurisdiction_scope"
+  - "normative_claim"
+  - "ethical_principle"
+  - "logical_structure"
+  - "remedy_sanction"

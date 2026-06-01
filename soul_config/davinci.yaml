@@ -3,6 +3,25 @@ tier: B
 full_name: "Leonardo da Vinci"
 domain: "Engineering, Architecture, Design"
 
+skills:
+  - id: kwp_engineering
+    name: engineering
+    source: external
+    status: seed
+  - id: kwp_design
+    name: design
+    source: external
+    status: seed
+  - id: kwp_product
+    name: product
+    source: external
+    status: seed
+
+tools:
+  - ci_context
+  - ci_impact
+  - ci_domain
+
 lora_r: 16
 lora_alpha: 32
 learning_rate: 5.0e-5
@@ -45,3 +64,18 @@ external_datasets:
 
 training_order: 3
 next_soul: "strategy"
+
+# JEPA Perception Layer
+jepa_modality: "design"
+jepa_class: "CVJEPA+CDESIGNJEPA"
+jepa_input_dim: 512
+jepa_num_slots: 6
+jepa_slot_names:
+  - "layout_grid"
+  - "typography"
+  - "spacing_rhythm"
+  - "visual_hierarchy"
+  - "interaction_pattern"
+  - "accessibility"
+jepa_secondary:
+  - "visual"

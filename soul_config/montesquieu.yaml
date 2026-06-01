@@ -1,7 +1,29 @@
 soul: montesquieu
 tier: C
 full_name: "Montesquieu"
-domain: "Law, Political Science, Logic"
+domain: "Law, Political Science, Logic, Compliance"
+
+skills:
+  - id: kwp_legal
+    name: legal
+    source: external
+    status: seed
+  - id: kwp_sales
+    name: sales
+    source: external
+    status: seed
+  - id: kwp_hr
+    name: hr
+    source: external
+    status: seed
+  - id: kwp_marketing
+    name: marketing
+    source: external
+    status: seed
+
+tools:
+  - ci_impact
+  - ci_domain
 
 lora_r: 8
 lora_alpha: 16
@@ -45,3 +67,16 @@ external_datasets:
 
 training_order: 13
 next_soul: "yuanlongping"
+
+# JEPA Perception Layer
+jepa_modality: "law"
+jepa_class: "CLAWJEPA"
+jepa_input_dim: 256
+jepa_num_slots: 6
+jepa_slot_names:
+  - "legal_rule"
+  - "precedent_case"
+  - "jurisdiction_scope"
+  - "temporal_validity"
+  - "exception_clause"
+  - "interpretation_method"

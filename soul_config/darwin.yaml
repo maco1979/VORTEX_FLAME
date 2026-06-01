@@ -1,7 +1,21 @@
 soul: darwin
 tier: A
 full_name: "Charles Darwin"
-domain: "Biology, Genetics, Evolution"
+domain: "Biology, Genetics, Evolution, Healthcare"
+
+skills:
+  - id: kwp_research
+    name: research
+    source: external
+    status: seed
+  - id: kwp_healthcare
+    name: healthcare
+    source: external
+    status: seed
+
+tools:
+  - ci_search
+  - ci_context
 
 lora_r: 16
 lora_alpha: 32
@@ -45,3 +59,16 @@ external_datasets:
 
 training_order: 6
 next_soul: "beethoven"
+
+# JEPA Perception Layer
+jepa_modality: "biology"
+jepa_class: "CBIOJEPA"
+jepa_input_dim: 512
+jepa_num_slots: 6
+jepa_slot_names:
+  - "gene_expression"
+  - "protein_structure"
+  - "metabolic_pathway"
+  - "cell_signal"
+  - "phenotype_trait"
+  - "evolutionary_pressure"

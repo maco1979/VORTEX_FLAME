@@ -3,6 +3,15 @@ tier: E
 full_name: "Vincent van Gogh"
 domain: "Emotion, Visual Art, Color Science"
 
+skills:
+  - id: kwp_design
+    name: design
+    source: external
+    status: seed
+
+tools:
+  - ci_context
+
 lora_r: 8
 lora_alpha: 16
 learning_rate: 5.0e-5
@@ -45,3 +54,19 @@ external_datasets:
 
 training_order: 10
 next_soul: "humboldt"
+
+# JEPA Perception Layer
+jepa_modality: "visual"
+jepa_class: "CARTJEPA"
+jepa_input_dim: 768
+jepa_num_slots: 7
+jepa_slot_names:
+  - "emotion"
+  - "color"
+  - "composition"
+  - "texture"
+  - "contrast"
+  - "movement"
+  - "expression"
+jepa_secondary:
+  - "art"

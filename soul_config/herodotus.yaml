@@ -1,7 +1,25 @@
 soul: herodotus
 tier: D
 full_name: "Herodotus"
-domain: "History, Causality, Civilization"
+domain: "History, Causality, Civilization, Documentation"
+
+skills:
+  - id: kwp_writing
+    name: writing
+    source: external
+    status: seed
+  - id: kwp_support
+    name: support
+    source: external
+    status: seed
+  - id: kwp_education
+    name: education
+    source: external
+    status: seed
+
+tools:
+  - ci_search
+  - ci_ask
 
 lora_r: 8
 lora_alpha: 16
@@ -45,3 +63,21 @@ external_datasets:
 
 training_order: 12
 next_soul: "montesquieu"
+
+# JEPA Perception Layer
+jepa_modality: "geography"
+jepa_class: "CVJEPA+CGEOJEPA"
+jepa_input_dim: 384
+jepa_num_slots: 6
+jepa_slot_names:
+  - "terrain_elevation"
+  - "vegetation_cover"
+  - "water_systems"
+  - "climate_pattern"
+  - "human_activity"
+  - "geological_structure"
+jepa_secondary_modality: "visual"
+jepa_secondary_slots:
+  - "artifact_texture"
+  - "stratigraphy_layer"
+  - "manuscript_script"

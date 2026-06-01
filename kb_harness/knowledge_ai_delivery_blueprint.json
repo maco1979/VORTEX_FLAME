@@ -1,0 +1,184 @@
+[
+  {
+    "id": "ai-project-delivery-fullstack-blueprint-v1",
+    "domain": "knowledge_engineering.domain_modeling",
+    "topic": "AI项目全栈交付标准规范 — 从代码到客户可用的完整8层清单",
+    "prerequisites": ["Python后端开发", "HTML/CSS/JS基础", "Docker基础", "企业微信/钉钉API"],
+    "summary": "VORTEX_FLAME工具链的用户不是开发者而是客户。客户需要的不是.py文件，而是一个看得见、用得上的AI系统。本规范定义了任何AI项目的完整交付标准——8层架构 × 15个交付物。任何模型拿到这个蓝本后，按清单逐项开发，不会遗漏任何一层。",
+    
+    "architecture_8_layers": {
+      "L1_前端": {
+        "description": "客户直接交互的界面 — 客户唯一能'看到'的价值",
+        "deliverables": [
+          "chat_ui.html — 对话窗口：输入问题→AI回答→对话历史（像微信聊天一样简单）",
+          "kb_upload.html — 知识管理：拖拽上传docx/pdf/txt→自动分段入库→搜索测试",
+          "admin_panel.html — 管理后台：用户管理/用量统计/知识库审计/系统状态",
+          "embed_widget.js — 嵌入式组件：一行js代码嵌入客户现有网站"
+        ],
+        "tech_stack": "单文件HTML (零构建, 零依赖), 可直接用浏览器打开, 手机端自适应",
+        "checkpoint": "客户打开HTML→看到聊天框→输入问题→得到AI回复"
+      },
+      "L2_API网关": {
+        "description": "前后端桥梁 — 所有前端请求通过统一API接入",
+        "deliverables": [
+          "agri_api.py — REST API: /chat, /quote, /inspect, /kb, /health 等端点",
+          "CORS配置 — 允许前端跨域",
+          "速率限制 — 防滥用",
+          "WebSocket端点 — 流式输出/实时推送"
+        ],
+        "tech_stack": "FastAPI/Flask, WebSocket, CORS middleware",
+        "checkpoint": "curl http://server:8000/api/health 返回200"
+      },
+      "L3_认证鉴权": {
+        "description": "谁能用、用什么身份用 — 多租户隔离的基础",
+        "deliverables": [
+          "用户注册/登录 — 账号密码 or 企业微信扫码",
+          "API Key管理 — 技术客户用API Key调用",
+          "角色权限 — 管理员/操作员/只读用户",
+          "数据隔离 — 每个租户只能看到自己的知识库和对话记录"
+        ],
+        "tech_stack": "JWT token, SQLite用户表, bcrypt密码哈希",
+        "checkpoint": "不同用户登录后看到不同的知识库内容"
+      },
+      "L4_知识引擎": {
+        "description": "AI的'大脑' — 把客户文档变成可检索的知识",
+        "deliverables": [
+          "文档上传 → 自动分段 → 向量化(embedding) → 存入向量库",
+          "全文检索 + 语义检索 混合召回",
+          "知识版本管理 — 文档更新后自动重新索引",
+          "知识质量审计 — vf_knowledge_filter自动分类G/P/N"
+        ],
+        "tech_stack": "sentence-transformers embedding, ChromaDB向量库, jieba中文分词, SQLite FTS5",
+        "checkpoint": "上传docx→5秒后可搜索→问AI得到基于文档的回答"
+      },
+      "L5_业务逻辑": {
+        "description": "不是通用ChatGPT，而是懂客户业务的专用AI",
+        "deliverables": [
+          "领域意图识别 — 判断用户在问什么（报价？验收？售后？）",
+          "业务规则引擎 — 价格计算/质检判定/合规检查",
+          "多轮对话管理 — 记住上下文，追问不丢失",
+          "结构化输出 — 报价单/验收报告等格式化输出"
+        ],
+        "tech_stack": "意图分类器, 规则引擎, 对话状态机",
+        "checkpoint": "问'红富士苹果500斤'→自动走报价流程→返回价格明细"
+      },
+      "L6_集成适配": {
+        "description": "AI系统不是孤岛 — 对接客户现有的工具和系统",
+        "deliverables": [
+          "企业微信Bot — 在群里@机器人触发AI",
+          "钉钉Bot — 同上",
+          "飞书Bot — 同上",
+          "Webhook回调 — 外部系统事件触发AI流程",
+          "短信/邮件通知 — 重要结果的推送通道"
+        ],
+        "tech_stack": "企业微信/钉钉开放平台API, Webhook HTTP接口",
+        "checkpoint": "在微信群里@机器人→得到AI回复→和网页版一致"
+      },
+      "L7_部署运维": {
+        "description": "客户不需要会Python — 一键启动即可",
+        "deliverables": [
+          "docker-compose.yml — 完整服务编排",
+          "一键启动脚本 — Windows .ps1 + Linux .sh",
+          "环境检查脚本 — 自动检测Python/Docker/GPU/依赖",
+          "健康检查 — 定时心跳+自动重启+告警",
+          "备份策略 — 知识库+对话记录定时备份"
+        ],
+        "tech_stack": "Docker, systemd/supervisor, shell/ps1脚本",
+        "checkpoint": "客户执行一条命令→浏览器打开→系统可用"
+      },
+      "L8_监控分析": {
+        "description": "知道系统用得好不好 — 持续优化的数据基础",
+        "deliverables": [
+          "用量仪表盘 — 今日对话数/活跃用户/Top问题/错误率",
+          "成本追踪 — LLM API调用次数×费用",
+          "用户反馈收集 — 点赞/踩 + 人工标注",
+          "知识缺口发现 — 哪些问题AI回答不了"
+        ],
+        "tech_stack": "SQLite统计表, 简单HTML图表, 日志分析",
+        "checkpoint": "打开监控页面→看到今天的对话量/用户数/热门问题"
+      }
+    },
+
+    "delivery_checklist_15_items": [
+      "☐ chat_ui.html — 客户聊天界面",
+      "☐ kb_upload.html — 知识库上传管理",
+      "☐ admin_panel.html — 管理后台",
+      "☐ api_server.py — REST API服务",
+      "☐ auth.py — 用户认证",
+      "☐ knowledge_engine.py — 知识索引/检索",
+      "☐ business_logic.py — 业务规则/意图识别",
+      "☐ wechat_bot.py — 企业微信适配",
+      "☐ dingtalk_bot.py — 钉钉适配",
+      "☐ docker-compose.yml — 容器编排",
+      "☐ deploy.ps1/deploy.sh — 一键部署脚本",
+      "☐ health_check.py — 健康监控",
+      "☐ monitor_dashboard.html — 监控面板",
+      "☐ README_客户版.md — 非技术客户的「快速开始」文档",
+      "☐ test_e2e.py — 端到端全流程测试"
+    ],
+
+    "delivery_stages_5_phase": {
+      "phase1_baseline": {
+        "name": "阶段1: 最小可用产品 (MVP)",
+        "deliverables": ["chat_ui.html", "api_server.py", "docker-compose.yml", "deploy.ps1"],
+        "checkpoint": "客户打开浏览器→聊天→得到AI回复",
+        "timeline": "1-2天"
+      },
+      "phase2_knowledge": {
+        "name": "阶段2: 知识库上线",
+        "deliverables": ["kb_upload.html", "knowledge_engine.py"],
+        "checkpoint": "客户上传自己的文档→5秒后可搜索→AI基于文档回答",
+        "timeline": "1天"
+      },
+      "phase3_business": {
+        "name": "阶段3: 业务逻辑",
+        "deliverables": ["business_logic.py", "auth.py"],
+        "checkpoint": "AI不仅聊天，还能报价/质检/生成报告",
+        "timeline": "1-2天"
+      },
+      "phase4_integration": {
+        "name": "阶段4: 渠道对接",
+        "deliverables": ["wechat_bot.py", "admin_panel.html"],
+        "checkpoint": "客户在微信群里@机器人→得到回复→和网页版一致",
+        "timeline": "1天"
+      },
+      "phase5_operations": {
+        "name": "阶段5: 运维闭环",
+        "deliverables": ["monitor_dashboard.html", "health_check.py", "README_客户版.md", "test_e2e.py"],
+        "checkpoint": "打开监控→看到所有指标→自动告警→测试全绿",
+        "timeline": "1天"
+      }
+    },
+
+    "anti_patterns": [
+      "❌ 只交付.py文件没有前端 — 客户不是程序员",
+      "❌ 用gradio/streamlit当「产品」 — 开发者工具≠客户产品",
+      "❌ 没有认证就上线 — 任何人都能访问",
+      "❌ 没有部署脚本 — 「pip install requirements.txt」不是交付",
+      "❌ 硬编码API Key在前端 — 安全灾难",
+      "❌ 忘记企业微信集成 — 中国客户90%时间在微信里",
+      "❌ 没有监控 — 系统崩了只有客户知道",
+      "❌ 没有README客户版 — 客户拿到代码不知所措"
+    ],
+
+    "tech_constraints_for_china": [
+      "Docker Hub在国内可能慢/墙 → 使用阿里云镜像加速器",
+      "OpenAI API不可直连 → 默认使用DeepSeek/Qwen/Ollama",
+      "GitHub可能慢 → 提供百度网盘/阿里云盘备用下载",
+      "企业微信 > 钉钉 > 飞书 — 农业/制造业客户以微信为主",
+      "Windows Server占多 → deploy.ps1优先级高于deploy.sh",
+      "内网部署常见 → 支持离线安装（打包所有依赖）"
+    ],
+
+    "vf_toolchain_integration": {
+      "data_pipeline": "使用vf_data_core/vf_dedup/vf_cleanse/vf_inspect确保客户上传数据的质量",
+      "knowledge_filter": "使用vf_knowledge_filter自动分类知识条目G/P/N",
+      "knowledge_distill": "使用vf_distill从客户文档中自动提取实体/主题/摘要",
+      "precommit_gate": "使用vf_precommit_gate --project-dir做代码质量门禁",
+      "auto_fix": "使用vf_auto_fix自动修复常见代码诊断错误",
+      "mcp_server": "使用vf_mcp_server将全部工具暴露为MCP标准接口"
+    },
+
+    "source": "VORTEX_FLAME project delivery methodology, 2026-06-01"
+  }
+]

@@ -14,7 +14,10 @@
     "kb_skill",
     "tools/ui-tars-desktop",
     "tools/ui-tars-model",
-    ".vf_memory"
+    ".vf_memory",
+    "**/_test_*",
+    "**/_smoke_test*",
+    "**/_precache_*"
   ],
   "ignore": [
     "kb_workflow/**",

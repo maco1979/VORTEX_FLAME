@@ -82,6 +82,10 @@ automation:
       - "dedup.requested"
     cleanse_only:
       - "cleanse.requested"
+    auto_fix:
+      - "diagnostic.errors"
+      - "gate.blocked"
+      - "code.committed"
 
 workflows:
   full_pipeline:
@@ -120,6 +124,30 @@ workflows:
         module: inspect
         depends_on: [dedup]
         timeout_s: 300
+        retry_on_failure: false
+
+  auto_fix:
+    description: "Auto-detect and fix code diagnostics — iterative loop until clean"
+    steps:
+      - step_id: scan
+        module: diagnostic
+        depends_on: []
+        timeout_s: 120
+        retry_on_failure: false
+      - step_id: classify
+        module: diagnostic
+        depends_on: [scan]
+        timeout_s: 60
+        retry_on_failure: false
+      - step_id: fix
+        module: auto_fix
+        depends_on: [classify]
+        timeout_s: 300
+        retry_on_failure: true
+      - step_id: verify
+        module: diagnostic
+        depends_on: [fix]
+        timeout_s: 120
         retry_on_failure: false
 
 scheduler:

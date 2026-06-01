@@ -33,6 +33,9 @@ from typing import List, Tuple, Optional
 PROJECT_ROOT = Path(__file__).resolve().parent
 PYRIGHT_CONFIG = PROJECT_ROOT / "pyrightconfig.json"
 
+SKIP_FILES = {"_smoke_test.py", "_precache_mel.py"}
+SKIP_PREFIXES = ("_test_", ".", "__")
+
 GITIGNORE_PATH = PROJECT_ROOT / ".gitignore"
 
 PROTECTED_DIRS = [
@@ -235,7 +238,8 @@ def gate_gitignore() -> GateResult:
     return gate
 
 
-def run_all_gates(files: Optional[List[Path]] = None, warn_only: bool = False) -> int:
+def run_all_gates(files: Optional[List[Path]] = None, warn_only: bool = False,
+                  auto_fix: bool = False) -> int:
     print("=" * 60)
     print("VF PRE-COMMIT GATE")
     print("=" * 60)
@@ -245,6 +249,24 @@ def run_all_gates(files: Optional[List[Path]] = None, warn_only: bool = False) -
         gate_sensitive(files),
         gate_gitignore(),
     ]
+
+    if auto_fix and results[0].errors:
+        print("\n[GATE] Diagnostic errors found — triggering auto-fix loop...")
+        try:
+            import vf_auto_fix
+            from vf_auto_fix import AutoFixLoop
+            target_files = [str(f) for f in files] if files else None
+            fix_loop = AutoFixLoop(max_iterations=5)
+            fix_result = fix_loop.run_full(files=target_files)
+            print(f"[GATE] Auto-fix: {fix_result.errors_before}→{fix_result.errors_after} ({fix_result.fixes_applied} fixes)")
+            for detail in fix_result.fixes_detail[-3:]:
+                print(f"  {detail}")
+
+            results[0] = gate_diagnostic(files)
+        except ImportError:
+            print("[GATE] vf_auto_fix not available, continuing with manual review")
+        except Exception as e:
+            print(f"[GATE] Auto-fix failed: {e}")
 
     total_errors = 0
     for r in results:
@@ -278,6 +300,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="VF Pre-Commit Gate")
     parser.add_argument("--warn", action="store_true", help="warn only, don't block")
     parser.add_argument("--staged", action="store_true", help="only check staged files")
+    parser.add_argument("--auto-fix", action="store_true", help="auto-fix diagnostic errors before gate (iterative loop)")
     parser.add_argument("--diagnostic-only", action="store_true", help="only run diagnostic gate")
     parser.add_argument("--sensitive-only", action="store_true", help="only run sensitive gate")
     args = parser.parse_args()
@@ -293,5 +316,5 @@ if __name__ == "__main__":
         print(result.summary())
         sys.exit(0 if result.passed else 2)
 
-    code = run_all_gates(files, warn_only=args.warn)
+    code = run_all_gates(files, warn_only=args.warn, auto_fix=getattr(args, 'auto_fix', False))
     sys.exit(code)

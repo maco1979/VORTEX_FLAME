@@ -433,7 +433,13 @@ def train(args):
     trainable = sum(p.numel() for p in all_params if p.requires_grad)
     print(f"Params: {total_params:,} total, {trainable:,} trainable")
 
-    optimizer = Adam(all_params, lr=args.lr, weight_decay=1e-5)
+    slot_proj_ids = set(id(p) for p in ajepa.per_slot_input_proj.parameters())
+    slot_proj_params = list(ajepa.per_slot_input_proj.parameters())
+    other_params = [p for p in all_params if id(p) not in slot_proj_ids]
+    optimizer = Adam([
+        {"params": other_params, "lr": args.lr},
+        {"params": slot_proj_params, "lr": args.lr / 5},
+    ], weight_decay=1e-5)
     sigreg_loss = SIGRegWithPredictionLoss(var_weight=5.0, cov_weight=1.0, sim_weight=1.0)
     start_epoch = 1
     best_loss = float("inf")
@@ -474,11 +480,14 @@ def train(args):
             start_epoch = 1
             print("  Note: loaded projector weights from old checkpoint, starting multiclass training from epoch 1")
         if args.lr != 1e-4 and resume_path == mc_resume_path:
-            for param_group in optimizer.param_groups:
-                param_group["lr"] = args.lr
+            for i, param_group in enumerate(optimizer.param_groups):
+                if i == 0:
+                    param_group["lr"] = args.lr
+                elif i == 1:
+                    param_group["lr"] = args.lr / 5
             scheduler = CosineAnnealingLR(optimizer, T_max=total_train_steps, eta_min=1e-6)
             scheduler.last_epoch = saved_global_step
-            print(f"  Note: lr={args.lr:.0e} scheduler reset at step {saved_global_step}")
+            print(f"  Note: lr=[{args.lr:.0e}, {args.lr/5:.0e}] scheduler reset at step {saved_global_step}")
         print(f"Resumed from epoch {start_epoch-1}, step={saved_global_step}, best_loss={best_loss:.4f}")
 
     guard = TrainingGuard(

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "slot-attention-per-slot-projection",
+    "domain": "deep_learning.architecture",
+    "topic": "Making Slot Attention Work with Single-View Features",
+    "prerequisites": ["Slot Attention (Locatello 2020)", "Multi-Head Attention"],
+    "problem": "Slot Attention requires differentiated input tokens so softmax competition can assign different features to different slots. When all input tokens are identical copies of a shared feature vector (e.g. one audio embedding repeated), slots collapse to the same output and no specialization occurs.",
+    "solution": "Apply per-slot learnable projections: each of N slots gets its own independent Linear layer that projects the shared feature vector into a slightly different view. This creates the competitive gradient needed for slot specialization.",
+    "code_pattern": "self.per_slot_input_proj = nn.ModuleList([nn.Linear(D, D) for _ in range(N)]); outputs = torch.stack([proj[i](x) for i in range(N)], dim=2)",
+    "pitfalls": [
+      "NEVER use .expand(B, T, N, D) to create identical copies — this gives zero competition gradient",
+      "NEVER use a single shared Linear for all slots — same gradient, no differentiation"
+    ],
+    "source": "VORTEX_FLAME CAJEPA debugging session 2026-06-01"
+  },
+  {
+    "id": "near-identity-init-for-architectural-surgery",
+    "domain": "deep_learning.training",
+    "topic": "Inserting New Layers into Pre-Trained Models Without Gradient Explosion",
+    "prerequisites": ["Gradient flow", "Weight initialization (Kaiming/Xavier)", "Layer warm-up"],
+    "problem": "When inserting randomly initialized layers into an already-trained model, the output distribution differs drastically from what downstream layers expect. This causes large prediction errors and gradient spikes (norm 50-220x). Lowering learning rate does NOT fix the root cause — the distribution mismatch persists.",
+    "root_cause": "Random init (e.g. Kaiming uniform) produces outputs with variance ~10x the input range. The downstream layers were trained on inputs with variance ~1x. This is a distribution shift at inference time, not just a learning rate problem.",
+    "solution": "Initialize new layers to be near-identity: W = I + noise_small, b = 0. Output ≈ Input so downstream layers see a familiar distribution. The small noise provides the initial asymmetry needed for gradient flow.",
+    "code_pattern": "for lin in new_layers:\n    nn.init.normal_(lin.weight, std=0.001)\n    lin.weight.data.add_(torch.eye(D))\n    nn.init.zeros_(lin.bias)",
+    "why_it_works": [
+      "Output ≈ Input + N(0, 0.001) → downstream layers see familiar distribution",
+      "Small noise gives non-zero gradients for learning",
+      "Different per-slot noise seeds = initial differentiation for competition"
+    ],
+    "anti_patterns": [
+      "Do NOT wrap near-identity in LayerNorm — LN normalizes away the identity property",
+      "Do NOT add GELU/ReLU after near-identity — nonlinearity destroys the distribution match"
+    ],
+    "source": "VORTEX_FLAME CAJEPA gradient spike debugging 2026-06-01"
+  },
+  {
+    "id": "separated-learning-rates-param-groups",
+    "domain": "deep_learning.training",
+    "topic": "Using Different Learning Rates for Different Parameter Groups in PyTorch",
+    "prerequisites": ["torch.optim.Adam", "Parameter groups", "Learning rate scheduling"],
+    "problem": "When adding new parameter groups (e.g. per-slot projections) to an existing model, those new layers need a different learning rate than the pretrained body. Setting the same LR for all causes either the new layers to destabilize or the pretrained layers to learn too slowly.",
+    "solution": "Use PyTorch's param_groups with separate LRs. New surgical layers should have 3-5x lower LR than the pretrained body.",
+    "code_pattern": "optimizer = Adam([\n    {'params': pretrained_params, 'lr': base_lr},\n    {'params': new_layer_params, 'lr': base_lr / 5},\n])",
+    "lr_override_on_resume": "When resuming with different LR, each param_group needs individual absolute override (not ratio scaling):\n\nfor i, pg in enumerate(optimizer.param_groups):\n    pg['lr'] = target_lr_i",
+    "source": "VORTEX_FLAME training optimization 2026-06-01"
+  },
+  {
+    "id": "cosine-annealing-scheduler-checkpoint-resume",
+    "domain": "deep_learning.training",
+    "topic": "Correctly Resuming CosineAnnealingLR After LR Change at Checkpoint Load",
+    "prerequisites": ["torch.optim.lr_scheduler.CosineAnnealingLR", "Checkpoint save/load", "Learning rate scheduling"],
+    "problem": "When changing the learning rate after loading a checkpoint, `CosineAnnealingLR(optimizer, ..., last_epoch=saved_step)` internally captures `base_lrs` from the optimizer BEFORE the LR override is applied, causing the scheduler to continue from the old LR value.",
+    "root_cause": "CosineAnnealingLR computes its internal schedule from `self.base_lrs` captured at construction time. The `last_epoch` parameter only sets the step position, not the amplitude.",
+    "solution": "Do NOT use the `last_epoch` constructor parameter. Instead, override the optimizer LRs first, then create the scheduler and set last_epoch after construction.",
+    "code_pattern": "# 1. Override optimizer LRs\nfor pg in optimizer.param_groups: pg['lr'] = target_lr\n# 2. Create fresh scheduler (captures correct base_lrs)\nscheduler = CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=1e-6)\n# 3. Jump to correct step\nscheduler.last_epoch = saved_global_step",
+    "why_it_works": "The constructor captures the correct (already-overridden) base_lrs. Setting last_epoch after construction positions the scheduler at the right step without re-capturing old base_lrs.",
+    "source": "VORTEX_FLAME LR debugging 2026-06-01"
+  }
+]

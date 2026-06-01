@@ -1,0 +1,152 @@
+[
+  {
+    "id": "b2b-domain-decomposition-12-pillar",
+    "domain": "knowledge_engineering.domain_modeling",
+    "topic": "Universal 12-Pillar B2B Vertical Industry Domain Decomposition Pattern",
+    "prerequisites": ["Domain-Driven Design", "Knowledge Graphs", "AI Agent Architecture"],
+    "summary": "A proven pattern for decomposing any B2B supply-chain vertical into 12 self-contained, AI-serviceable domains. Each domain defines: what data exists, how it's structured, and what agent capabilities it enables.",
+    "pillars": [
+      {"index": 1, "name": "Company Credibility", "data": "Certifications, qualifications, awards, key personnel history", "agent_role": "Trust establishment — auto-generate capability statements from verified credentials"},
+      {"index": 2, "name": "Channel Sales", "data": "Channel types, volume distribution, margin by channel, campaign history", "agent_role": "Sales strategy — match customer profile to highest-margin products and proven pitches"},
+      {"index": 3, "name": "Transaction Workflow", "data": "Process nodes, contract terms, compliance documents, quality certificates", "agent_role": "Process guidance — step-by-step walkthrough with automatic document verification"},
+      {"index": 4, "name": "Payment Rules", "data": "Settlement modes, payment limits, risk controls, payment cycles", "agent_role": "Financial compliance — auto-calculate payment ratios, flag non-compliant payment methods"},
+      {"index": 5, "name": "Quality Standards", "data": "Appearance specs, physical/chemical thresholds, safety standards, rejection rules, sampling ratios", "agent_role": "Virtual QA inspector — input measurements, receive pass/fail determination against thresholds"},
+      {"index": 6, "name": "Product Taxonomy", "data": "Hierarchical classification tree, processing categories, specific varieties", "agent_role": "Semantic product search — map fuzzy user queries to specific SKUs via knowledge graph"},
+      {"index": 7, "name": "Pricing & Quotation", "data": "Historical prices, market averages, tiered pricing, discount rules, logistics costs", "agent_role": "Smart quotation — generate compliant tiered quotes factoring market data, volume, and seasonality"},
+      {"index": 8, "name": "Product Details", "data": "Basic attributes, origin traceability, quality parameters, multimedia, storage requirements", "agent_role": "Multi-modal product storytelling — assemble rich product cards and answer detailed queries"},
+      {"index": 9, "name": "After-Sales & Partner Acquisition", "data": "Agency policies, MOQ, loss rates, return standards, compensation, contract templates", "agent_role": "Claims handling — auto-adjudicate whether claims meet policy thresholds; push territory policies to prospects"},
+      {"index": 10, "name": "Supply Chain Capacity", "data": "Production capacity, inventory levels, cold-chain fleet, warehouse area, digital systems", "agent_role": "Fulfillment assessment — generate capacity reports for large-order inquiries with coverage maps"},
+      {"index": 11, "name": "Sales Playbook", "data": "Opening scripts, objection handling, closing techniques, FAQ pairs", "agent_role": "Real-time sales copilot — detect customer objections in conversation and surface matching rebuttals"},
+      {"index": 12, "name": "Sales SOP", "data": "Lead acquisition, needs discovery templates, order modification rules, credit evaluation, anomaly alerts", "agent_role": "Onboarding mentor — prompt next SOP step during sales interactions for new staff"}
+    ],
+    "design_principle": "Each pillar is a self-contained micro-knowledge-base: data schema + structure type + agent capability. Pillars are independent enough to build incrementally but interconnected via shared entities (product, customer, order).",
+    "source": "VORTEX_FLAME knowledge distillation from B2B agricultural supply chain domain model, 2026-06-01"
+  },
+  {
+    "id": "data-structure-agent-capability-mapping",
+    "domain": "knowledge_engineering.data_architecture",
+    "topic": "Data Structure Type → AI Agent Capability Mapping in Vertical B2B Systems",
+    "prerequisites": ["Data modeling", "NLP", "Multi-modal AI", "Vector databases"],
+    "summary": "Four canonical data structure types in B2B verticals, each enabling a distinct class of AI agent capabilities. This mapping determines the appropriate storage backend, retrieval strategy, and agent reasoning mode.",
+    "structure_types": [
+      {
+        "type": "Structured (Tabular/Relational)",
+        "examples": ["Pricing tables", "Quality thresholds", "Channel metrics"],
+        "storage": "SQL database, CSV/Excel, rule engines",
+        "agent_capability": "Deterministic computation — formula application, threshold comparison, rule-based decision",
+        "agent_pattern": "Input → Query rules/table → Apply formula → Output decision with confidence"
+      },
+      {
+        "type": "Semi-Structured (JSON/Document/Tree)",
+        "examples": ["Company profiles", "Contracts", "Workflow SOPs", "Product taxonomies"],
+        "storage": "Document store, key-value DB, tree index",
+        "agent_capability": "Contextual retrieval + template filling — extract relevant sections and populate templates",
+        "agent_pattern": "Query → Semantic chunk retrieval → Template population → Guided output"
+      },
+      {
+        "type": "Unstructured (Text/Script/FAQ)",
+        "examples": ["Sales scripts", "Product descriptions", "After-sales policies"],
+        "storage": "Vector database with embedding index",
+        "agent_capability": "Semantic search + generation — retrieve most relevant content and synthesize coherent response",
+        "agent_pattern": "Intent detection → Vector similarity search → RAG generation → Contextualized answer"
+      },
+      {
+        "type": "Multi-modal (Image/Video + Text)",
+        "examples": ["Product photos", "Quality inspection images", "Promotional videos"],
+        "storage": "Multi-modal vector DB, object storage + metadata index",
+        "agent_capability": "Cross-modal understanding — combine visual inspection with textual criteria for richer decisions",
+        "agent_pattern": "Image encode → Cross-modal retrieval → Joint reasoning → Multi-modal response"
+      }
+    ],
+    "key_insight": "The choice of data structure type is NOT just a storage decision — it determines the upper bound of agent capability. Structured data enables deterministic automation; unstructured data enables creative generation. A complete vertical agent system needs all four.",
+    "source": "VORTEX_FLAME knowledge distillation, 2026-06-01"
+  },
+  {
+    "id": "agent-capability-taxonomy-vertical-b2b",
+    "domain": "ai_engineering.agent_design",
+    "topic": "Taxonomy of AI Agent Capabilities in Vertical B2B Supply Chain Contexts",
+    "prerequisites": ["AI Agents", "RAG", "Tool Use", "Multi-agent Systems"],
+    "summary": "A capability-first taxonomy of 12 agent roles that emerge naturally when AI is applied to B2B supply chain domains. Each role maps to specific data inputs, reasoning patterns, and output formats.",
+    "capabilities": [
+      {"role": "Trust Builder", "input": "Structured credentials + certifications", "reasoning": "Evidence extraction → Authority scoring", "output": "Capability statement, credibility rebuttal"},
+      {"role": "Strategy Matcher", "input": "Customer profile + product margins + sales history", "reasoning": "Multi-factor ranking with explainability", "output": "Personalized product recommendation"},
+      {"role": "Process Guide", "input": "Workflow graph + current state + required documents", "reasoning": "State machine traversal + document verification", "output": "Next step instruction, missing document alert"},
+      {"role": "Compliance Calculator", "input": "Order parameters + payment rules + risk thresholds", "reasoning": "Rule engine evaluation", "output": "Payment amount, compliance flag"},
+      {"role": "Quality Inspector", "input": "Measurement values + standard thresholds + sampling rules", "reasoning": "Threshold comparison with tolerance bands", "output": "Accept/Reject decision with reasoning"},
+      {"role": "Semantic Navigator", "input": "User query + product taxonomy graph + embeddings", "reasoning": "Graph traversal + vector similarity", "output": "Disambiguated product matches"},
+      {"role": "Pricing Engine", "input": "Market data + volume + seasonality + discount matrices", "reasoning": "Formula application with dynamic variable binding", "output": "Tiered quotation document"},
+      {"role": "Content Composer", "input": "Product attributes + media assets + templates", "reasoning": "Template filling with multi-modal assembly", "output": "Rich product detail page, Q&A responses"},
+      {"role": "Claims Adjudicator", "input": "Claim details + policy rules + evidence", "reasoning": "Policy matching + evidence verification", "output": "Claim decision, compensation calculation"},
+      {"role": "Capacity Assessor", "input": "Inventory + production + logistics capacity data", "reasoning": "Constraint satisfaction with real-time data", "output": "Fulfillment feasibility report"},
+      {"role": "Sales Copilot", "input": "Live conversation + objection patterns + rebuttal library", "reasoning": "Real-time intent classification + retrieval", "output": "In-context rebuttal suggestion overlay"},
+      {"role": "Process Mentor", "input": "SOP checklist + current step + trainee profile", "reasoning": "Checklist traversal with context awareness", "output": "Next-action prompt, compliance check"}
+    ],
+    "design_pattern": "Each agent role follows a consistent interface: Input Port → Reasoning Engine → Output Port. Roles are composable — complex workflows chain multiple roles (e.g., Strategy Matcher → Pricing Engine → Trust Builder for a complete sales flow).",
+    "source": "VORTEX_FLAME knowledge distillation, 2026-06-01"
+  },
+  {
+    "id": "vertical-knowledge-graph-schema-supply-chain",
+    "domain": "knowledge_engineering.knowledge_graph",
+    "topic": "Universal Entity-Relationship Schema for B2B Supply Chain Knowledge Graphs",
+    "prerequisites": ["Knowledge Graphs", "Entity-Relationship Modeling", "Graph Databases"],
+    "summary": "Extracted entity types and relationships from a real B2B supply chain domain model. These form a reusable schema for building knowledge graphs in any physical-goods vertical.",
+    "entities": [
+      {"entity": "Product", "attributes": ["name", "category_path", "variety", "specifications", "shelf_life", "storage_requirements"], "relations": ["belongs_to Category", "has Standard", "appears_in Order"]},
+      {"entity": "Customer", "attributes": ["type", "channel", "credit_rating", "purchase_history"], "relations": ["places Order", "has Channel", "receives Quotation"]},
+      {"entity": "Order", "attributes": ["quantity", "price", "delivery_date", "payment_mode", "status"], "relations": ["contains Product", "placed_by Customer", "governed_by Contract"]},
+      {"entity": "Contract", "attributes": ["terms", "floating_ratio", "warranty_period", "certificate_types"], "relations": ["governs Order", "references Standard"]},
+      {"entity": "Standard", "attributes": ["type", "thresholds", "sampling_ratio", "rejection_rules"], "relations": ["applies_to Product", "referenced_by Contract"]},
+      {"entity": "Channel", "attributes": ["name", "margin_rate", "volume_share", "customer_segment"], "relations": ["serves Customer", "sells Product"]},
+      {"entity": "Capacity", "attributes": ["production_volume", "inventory_level", "fleet_size", "warehouse_area"], "relations": ["constrains Order", "belongs_to Facility"]}
+    ],
+    "key_relationships": [
+      {"from": "Product", "to": "Standard", "type": "qualified_by", "cardinality": "N:M"},
+      {"from": "Order", "to": "Contract", "type": "governed_by", "cardinality": "1:1"},
+      {"from": "Customer", "to": "Channel", "type": "belongs_to", "cardinality": "N:1"},
+      {"from": "Capacity", "to": "Order", "type": "constrains", "cardinality": "1:N"}
+    ],
+    "universality_note": "Replace 'Product' with any physical goods entity (auto parts, pharmaceuticals, electronics, textiles) and the same schema holds: Product→Standard→Contract→Order→Customer→Channel→Capacity.",
+    "source": "VORTEX_FLAME knowledge distillation, 2026-06-01"
+  },
+  {
+    "id": "rag-strategy-by-data-structure",
+    "domain": "ai_engineering.rag",
+    "topic": "RAG Retrieval Strategy Selection by Data Structure Type in Vertical B2B Systems",
+    "prerequisites": ["RAG", "Vector Search", "Hybrid Search", "Knowledge Graphs"],
+    "summary": "Different data structure types require different retrieval strategies in RAG-based agent systems. Using the wrong strategy degrades response quality significantly. This entry maps each data structure to its optimal retrieval approach.",
+    "strategies": [
+      {
+        "data_type": "Structured thresholds/rules",
+        "retrieval": "Direct API/DB lookup — no embedding needed",
+        "rationale": "Exact values (e.g., sugar content > 12%), not semantic similarity. Embedding introduces unnecessary approximation.",
+        "anti_pattern": "Vectorizing numeric thresholds into embeddings"
+      },
+      {
+        "data_type": "Semi-structured JSON/documents",
+        "retrieval": "Hybrid: keyword BM25 + sparse embedding",
+        "rationale": "Documents have both exact-match fields (dates, amounts) and semantic content (descriptions). Hybrid captures both.",
+        "anti_pattern": "Pure dense embedding on mixed-format documents"
+      },
+      {
+        "data_type": "Unstructured text/scripts/FAQs",
+        "retrieval": "Dense embedding + semantic similarity",
+        "rationale": "Pure semantic content. User queries are paraphrases, not exact matches. Dense embeddings handle the semantic gap.",
+        "anti_pattern": "Keyword search on conversational FAQs"
+      },
+      {
+        "data_type": "Multi-modal (image + text)",
+        "retrieval": "Cross-modal embedding + late fusion",
+        "rationale": "Query may be text while relevant content is an image, or vice versa. Cross-modal embeddings align the spaces.",
+        "anti_pattern": "Text-only embedding on image-heavy product catalog"
+      },
+      {
+        "data_type": "Knowledge graph / taxonomy",
+        "retrieval": "Graph traversal + path ranking",
+        "rationale": "Hierarchical and relational queries (e.g., 'sweet fruits' → Citrus → Oranges → Navel). Graph structure encodes the semantic path.",
+        "anti_pattern": "Flattening taxonomy trees into flat text embeddings"
+      }
+    ],
+    "meta_principle": "The retrieval strategy should match the structure of the data, not the convenience of the infrastructure. A system that vectorizes everything loses the precision edges that structured data provides.",
+    "source": "VORTEX_FLAME knowledge distillation, 2026-06-01"
+  }
+]

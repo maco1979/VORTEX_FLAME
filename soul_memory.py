@@ -60,7 +60,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 
@@ -127,21 +127,22 @@ class EmbeddingProvider:
             return None
 
     def encode_batch(self, texts: List[str]) -> List[Optional[bytes]]:
-        model = self.__class__._model
-        if not self.available or model is None or not texts:
+        if not self.available or self.__class__._model is None or not texts:
             return [None] * len(texts)
+        model: Any = cast(Any, self.__class__._model)
         try:
-            vecs_list = model.encode(texts, normalize_embeddings=True,  # pyright: ignore[reportOptionalMemberAccess]
+            vecs_list = model.encode(texts, normalize_embeddings=True,
                                 batch_size=64, show_progress_bar=False)
-            return [np.array(v, dtype=np.float32).tobytes() for v in vecs_list]  # pyright: ignore[reportArgumentType]
+            return [np.array(v, dtype=np.float32).tobytes() for v in vecs_list]  # type: ignore[arg-type]
         except Exception:
             return [None] * len(texts)
 
     def encode_query(self, query: str) -> Optional[np.ndarray]:
-        if not self.available:
+        if not self.available or self.__class__._model is None:
             return None
+        m: Any = cast(Any, self.__class__._model)
         try:
-            vec = self.__class__._model.encode(query, normalize_embeddings=True)
+            vec = m.encode(query, normalize_embeddings=True)
             return np.array(vec, dtype=np.float32)
         except Exception:
             return None
@@ -520,7 +521,7 @@ class SoulMemoryEngine:
             max_sem = max(s[3] for s in scored) or 1.0
 
             def hybrid_sort_key(item):
-                entry, raw_row, bm25_s, sem_s = item
+                entry, _, bm25_s, sem_s = item
                 norm_bm25 = bm25_s / max_bm25 if max_bm25 > 0 else 0.0
                 norm_sem = sem_s / max_sem if max_sem > 0 else 0.0
                 if has_semantic and max_sem > 0:
@@ -859,7 +860,7 @@ class SoulMemoryEngine:
                 "last_updated": row["last_updated"],
             }
 
-        profile = UserProfile(soul=soul)
+        _ = UserProfile(soul=soul)
         self._rebuild_profile(conn, soul)
         row = conn.execute("SELECT * FROM profiles WHERE soul = ?", (soul,)).fetchone()
         if row:

@@ -148,7 +148,7 @@ class SlotAttention(nn.Module):
     def forward(
         self, inputs: torch.Tensor, num_slots: Optional[int] = None
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        B, N_input, _ = inputs.shape
+        B, _, _ = inputs.shape
         n_slots = num_slots or self.num_slots
 
         inputs = self.norm_input(inputs)
@@ -394,20 +394,20 @@ class AuxiliaryConditioner(nn.Module):
         aux = self.aux_proj(auxiliaries)
 
         output = slots
-        for i in range(len(self.self_attn_layers)):  # pyright: ignore[reportGeneralTypeIssues]
-            norm1, norm2, norm3 = self.norms[i]  # pyright: ignore[reportGeneralTypeIssues]
+        for i in range(len(self.self_attn_layers)):  # type: ignore[arg-type]
+            norm1, norm2, norm3 = self.norms[i]  # type: ignore[index]
 
-            self_attn_out, _ = self.self_attn_layers[i](  # pyright: ignore[reportGeneralTypeIssues]
-                norm1(output), norm1(output), norm1(output)  # pyright: ignore[reportGeneralTypeIssues]
+            self_attn_out, _ = self.self_attn_layers[i](  # type: ignore[index,call-arg]
+                norm1(output), norm1(output), norm1(output)
             )
             output = output + self_attn_out
 
-            cross_attn_out, _ = self.cross_attn_layers[i](  # pyright: ignore[reportGeneralTypeIssues]
-                norm2(output), aux, aux  # pyright: ignore[reportGeneralTypeIssues]
+            cross_attn_out, _ = self.cross_attn_layers[i](  # type: ignore[index,call-arg]
+                norm2(output), aux, aux
             )
             output = output + cross_attn_out
 
-            ffn_out = self.ffn_layers[i](norm3(output))  # pyright: ignore[reportGeneralTypeIssues]
+            ffn_out = self.ffn_layers[i](norm3(output))  # type: ignore[index,call-arg]
             output = output + ffn_out
 
         return output
@@ -493,7 +493,7 @@ class CausalPredictor(nn.Module):
         slot_mask: Optional[torch.Tensor] = None,
         auxiliaries: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        B, T, N, D = history_slots.shape
+        B, T, N, _ = history_slots.shape
 
         x = self.input_proj(history_slots)
 
@@ -502,12 +502,12 @@ class CausalPredictor(nn.Module):
 
         x_flat = x.reshape(B, T * N, -1)
 
-        for layer in self.transformer_layers:  # pyright: ignore[reportGeneralTypeIssues]
-            normed = layer["norm1"](x_flat)  # pyright: ignore[reportGeneralTypeIssues]
-            attn_out, _ = layer["self_attn"](normed, normed, normed)  # pyright: ignore[reportGeneralTypeIssues]
+        for layer in self.transformer_layers:
+            normed = layer["norm1"](x_flat)  # type: ignore[index,call-arg]
+            attn_out, _ = layer["self_attn"](normed, normed, normed)  # type: ignore[index,call-arg]
             x_flat = x_flat + attn_out
 
-            ffn_out = layer["ffn"](layer["norm2"](x_flat))  # pyright: ignore[reportGeneralTypeIssues]
+            ffn_out = layer["ffn"](layer["norm2"](x_flat))  # type: ignore[index,call-arg]
             x_flat = x_flat + ffn_out
 
         x = x_flat.reshape(B, T, N, -1)
@@ -528,13 +528,13 @@ class CausalPredictor(nn.Module):
         future_s_pos = self.slot_pos[:, :N, :].unsqueeze(1).expand(-1, self.future_len, -1, -1).reshape(1, self.future_len * N, -1)
         future_q = future_q + future_t_pos + future_s_pos
 
-        for layer in self.transformer_layers:  # pyright: ignore[reportGeneralTypeIssues]
-            normed_q = layer["norm1"](future_q)  # pyright: ignore[reportGeneralTypeIssues]
-            normed_kv = layer["norm1"](x_flat)  # pyright: ignore[reportGeneralTypeIssues]
-            attn_out, _ = layer["self_attn"](normed_q, normed_kv, normed_kv)  # pyright: ignore[reportGeneralTypeIssues]
+        for layer in self.transformer_layers:
+            normed_q = layer["norm1"](future_q)  # type: ignore[index,call-arg]
+            normed_kv = layer["norm1"](x_flat)  # type: ignore[index,call-arg]
+            attn_out, _ = layer["self_attn"](normed_q, normed_kv, normed_kv)  # type: ignore[index,call-arg]
             future_q = future_q + attn_out
 
-            ffn_out = layer["ffn"](layer["norm2"](future_q))  # pyright: ignore[reportGeneralTypeIssues]
+            ffn_out = layer["ffn"](layer["norm2"](future_q))  # type: ignore[index,call-arg]
             future_q = future_q + ffn_out
 
         future_slots = self.output_proj(future_q.reshape(B, self.future_len, N, -1))
@@ -753,11 +753,13 @@ class CJEPALayer(nn.Module):
             for _ in range(num_slots)
         ])
 
-        for lin in self.per_slot_input_proj:
+        for lin in self.per_slot_input_proj:  # type: ignore[unused-var]
+            w_tensor = lin.weight  # type: ignore[assignment]
+            b_tensor = lin.bias  # type: ignore[assignment]
             with torch.no_grad():
-                nn.init.normal_(lin.weight, std=0.001)  # pyright: ignore[reportArgumentType]
-                lin.weight.data.add_(torch.eye(input_dim))  # pyright: ignore[reportAttributeAccessIssue]
-                nn.init.zeros_(lin.bias)  # pyright: ignore[reportArgumentType]
+                nn.init.normal_(w_tensor, std=0.001)  # type: ignore[arg-type]
+                w_tensor.data.add_(torch.eye(input_dim).to(device=w_tensor.device, dtype=w_tensor.dtype))  # type: ignore[union-attr]
+                nn.init.zeros_(b_tensor)  # type: ignore[arg-type]
 
         self.context_encoder = ObjectSlotEncoder(
             input_dim=input_dim,

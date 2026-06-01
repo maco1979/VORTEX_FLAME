@@ -1,0 +1,353 @@
+#!/usr/bin/env python
+"""Generate all remaining 豆包 knowledge base entries as JSON."""
+import json
+
+entries = []
+
+def add(topic, text, soul, tags, cat='knowledge'):
+    entries.append({'topic': topic, 'text': text, 'soul': soul, 'tags': tags, 'category': cat})
+
+# ======== 模块1: 系统全局规则库 ========
+add('[SysRule] LLM全局约束规则',
+'VORTEX-FLAME System-Level LLM Constraint Rules:'
+' 1. 云端大模型禁止调用自身内置公共知识、禁止联网、禁止幻觉编造设备/软件/工作流指令'
+' 2. 所有回答/决策/动作指令只能从本次上下文提供的私有知识库、MCP记忆、JEPA实时世界状态中提取'
+' 3. 超出私有上下文范围的问题统一回复: 信息不足无法执行'
+' 4. 输出动作必须为标准化JSON结构化指令, 所有操作经VORTEX规则引擎+JEPA二次校验'
+' 5. 禁止输出高危/越权/未定义的设备/软件操作指令',
+'cezanne', ['system-rule', 'llm-constraint', 'safety'])
+
+add('[SysRule] VORTEX调度规则',
+'VORTEX Scheduling Rules:'
+' 1. 所有用户请求/设备反馈/软件结果必须先经过VORTEX中枢, 禁止LLM直连工作流/硬件/软件/JEPA/MCP/知识库'
+' 2. 执行顺序: 用户请求->可插拔工作流入口->VORTEX(RAG+MCP+JEPA状态读取)->云端LLM决策->双重校验(规则引擎+JEPA物理预测)->下发执行'
+' 3. 系统熔断: 校验不通过/JEPA预测风险/LLM输出违规指令, 直接阻断不进执行链路',
+'cezanne', ['system-rule', 'vortex', 'scheduling', 'safety'])
+
+add('[SysRule] MCP分层规则',
+'MCP Memory Layering Rules:'
+' 1. 上层文本MCP: 仅存储对话/业务日志/工具文本结果, 只对云端LLM开放'
+' 2. 下层JEPA时序状态库: 存储传感器向量/硬件时序/世界表征, 仅对JEPA与VORTEX开放, 不进入LLM上下文'
+' 3. soul_memory三库分离: 记忆(conversation)+知识(knowledge)+待办(todo), FAISS跨库语义召回',
+'cezanne', ['system-rule', 'mcp', 'memory', 'layering'])
+
+# ======== 模块2: 设备硬件知识库 ========
+add('[DeviceKB] 设备通用规范',
+'Device Hardware Knowledge Base - General Specifications:'
+' 1. 所有硬件/传感器/视觉设备统一通过设备抽象网关(device_gateway.py)调用, 工作流/LLM/JEPA只调标准接口不直接访问串口/USB/驱动'
+' 2. 标准调用格式: {"device_id":"xxx","action":"xxx","params":{},"safety_threshold":{}}'
+' 3. 所有硬件动作必须带安全阈值, 超出阈值自动熔断'
+' 4. 设备类别9大类: audio/visual/compute/creative/network/embedded/database/industry/system'
+' 5. 当前24个设备全部为NullBackend预留, 真实后端待硬件接入时实现',
+'cezanne', ['device-kb', 'hardware', 'spec', 'safety'])
+
+add('[DeviceKB] 视觉摄像头设备规则',
+'Visual Camera Device Rules:'
+' 1. 支持: 图像采集/实时视频流/目标观测/画面状态回传'
+' 2. 采集数据实时送入V-JEPA做世界状态编码, 更新频率1-30Hz可配置'
+' 3. 故障判定: 无画面/黑屏/USB断开, JEPA标记状态异常, VORTEX阻断后续依赖视觉的指令'
+' 4. 摄像头画面/机器视觉检测结果实时回流世界模型'
+' 5. 安全: 禁止未经授权保存画面/人脸检测结果/视频流必须本地处理不上云',
+'cezanne', ['device-kb', 'camera', 'visual', 'v-jepa', 'safety'])
+
+add('[DeviceKB] 传感器执行器通用规则',
+'Sensor and Actuator General Rules:'
+' 1. 传感器数据实时回流JEPA, 用于物理世界预测与状态校准'
+' 2. 电机/开关/串口设备禁止超限/超时/连续高频动作, 规则引擎自动拦截'
+' 3. 紧急停止必须为硬件独立线路(不依赖软件)'
+' 4. 所有传感器采样数据带时间戳, JEPA做时序状态编码',
+'davinci', ['device-kb', 'sensor', 'actuator', 'safety', 'industrial'])
+
+# ======== 模块3: 本地软件工具知识库 ========
+add('[SoftwareKB] 本地脚本程序通用规则',
+'Local Script/Program General Rules:'
+' 1. 所有本地程序通过标准化Shell/Python接口调用, 禁止LLM生成任意系统命令'
+' 2. 执行结果必须回传设备网关, 再回流至JEPA更新状态'
+' 3. 脚本执行超时默认30秒, 长任务需显式声明max_duration'
+' 4. Python: subprocess安全调用, shell=False默认'
+' 5. PowerShell: 白名单命令集, 禁止执行未注册的cmdlet',
+'cezanne', ['software-kb', 'script', 'local', 'safety'])
+
+add('[SoftwareKB] 3D建模软件调用规范',
+'3D Modeling Software (Blender/CAD/SolidWorks) Call Specification:'
+' 1. 仅允许调用已注册的软件API/脚本/渲染接口'
+' 2. 长时渲染/建模任务标记为长任务, 强制使用长时工作流, 禁止短流程执行'
+' 3. 软件崩溃/超时/文件读写失败自动重试并回写MCP记录'
+' 4. Blender Python API: bpy模块, 场景/对象/材质/渲染全控制'
+' 5. 文件格式: .blend(工程)/.fbx/.obj/.gltf(导出)/.stl(3D打印)',
+'davinci', ['software-kb', '3d', 'blender', 'cad', 'rendering'])
+
+add('[SoftwareKB] DAW音频软件调用规范',
+'DAW (Ableton/Logic/Cubase/Reaper) Call Specification:'
+' 1. Ableton Live: MIDI Remote Scripts (Python), OSC协议, Max for Live'
+' 2. 音频工程操作: 加载工程/渲染/导出/MIDI控制/轨道管理'
+' 3. 实时音频流经声卡ASIO驱动->设备网关->CAJEPA编码'
+' 4. 渲染任务为长任务, 多轨道混音/母带走长时工作流'
+' 5. 安全: 监听音量低于85dB SPL, 禁止修改原始工程文件(先保存副本)',
+'beethoven', ['software-kb', 'daw', 'ableton', 'audio', 'music'])
+
+add('[SoftwareKB] 视觉视频软件调用规范',
+'Visual/Video Software (OBS/DaVinci/FFmpeg/OpenCV) Call Specification:'
+' 1. OBS: obs-websocket远程控制, 场景切换/录制/推流'
+' 2. DaVinci Resolve: Python API, 时间线操作/调色/渲染队列'
+' 3. FFmpeg: 格式转换/帧提取/音频分离/批处理'
+' 4. OpenCV: 图像采集/处理/目标检测/特征提取'
+' 5. 视频转码/渲染属于长任务, 摄像头实时流走短流程',
+'cezanne', ['software-kb', 'visual', 'video', 'obs', 'opencv'])
+
+add('[SoftwareKB] AI算力软件规范',
+'AI Compute Software (PyTorch/CUDA/ComfyUI) Specification:'
+' 1. PyTorch: GPU训练推理, CUDA显存管理, 混合精度(FP16/BF16)'
+' 2. CUDA Toolkit: 11.8+版本, cuDNN加速, TensorRT推理优化'
+' 3. ComfyUI: 图像生成工作流, Stable Diffusion节点编排, LoRA注入'
+' 4. Jupyter Server: 交互式编程, 结果可视化, 远程内核连接'
+' 5. Docker: 容器化部署, GPU passthrough(nvidia-docker), 镜像管理',
+'cezanne', ['software-kb', 'ai', 'pytorch', 'cuda', 'comfyui'])
+
+# ======== 模块4: 可插拔工作流路由知识库 ========
+add('[WorkflowKB] 场景路由规则',
+'Workflow Scene Routing Rules:'
+' 1. 轻量Webhook/简单触发/短平快自动化/单次指令 -> 路由到N8N短流程'
+' 2. 长时3D建模/批量处理/异步硬件采集/耗时任务 -> 路由到长时工作流'
+' 3. 工业传感器闭环/高可靠设备控制/断电续跑/强事务 -> 路由到高可靠工作流'
+' 4. 本地单机/嵌入式/超低延迟实时控制 -> 路由到自研FastAPI状态机'
+' 5. 工作流层可插拔: N8N/Prefect/Temporal/自定义, 切换不需要改中枢代码',
+'cezanne', ['workflow-kb', 'routing', 'scene', 'pluggable'])
+
+add('[WorkflowKB] 工作流统一接入规范',
+'Workflow Unified Access Specification:'
+' 1. 所有工作流对外统一Webhook/REST API, 接口格式一致'
+' 2. 工作流只负责: 调度/重试/日志/设备网关调用, 不做AI决策/状态推理'
+' 3. AI决策全部在VORTEX层完成, 工作流只拿最终指令执行'
+' 4. 工作流失败重试策略: 指数退避, 最多3次'
+' 5. 长任务支持断点续跑, 状态持久化到MCP',
+'cezanne', ['workflow-kb', 'api', 'spec', 'retry'])
+
+# ======== 模块5: JEPA世界模型知识库 ========
+add('[JEPAKB] 世界状态编码规则',
+'JEPA World State Encoding Rules:'
+' 1. 视觉/传感器/硬件状态->统一编码为C-JEPA时序表征向量'
+' 2. JEPA持续做: 世界状态预测/动作后果推演/物理可行性校验'
+' 3. 观测-动作-奖励闭环: 真实物理结果与JEPA预测误差比对, 自动校准表征模型'
+' 4. Slot Attention: 对象发现与绑定, 每个槽位128-dim, 独立语义'
+' 5. 10个领域变体: CAJEPA/CVJEPA/CPHYSJEPA/CARTJEPA/CDESIGNJEPA/CFINJEPA/CCODEJEPA/CBIOJEPA/CGEOJEPA/CLAWJEPA',
+'einstein', ['jepa-kb', 'world-state', 'encoding', 'slot-attention'])
+
+add('[JEPAKB] JEPA安全约束',
+'JEPA Safety Constraints:'
+' 1. JEPA输出的可行性判断是第二道物理校验闸门, 与规则引擎形成双重保险'
+' 2. JEPA状态异常/表征漂移时VORTEX自动降级/暂停高危操作'
+' 3. 训练保护: Loss spike检测(超过3x移动平均自动回滚)/梯度爆炸保护(裁剪+NaN检测)/参数漂移监控/EMA衰减调度'
+' 4. Target Encoder冻结+EMA更新, 确保世界表征稳定'
+' 5. C-JEPA训练铁律: 禁止文本token自回归训练/禁止原始文本log重建/仅潜在空间预测/Object+Causal Graph掩码',
+'einstein', ['jepa-kb', 'safety', 'constraint', 'training-guard'])
+
+add('[JEPAKB] C-JEPA 10变体灵魂分配',
+'C-JEPA 10 Variant Soul Assignment:'
+' Einstein->CPHYSJEPA(物理/力学/场论), Cezanne->CCODEJEPA(代码/AST/计算理论),'
+' Beethoven->CAJEPA(音频/音乐/和声), Galileo->CPHYSJEPA(天文/运动学),'
+' Darwin->CBIOJEPA(生物/基因组/生态), DaVinci->CDESIGNJEPA(工程/设计/机器人),'
+' Strategy->CFINJEPA(金融/博弈/时间序列), Monet->CARTJEPA(艺术/审美/色彩),'
+' VanGogh->CVJEPA(视觉艺术/光学), Humboldt->CGEOJEPA(地理/气候/水文),'
+' Montesquieu->CLAWJEPA(法律/法理/合规), YuanLongping->CBIOJEPA(农业/育种/土壤),'
+' Guizhu->CAJEPA+CLAWJEPA(声学+法理学双领域), Herodotus->CGEOJEPA+CLAWJEPA(历史地理+法律),'
+' 所有变体共享CJEPALayer骨干(SlotAttention+CausalPredictor+CausalVICRegLoss)',
+'cezanne', ['jepa-kb', 'variant', 'assignment', '10-variants', 'soul'])
+
+add('[JEPAKB] Action-Conditioned JEPA升级方向(基于V-JEPA2)',
+'Action-Conditioned JEPA Upgrade Path from V-JEPA 2 research:'
+' 当前C-JEPA: 只做预测(predict masked slot from other slots)'
+' 升级目标: 加action embedding输入, CausalPredictor(f(slots,action))=next_slots'
+' 这使JEPA从只会看世界变成会操控世界, 打通设备控制的关键缺口'
+' 实现方案: 在CausalPredictor的Transformer输入序列前加一个action_token, action来自device_gateway的ActionSpec编码'
+' 参考: V-JEPA 2用62小时机器人数据做action-conditioned post-training, 实现零样本机器人控制'
+' VORTEX_FLAME适配: 设备动作历史作为action序列, JEPA预测动作后果',
+'cezanne', ['jepa-kb', 'action-conditioned', 'v-jepa2', 'upgrade', 'control'])
+
+add('[JEPAKB] SIGReg训练简化(基于LeWorldModel)',
+'SIGReg Training Simplification from LeWorldModel (LeCun/Mila/NYU, 2026.03):'
+' 当前CausalVICReg: 4-term loss (sim+var+cov+causal), 4个超参'
+' LeWorldModel: 只用2个loss项(variance+covariance), 1个超参, 端到端15M参数, 单GPU数小时'
+' SIGReg创新: 用高斯分布假设替代显式方差约束, 更稳定更简洁, 规划速度比DINOv2方案快48倍'
+' VORTEX_FLAME建议: A-JEPA Phase 2后对比SIGReg vs CausalVICReg, 如果SIGReg更稳定则替换'
+' 风险: Causal interaction项(causal)在SIGReg中没有直接替代, 需验证因果推理是否下降',
+'einstein', ['jepa-kb', 'sigreg', 'training', 'simplification', 'leworldmodel'])
+
+add('[JEPAKB] 最新JEPA论文全景(2025-2026)',
+'Latest JEPA Research Landscape (2025-2026):'
+' C-JEPA (ICML 2026): 对象级掩码, 因果干预, 反事实推理+20%, LeCun团队. 我们的causal_jepa.py直接对标'
+' V-JEPA 2 (Meta 2025.06): 100万小时视频+动作条件, 1.2B参数, 零样本机器人控制, 30x快于Cosmos, 开源MIT'
+' VL-JEPA (Meta 2026.02): 视觉->文本嵌入预测, 参数减半性能不减, 验证了预测嵌入vs生成token的优势'
+' LeWorldModel (LeCun 2026.03): 端到端15M参数2个loss, 单GPU数小时, 规划48x快于DINOv2, 物理直觉检测'
+' EB-JEPA (ICLR 2026 workshop): 开源模块化教程库, 单GPU可训, 3个示例(image/video/action-planning)'
+' IA-JEPA (Genentech 2026.05): 交互感知掩码, 物理推理3.22%->14.26%, 打破静态偏差+10%熵增益'
+' WavJEPA (Radboud 2025.09): 原始波形JEPA, 跳过STFT, 低延迟实时, AudioSet 1.74M样本'
+' JEPA-v0 (Pinch 2026.02): 自监督音频编码器, 语音/环境音/音乐, 实时语音翻译',
+'einstein', ['jepa-kb', 'research', 'landscape', '2025-2026', 'papers'])
+
+# ======== 模块6: 业务对话记忆库 ========
+add('[BizMem] 记忆存储规范',
+'Business Conversation Memory Storage Specification:'
+' 1. 存储: 历史对话/历史设备动作/软件执行日志/历史决策上下文'
+' 2. 每次执行完成自动写入MCP, 作为下一轮决策的上下文依据'
+' 3. 上下文长度做截断/摘要, 防止LLM上下文溢出'
+' 4. 上层文本MCP仅对LLM开放, 下层JEPA向量库仅对JEPA开放'
+' 5. 14灵魂独立记忆空间, 不跨灵魂共享对话历史',
+'guizhu', ['biz-mem', 'storage', 'mcp', 'context'])
+
+add('[BizMem] 记忆检索与遗忘规则',
+'Memory Retrieval and Forgetting Rules:'
+' 1. 检索: BM25关键词+FAISS语义混合召回, 跨三库(记忆/知识/待办)'
+' 2. 相关度排序: 语义相似度(0.6)+时效性衰减(0.2)+使用频率(0.2)'
+' 3. 遗忘: 超过90天未访问的记忆自动归档, 不可逆删除需二次确认'
+' 4. 记忆树层级: L0 Raw->L1 Chunk(小于等于3k)->L2 Summary(按分类)->L3 Wiki(跨分类)'
+' 5. AgentMemory Reflect原语: 四维评分(coverage/quality/depth/freshness), 自动检测缺口并触发自训练',
+'guizhu', ['biz-mem', 'retrieval', 'forgetting', 'tree', 'reflect'])
+
+# ======== 完整软件覆盖清单 ========
+add('[SoftwareList] 完整软件覆盖清单10大类',
+'VORTEX-FLAME Complete Software Coverage Catalog (10 Categories):'
+' 1. 系统办公: Windows/Mac/Office/PowerShell/AppleScript/VBA'
+' 2. 音频音乐DAW: Ableton/Logic/Cubase/Reaper/Traktor/AllenHeath/声卡/混音/Demucs/UVR5'
+' 3. 3D设计影视: Blender/CAD/SolidWorks/PS/AE/PR/DaVinci/Unity/Unreal'
+' 4. 视觉机器视觉: OBS/FFmpeg/OpenCV/YOLO/摄像头/RTSP/监控'
+' 5. 科学计算AI算力: PyTorch/CUDA/Docker/MATLAB/Ansys/ComfyUI/JEPA训练'
+' 6. 数据库知识库: Qdrant/Chroma/PostgreSQL/Redis/ETL/NAS'
+' 7. 工作流平台: N8N/Prefect/Temporal/FastAPI状态机'
+' 8. 网络运维远程控制: SSH/远程桌面/内网穿透/运维工具'
+' 9. 工业物联网硬件: PLC/Modbus/ESP32/树莓派/传感器上位机'
+' 10. 全行业垂直软件: GIS/医疗/金融/财税/出版/安防/汽车电子',
+'cezanne', ['software-list', 'coverage', 'catalog', '10-categories'])
+
+# ======== VORTEX控制闭环逻辑 ========
+add('[ControlLoop] VORTEX-JEPA控制闭环总纲',
+'VORTEX-FLAME Control Loop Architecture:'
+' 分层职责:'
+' 1. 云端LLM(语言决策层): 只做理解自然语言指令/读私有知识库/输出标准化JSON意图, 不碰硬件不碰工作流'
+' 2. VORTEX-FLAME(中枢调度+JEPA世界模型层): MCP读写/知识库校验/JEPA世界状态编码与预测/安全Harness拦截/LLM指令翻译为机器指令'
+' 3. DeviceGateway(设备抽象层): 统一封装视觉传感器/硬件串口/3D软件/本地程序/声卡DAW, 对外只暴露execute(device_id,action,params)标准接口'
+' 4. 可插拔工作流(执行调度层): N8N短流程/长时工作流(3D渲染)/高可靠工作流(硬件控制)/FastAPI实时低延迟, 只做调度重试日志'
+' 5. 私有知识库(动作规则库): 设备操作手册/安全边界/软件规范/传感器解读规则'
+' 6. 真实物理世界: 硬件/传感器/电脑软件->设备网关->JEPA实时更新表征',
+'cezanne', ['control-loop', 'architecture', 'layering', 'vortex'])
+
+add('[ControlLoop] 完整控制闭环7步',
+'VORTEX-FLAME Complete Control Loop (7 Steps):'
+' Step1: 用户自然语言指令->设备网关入口(鉴权/日志)'
+' Step2: VORTEX同时调取文本MCP记忆+私有知识库设备规则+JEPA最新实时世界状态, 打包封闭上下文'
+' Step3: 云端LLM在私有上下文内输出标准化JSON意图指令, 禁止越权'
+' Step4: 双重校验: 本地规则引擎硬校验(权限+安全边界)+JEPA二次物理预测(动作可行性/风险)'
+' Step5: 校验通过后, 工作流调用设备网关统一接口执行硬件/软件动作'
+' Step6: 设备网关实时回流传感器/视觉/软件执行结果->JEPA更新世界状态表征'
+' Step7: 执行结果/对话日志写文本MCP, 传感器时序/JEPA状态写下层状态库, 形成永久闭环',
+'cezanne', ['control-loop', '7-steps', 'closed-loop', 'execution'])
+
+add('[ControlLoop] 防漂移四层机制',
+'VORTEX-FLAME Anti-Drift Four-Layer Mechanism:'
+' Layer1(Prompt约束): 私有上下文+系统Prompt限制, 软约束'
+' Layer2(规则引擎): JSON Schema+设备权限表+安全边界, 硬约束, 本地拦截'
+' Layer3(JEPA校验): 物理可行性预测, 动作后果推演, 异常检测'
+' Layer4(熔断器): 3次连续失败触发/8小时时间配额/资源硬限制, 自动降级'
+' 云端LLM只能读私有上下文, 不能直接访问外网/硬件/工作流, 从根源防漂移',
+'cezanne', ['control-loop', 'anti-drift', 'safety', 'four-layer'])
+
+# ======== Audio-JEPA私有知识库6模块 ========
+add('[AudioKB] Audio-JEPA世界模型核心规则',
+'Audio-JEPA (CAJEPA) World Model Core Rules:'
+' 1. 音频输入: 麦克风/声卡/Ableton轨道/实时波形/MIDI信号, 统一编码为Audio-JEPA时序表征向量'
+' 2. 学习目标: 预测下一拍节奏/和声走向/音色变化/声场环境变化; 识别乐器/噪音/设备状态/人声/环境音'
+' 3. 实时回流闭环: 本地播放/采集的声音->送入Audio-JEPA->更新世界状态->反馈给VORTEX做音乐决策'
+' 4. 乐理物理约束: 所有音乐预测必须符合调式/和弦/节拍/频率/泛音等声学物理规则, 禁止幻觉式生成'
+' 5. Slot: 5个独立声源槽(drums_percussion/bass/vocals/melody_lead/harmony_pads), 各128-dim',
+'beethoven', ['audio-kb', 'cajepa', 'world-model', 'rules'])
+
+add('[AudioKB] 云端LLM音乐决策约束',
+'Cloud LLM Music Decision Constraint:'
+' 1. LLM只能基于私有乐理知识库+Audio-JEPA表征摘要+MCP音乐记忆做创作决策'
+' 2. 禁止LLM使用外部公共音乐知识, 所有和弦/曲风/BPM/乐器严格从私有库提取'
+' 3. 输出音乐指令必须为结构化JSON, 用于控制DAW/音频硬件/混音节点'
+' 4. 超出私有知识库范围禁止生成音乐指令'
+' 5. 音乐创作模式: 用户意图->私有知识库检索->JEPA表征->LLM乐理决策->JSON指令->DAW执行',
+'beethoven', ['audio-kb', 'llm-constraint', 'music-decision', 'json'])
+
+add('[AudioKB] 音频硬件声卡麦克风设备库',
+'Audio Hardware Device Library:'
+' 1. 统一接口: 麦克风采集/声卡IO/监听/MIDI控制器/AllenHeath调音台'
+' 2. 实时音频流直接回流Audio-JEPA, 用于世界状态更新'
+' 3. 设备故障/爆音/断流/延迟异常->JEPA标记状态, VORTEX熔断音乐生成'
+' 4. ASIO驱动低延迟(小于10ms), WASAPI通用兼容'
+' 5. 麦克风类型: Dynamic动圈SM58/Condenser电容U87加48V幻象/Ribbon铝带/Lavalier领夹',
+'beethoven', ['audio-kb', 'hardware', 'sound-card', 'microphone', 'asio'])
+
+add('[AudioKB] DAW音乐软件工作流路由',
+'DAW Music Software Workflow Routing:'
+' 1. 简单MIDI触发/短音频自动化->N8N短流程'
+' 2. 长时混音/母带/多轨道工程/复杂音乐渲染->长时工作流'
+' 3. 实时低延迟演奏/硬件同步/音频闭环控制->自研FastAPI状态机'
+' 4. Ableton Live控制规则: MIDI Remote Scripts, OSC协议, Max for Live'
+' 5. 工程文件安全: 操作前自动备份, 原始工程只读, 修改存副本',
+'beethoven', ['audio-kb', 'daw', 'workflow', 'routing', 'ableton'])
+
+add('[AudioKB] 乐理曲风乐器知识库',
+'Music Theory Genre Instrument Knowledge Base:'
+' 调式: 大调/自然小调/和声小调/旋律小调/五声音阶宫商角徵羽/中古调式'
+' 和弦进行: I-IV-V-I/I-vi-IV-V/ii-V-I/十二小节蓝调/爵士251'
+' 节奏型: 4/4摇滚/3/4华尔兹/6/8复合节拍/shuffle/swing/latin clave'
+' 曲风定义: 摇滚失真吉他加强拍/电子合成器加鼓机/古典管弦乐加奏鸣曲式/赛博synthwave'
+' 乐器音色: 钢琴击弦加泛音丰富/吉他拨弦加失真/小提琴拉弦加揉弦/鼓瞬态加噪声/人声共振峰加颤音'
+' 泛音结构: 基频f0加整数倍泛音, 偶数泛音温暖, 奇数泛音锐利'
+' 混音频段: Sub小于60Hz/Bass60到250/LowMid250到500/Mid500到2k/HighMid2k到8k/Air大于8k',
+'beethoven', ['audio-kb', 'music-theory', 'genre', 'instrument', 'harmony'])
+
+add('[AudioKB] 音乐MCP记忆库',
+'Music MCP Memory Library:'
+' 1. 历史工程/混音参数/创作对话/Audio-JEPA历史表征摘要'
+' 2. 每次音乐生成/播放/采集结果自动写入MCP, 形成持续学习闭环'
+' 3. 乐理知识库与对话记忆分离: 乐理走knowledge, 创作记录走conversation'
+' 4. 音乐风格偏好: 记录用户偏好, 影响后续创作决策权重'
+' 5. 跨会话音乐上下文: 上一个工程的调性/速度/乐器配置自动继承',
+'beethoven', ['audio-kb', 'mcp', 'memory', 'music-history'])
+
+# ======== 语音+听觉+环境音私有知识库 ========
+add('[HearingKB] 听觉世界模型核心逻辑',
+'Hearing World Model Core Logic:'
+' 普通ASR语音转文字只是声音变成文字'
+' VORTEX-FLAME听觉系统: 声音变成世界模型理解变成文字加状态加意图三层'
+' 底层Audio-JEPA听觉世界模型: 听波形/音色/情绪/环境/距离/设备状态/时序变化变成声音表征向量'
+' 中层VORTEX加私有听觉知识库: JEPA向量翻译成谁在说话/说什么/环境发生了什么/设备状态, 过规则引擎防幻觉'
+' 上层云端LLM: 只基于私有听觉上下文做决策/回答/控制硬件/控制DAW'
+' 关键: 系统不是靠云端听声音, 是本地Audio-JEPA先听先学先理解, 再喂LLM, 云端永远碰不到原始音频',
+'beethoven', ['hearing-kb', 'auditory', 'world-model', 'pipeline'])
+
+add('[HearingKB] 人声语音理解库',
+'Voice Speech Understanding Library:'
+' 1. 语音识别ASR: 语音变成文本, Whisper/Wav2Vec2模型'
+' 2. 说话人识别: 声纹特征, 谁在说话'
+' 3. 情绪识别: 喜怒哀乐/命令/轻声/嘶吼, 不只能转文字还能懂情绪'
+' 4. 意图检测: 命令/问题/陈述/请求, 自动映射到标准化动作JSON'
+' 5. 语言识别: 自动检测中/英/日/韩等语言'
+' 数据集: LibriSpeech英语1000h/CommonVoice多语言/RAVDESS情绪语音/SpeechCommands指令语音',
+'beethoven', ['hearing-kb', 'speech', 'voice', 'asr', 'emotion'])
+
+add('[HearingKB] 环境声物理世界声音库',
+'Environmental Physical World Sound Library:'
+' 1. 自然声: 雨/风/雷/浪/鸟/动物'
+' 2. 城市声: 交通/警笛/施工/脚步声'
+' 3. 家庭声: 门铃/电话/家电/水流'
+' 4. 工业声: 电机/风扇/警报/机器噪声/故障异响'
+' 5. 人声: 说话/咳嗽/笑/哭/拍手'
+' 数据集: ESC-50/UrbanSound8K/FSD50K200类/MIMII工业设备'
+' Audio-JEPA通过环境声理解真实世界正在发生什么, 与视觉/硬件状态对齐, 形成完整世界模型',
+'beethoven', ['hearing-kb', 'environmental', 'sound', 'scene', 'industrial'])
+
+with open('extended_domain_knowledge_v2.json', 'w', encoding='utf-8') as f:
+    json.dump(entries, f, ensure_ascii=False, indent=2)
+
+print(f'Total entries generated: {len(entries)}')
+
+souls = {}
+for e in entries:
+    s = e['soul']
+    souls[s] = souls.get(s, 0) + 1
+for s, c in sorted(souls.items(), key=lambda x: -x[1]):
+    print(f'  {s}: {c}')

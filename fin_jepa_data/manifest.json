@@ -1,0 +1,217 @@
+{
+  "total_symbols": 30,
+  "total_bars": 22500,
+  "collected_at": "2026-05-30T08:59:07.312400",
+  "symbols": [
+    {
+      "file": "synthetic_SYN_bull_000.pt",
+      "code": "SYN_bull_000",
+      "name": "Synthetic bull #0",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bear_001.pt",
+      "code": "SYN_bear_001",
+      "name": "Synthetic bear #1",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_range_002.pt",
+      "code": "SYN_range_002",
+      "name": "Synthetic range #2",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_volatile_003.pt",
+      "code": "SYN_volatile_003",
+      "name": "Synthetic volatile #3",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_trend_004.pt",
+      "code": "SYN_trend_004",
+      "name": "Synthetic trend #4",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bull_005.pt",
+      "code": "SYN_bull_005",
+      "name": "Synthetic bull #5",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bear_006.pt",
+      "code": "SYN_bear_006",
+      "name": "Synthetic bear #6",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_range_007.pt",
+      "code": "SYN_range_007",
+      "name": "Synthetic range #7",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_volatile_008.pt",
+      "code": "SYN_volatile_008",
+      "name": "Synthetic volatile #8",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_trend_009.pt",
+      "code": "SYN_trend_009",
+      "name": "Synthetic trend #9",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bull_010.pt",
+      "code": "SYN_bull_010",
+      "name": "Synthetic bull #10",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bear_011.pt",
+      "code": "SYN_bear_011",
+      "name": "Synthetic bear #11",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_range_012.pt",
+      "code": "SYN_range_012",
+      "name": "Synthetic range #12",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_volatile_013.pt",
+      "code": "SYN_volatile_013",
+      "name": "Synthetic volatile #13",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_trend_014.pt",
+      "code": "SYN_trend_014",
+      "name": "Synthetic trend #14",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bull_015.pt",
+      "code": "SYN_bull_015",
+      "name": "Synthetic bull #15",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bear_016.pt",
+      "code": "SYN_bear_016",
+      "name": "Synthetic bear #16",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_range_017.pt",
+      "code": "SYN_range_017",
+      "name": "Synthetic range #17",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_volatile_018.pt",
+      "code": "SYN_volatile_018",
+      "name": "Synthetic volatile #18",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_trend_019.pt",
+      "code": "SYN_trend_019",
+      "name": "Synthetic trend #19",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bull_020.pt",
+      "code": "SYN_bull_020",
+      "name": "Synthetic bull #20",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bear_021.pt",
+      "code": "SYN_bear_021",
+      "name": "Synthetic bear #21",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_range_022.pt",
+      "code": "SYN_range_022",
+      "name": "Synthetic range #22",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_volatile_023.pt",
+      "code": "SYN_volatile_023",
+      "name": "Synthetic volatile #23",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_trend_024.pt",
+      "code": "SYN_trend_024",
+      "name": "Synthetic trend #24",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bull_025.pt",
+      "code": "SYN_bull_025",
+      "name": "Synthetic bull #25",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_bear_026.pt",
+      "code": "SYN_bear_026",
+      "name": "Synthetic bear #26",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_range_027.pt",
+      "code": "SYN_range_027",
+      "name": "Synthetic range #27",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_volatile_028.pt",
+      "code": "SYN_volatile_028",
+      "name": "Synthetic volatile #28",
+      "market": "synthetic",
+      "n_bars": 750
+    },
+    {
+      "file": "synthetic_SYN_trend_029.pt",
+      "code": "SYN_trend_029",
+      "name": "Synthetic trend #29",
+      "market": "synthetic",
+      "n_bars": 750
+    }
+  ]
+}

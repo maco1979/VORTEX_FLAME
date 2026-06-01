@@ -1,0 +1,143 @@
+# VORTEX FLAME Enterprise Deployment Configuration
+# ==================================================
+# Copy this file to deploy_config.yaml and customize for your deployment.
+
+# === Core Settings ===
+project_name: "vortex_flame_enterprise"
+deployment_mode: "production"  # development | staging | production
+
+# === JEPA Models ===
+jepa:
+  audio:
+    enabled: true
+    checkpoint: "ajepa_checkpoints/ajepa_best.pt"
+    device: "cuda"  # cuda | cpu
+    num_slots: 5
+    input_dim: 256
+  financial:
+    enabled: true
+    checkpoint: "finjepa_checkpoints/finjepa_best.pt"
+    device: "cuda"
+    num_slots: 6
+    input_dim: 256
+  code:
+    enabled: true
+    checkpoint: null  # Will use synthetic data for initial deployment
+    device: "cpu"
+    num_slots: 7
+    input_dim: 384
+  visual:
+    enabled: false
+    checkpoint: null
+    device: "cuda"
+    num_slots: 7
+    input_dim: 768
+  biology:
+    enabled: false
+    checkpoint: null
+    device: "cpu"
+    num_slots: 6
+    input_dim: 512
+  geography:
+    enabled: false
+    checkpoint: null
+    device: "cpu"
+    num_slots: 6
+    input_dim: 384
+  law:
+    enabled: false
+    checkpoint: null
+    device: "cpu"
+    num_slots: 6
+    input_dim: 256
+  physics:
+    enabled: false
+    checkpoint: null
+    device: "cpu"
+    num_slots: 7
+    input_dim: 512
+  art:
+    enabled: false
+    checkpoint: null
+    device: "cuda"
+    num_slots: 8
+    input_dim: 768
+  design:
+    enabled: false
+    checkpoint: null
+    device: "cpu"
+    num_slots: 6
+    input_dim: 512
+
+# === Soul Memory ===
+soul_memory:
+  storage_dir: "/data/soul_memory"
+  max_entries_per_soul: 100000
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  backup_interval_hours: 24
+
+# === LLM Backend ===
+llm:
+  mode: "hybrid"  # cloud | local | hybrid
+  cloud:
+    provider: "openai"  # openai | anthropic | azure
+    model: "gpt-4o-mini"
+    api_key_env: "OPENAI_API_KEY"
+    max_tokens: 2048
+    temperature: 0.7
+  local:
+    backend: "llama_cpp"  # llama_cpp | ollama | vllm
+    model_path: null
+    n_ctx: 4096
+  hybrid:
+    complexity_threshold: 0.5  # Above this, route to cloud
+
+# === API Server ===
+api:
+  host: "0.0.0.0"
+  port: 8199
+  workers: 4
+  cors_origins: ["*"]
+  rate_limit_per_minute: 60
+  auth_enabled: false
+  auth_token_env: "VORTEX_API_TOKEN"
+
+# === Training ===
+training:
+  guard:
+    loss_spike_factor: 5.0
+    max_grad_norm: 5.0
+    warmup_steps: 500
+    nan_tolerance: 20
+    collapse_patience: 100
+  checkpoint_interval_epochs: 5
+  log_interval_steps: 10
+
+# === Enterprise Data Integration ===
+enterprise:
+  data_sources: []
+  # Example:
+  # - name: "company_knowledge"
+  #   type: "csv"  # csv | json | database | api
+  #   path: "/data/company_docs.csv"
+  #   soul: "cezanne"
+  #   category: "knowledge"
+  # - name: "stock_data"
+  #   type: "api"
+  #   url: "https://api.example.com/stocks"
+  #   soul: "strategy"
+  #   category: "knowledge"
+
+  fine_tune:
+    enabled: false
+    epochs: 10
+    lr: 1e-5
+    freeze_layers: 2  # Freeze bottom N layers
+
+# === Monitoring ===
+monitoring:
+  enabled: true
+  log_dir: "/data/logs"
+  metrics_port: 9090
+  alert_on_nan: true
+  alert_on_loss_spike: true

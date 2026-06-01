@@ -1,0 +1,358 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   VORTEX FLAME Design Tokens v2.0
+   生成工具: Open Design MCP Adapter / open_design_adapter.py
+   设计系统: Vercel (黑白极简) + VORTEX FLAME 定制灰度体系
+   五灵魂: 塞尚(结构) 莫奈(光影) 爱因斯坦(纵深) 达芬奇(集成) 梵高(节奏)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── 基础灰度 ─── */
+  --c0: #080808;
+  --c1: #121212;
+  --c2: #1a1a1a;
+  --c3: #242424;
+  --c4: #2e2e2e;
+
+  /* ─── 文字层级 ─── */
+  --t0: #f0f0f0;
+  --t1: #c0c0c0;
+  --t2: #808080;
+  --t3: #505050;
+
+  /* ─── 功能色 (单点缀策略) ─── */
+  --acc:  #c8a951;
+  --ok:   #6b8;
+  --warn: #da8;
+  --err:  #c66;
+
+  /* ─── 字体栈 ─── */
+  --ff:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ffs:  'Noto Serif SC', 'STSong', 'SimSun', serif;
+  --ffm:  'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* ─── 圆角 ─── */
+  --radius-sm: 3px;
+  --radius:    4px;
+  --radius-lg: 8px;
+  --radius-pill: 12px;
+
+  /* ─── 间距 (4px grid) ─── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 40px;
+  --space-3xl: 56px;
+
+  /* ─── 布局宽度 ─── */
+  --nav-w:  44px;
+  --tree-w: 220px;
+  --chat-w: 340px;
+  --content-max: 780px;
+  --gallery-max: 900px;
+  --design-max: 1100px;
+
+  /* ─── 过渡 ─── */
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.15s ease;
+  --transition-message: 0.2s ease;
+
+  /* ─── 字号层级 ─── */
+  --fs-h1: 2rem;
+  --fs-h2: 1.25rem;
+  --fs-h3: 0.875rem;
+  --fs-body: 0.8125rem;
+  --fs-caption: 0.6875rem;
+  --fs-code: 0.75rem;
+  --fs-meta: 0.625rem;
+
+  /* ─── 行高 ─── */
+  --lh-tight: 1.3;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+  --lh-code: 19px;
+
+  /* ─── 边框 ─── */
+  --border-standard: 1px solid var(--c3);
+  --border-input: 1px solid var(--c4);
+  --border-active: 1px solid var(--acc);
+
+  /* ─── 五灵魂灵感色 (仅灵魂标签差异) ─── */
+  --soul-cezanne:   #8a9a8a;
+  --soul-einstein:  #9a8a7a;
+  --soul-davinci:   #7a8a9a;
+  --soul-monet:     #8a8a9a;
+  --soul-vangogh:   #9a8a8a;
+
+  /* ─── 阴影 (不使用，保留定义供降级) ─── */
+  --shadow-none: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   全局重置
+   ═══════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--ff);
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
+  background: var(--c0);
+  color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   滚动条 (全局统一)
+   ═══════════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Typography
+   ═══════════════════════════════════════════════════════════════════════ */
+h1 {
+  font-family: var(--ffs);
+  font-size: var(--fs-h1);
+  font-weight: 300;
+  color: var(--t0);
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-family: var(--ffs);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  color: var(--t1);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  color: var(--t1);
+}
+
+p { color: var(--t2); line-height: var(--lh-relaxed); }
+
+a { color: var(--t2); text-decoration: none; }
+a:hover { color: var(--acc); }
+
+code {
+  font-family: var(--ffm);
+  background: var(--c2);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-code);
+  color: var(--t1);
+  border: var(--border-input);
+}
+
+pre {
+  background: var(--c1);
+  border: var(--border-standard);
+  border-radius: var(--radius);
+  padding: 18px;
+  overflow-x: auto;
+  font-size: var(--fs-code);
+  line-height: var(--lh-relaxed);
+  margin: var(--space-lg) 0;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border: none;
+  color: var(--t1);
+}
+
+kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--c2);
+  border: var(--border-input);
+  font-family: var(--ffm);
+  font-size: var(--fs-meta);
+  color: var(--acc);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Layout Utilities
+   ═══════════════════════════════════════════════════════════════════════ */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.flex-1 { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-sm); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-sm); }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-mono { font-family: var(--ffm); }
+.text-meta { font-size: var(--fs-meta); color: var(--t3); }
+.text-caption { font-size: var(--fs-caption); color: var(--t3); }
+.text-accent { color: var(--acc); }
+
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Component: Card
+   ═══════════════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--c1);
+  border: var(--border-standard);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  transition: border-color var(--transition-fast);
+}
+.card:hover { border-color: var(--c4); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Component: Button
+   ═══════════════════════════════════════════════════════════════════════ */
+.btn {
+  padding: 8px 18px;
+  border-radius: var(--radius);
+  background: var(--c1);
+  border: var(--border-input);
+  color: var(--t2);
+  font-size: var(--fs-caption);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--ff);
+}
+.btn:hover { color: var(--acc); border-color: var(--acc); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-active { color: var(--acc); border-color: var(--acc); background: rgba(200,169,81,0.06); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Component: Input
+   ═══════════════════════════════════════════════════════════════════════ */
+.input {
+  padding: 8px 14px;
+  background: var(--c2);
+  border: var(--border-input);
+  border-radius: var(--radius);
+  color: var(--t1);
+  font-family: var(--ff);
+  font-size: var(--fs-code);
+  outline: none;
+  transition: border-color var(--transition-normal);
+}
+.input:focus { border-color: var(--acc); }
+.input::placeholder { color: var(--t3); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Component: Badge / Tag
+   ═══════════════════════════════════════════════════════════════════════ */
+.tag {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-family: var(--ffm);
+  font-size: var(--fs-meta);
+  background: rgba(200,169,81,0.08);
+  color: var(--acc);
+  display: inline-block;
+}
+
+.tag-neutral {
+  background: var(--c3);
+  color: var(--t3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Component: Table
+   ═══════════════════════════════════════════════════════════════════════ */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body);
+  margin: 20px 0;
+}
+.table th, .table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--c3);
+}
+.table th {
+  font-size: var(--fs-meta);
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-family: var(--ffm);
+}
+.table td { color: var(--t2); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Component: Divider
+   ═══════════════════════════════════════════════════════════════════════ */
+.divider { border-bottom: var(--border-standard); }
+.divider-light { border-bottom: 1px solid var(--c4); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Animation Keyframes
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.2; }
+  40%           { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Responsive Utilities
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  :root { --tree-w: 0px; }
+}
+
+@media (max-width: 768px) {
+  :root { --chat-w: 0px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .hide-mobile { display: none; }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --fs-h1: 1.5rem;
+    --fs-h2: 1.1rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Print Styles
+   ═══════════════════════════════════════════════════════════════════════ */
+@media print {
+  body { background: #fff; color: #000; }
+  .nav, .chat-panel, .topbar { display: none; }
+  .main-panel { width: 100%; }
+}

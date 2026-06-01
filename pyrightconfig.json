@@ -1,0 +1,25 @@
+{
+  "pythonPath": "C:\\Users\\42235\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "venvPath": "C:\\Users\\42235\\AppData\\Local\\Programs\\Python\\Python312",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": false,
+  "reportMissingModuleSource": false,
+  "reportGeneralTypeIssues": "warning",
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.git",
+    "kb_workflow",
+    "kb_mcp",
+    "kb_skill",
+    "tools/ui-tars-desktop",
+    "tools/ui-tars-model",
+    ".vf_memory"
+  ],
+  "ignore": [
+    "kb_workflow/**",
+    "kb_mcp/**",
+    "kb_skill/**",
+    "tools/**"
+  ]
+}

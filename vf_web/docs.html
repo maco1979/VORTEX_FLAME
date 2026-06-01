@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VORTEX FLAME · 文档</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 4L28 10v12L16 28 4 22V10z' stroke='%23c8a951' stroke-width='2' fill='none'/></svg>">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --c0:#080808;--c1:#121212;--c2:#1a1a1a;--c3:#242424;--c4:#2e2e2e;
+  --t0:#f0f0f0;--t1:#c0c0c0;--t2:#808080;--t3:#505050;
+  --acc:#c8a951;--ok:#6b8;--warn:#da8;--err:#c66;
+  --ff:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --ffs:'Noto Serif SC','STSong','SimSun',serif;
+  --ffm:'JetBrains Mono',ui-monospace,monospace;
+  --r:4px;--rl:8px;
+}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:var(--ff);font-size:14px;line-height:1.7;background:var(--c0);color:var(--t1)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--c4);border-radius:3px}
+
+.topbar{
+  background:var(--c1);border-bottom:1px solid var(--c3);padding:12px 24px;
+  display:flex;align-items:center;position:sticky;top:0;z-index:100;
+}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--t1)}
+.topbar .brand svg{width:28px;height:28px;flex-shrink:0}
+.topbar .brand svg path{stroke:var(--acc);stroke-width:1.2}
+.topbar input{
+  padding:7px 14px;border-radius:var(--r);border:1px solid var(--c4);width:280px;
+  font:inherit;font-size:12px;background:var(--c2);color:var(--t1);margin-left:auto;outline:none;transition:border .15s;
+}
+.topbar input:focus{border-color:var(--acc)}
+.topbar input::placeholder{color:var(--t3)}
+.topbar-actions{display:flex;gap:8px;margin-left:12px}
+.topbar-btn{
+  padding:6px 14px;border-radius:var(--r);background:var(--c2);border:1px solid var(--c4);
+  color:var(--t3);cursor:pointer;font-size:11px;text-decoration:none;transition:all .12s;
+}
+.topbar-btn:hover{color:var(--acc);border-color:var(--acc)}
+
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:calc(100vh - 52px)}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}}
+
+.sidebar{padding:24px 18px;border-right:1px solid var(--c3);overflow-y:auto;background:var(--c1)}
+.sidebar .group{margin-bottom:28px}
+.sidebar .group-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;padding:0 10px 10px;font-weight:500;font-family:var(--ffm)}
+.sidebar a{
+  display:block;color:var(--t2);text-decoration:none;padding:7px 12px;border-radius:var(--r);
+  transition:all .1s;margin-bottom:2px;font-size:12px;
+}
+.sidebar a:hover{background:var(--c3);color:var(--t1)}
+.sidebar a.active{background:rgba(200,169,81,.1);color:var(--acc)}
+
+article{padding:40px 56px 80px;max-width:780px;margin:0 auto}
+@media(max-width:768px){article{padding:24px 20px 60px}}
+.crumbs{color:var(--t3);font-size:11px;margin-bottom:12px;font-family:var(--ffm)}
+h1{font-family:var(--ffs);font-size:2rem;font-weight:300;margin:0 0 8px;color:var(--t0)}
+.lede{color:var(--t3);font-size:14px;margin:0 0 36px}
+h2{font-family:var(--ffs);font-size:1.35rem;font-weight:400;margin:40px 0 12px;color:var(--t1);border-bottom:1px solid var(--c3);padding-bottom:8px}
+h3{font-size:14px;margin:24px 0 10px;color:var(--t1);font-weight:500}
+p{margin:12px 0;color:var(--t2);line-height:1.8;font-size:13px}
+code{font-family:var(--ffm);background:var(--c2);padding:2px 7px;border-radius:3px;font-size:12px;color:var(--t1);border:1px solid var(--c4)}
+pre{background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);padding:18px;overflow-x:auto;font-size:12px;line-height:1.7;margin:16px 0}
+pre code{background:none;padding:0;border:none;color:var(--t1)}
+
+.callout{background:var(--c1);border:1px solid var(--c3);border-left:3px solid var(--acc);border-radius:0 var(--r) var(--r) 0;padding:18px 22px;margin:22px 0;font-size:13px;color:var(--t2)}
+.callout .label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--acc);margin-bottom:8px;font-weight:500;font-family:var(--ffm)}
+.callout ul{padding-left:18px}
+.callout li{margin:6px 0}
+
+.soul-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:20px 0}
+.soul-card{background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);padding:20px;cursor:default;transition:border .12s}
+.soul-card:hover{border-color:var(--c4)}
+.soul-card .icon{margin-bottom:10px;opacity:.7}
+.soul-card .name{font-weight:500;margin-bottom:4px;font-size:13px}
+.soul-card .domain{font-size:11px;color:var(--t3)}
+.soul-card .tier{font-family:var(--ffm);font-size:10px;color:var(--acc);margin-top:10px;padding:2px 8px;background:rgba(200,169,81,.08);border-radius:10px;display:inline-block}
+
+.api-endpoint{background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);padding:18px;margin:14px 0}
+.api-method{font-family:var(--ffm);font-size:10px;font-weight:600;padding:3px 12px;border-radius:10px;margin-right:10px;background:var(--c3);color:var(--t2);display:inline}
+.api-path{font-family:var(--ffm);font-size:13px}
+.api-desc{margin-top:10px;color:var(--t3);font-size:12px}
+
+.table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+.table th,.table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--c3)}
+.table th{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;font-weight:500;font-family:var(--ffm)}
+.table td{color:var(--t2)}
+
+.pager{display:flex;justify-content:space-between;gap:14px;margin-top:56px;padding-top:28px;border-top:1px solid var(--c3)}
+.pager a{
+  flex:1;text-decoration:none;color:var(--t2);padding:16px 20px;background:var(--c1);
+  border:1px solid var(--c3);border-radius:var(--r);transition:all .12s;font-size:13px;
+}
+.pager a:hover{border-color:var(--acc);color:var(--t1)}
+.pager a small{display:block;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;font-family:var(--ffm)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none"><path d="M16 4L28 10v12L16 28 4 22V10z" stroke="var(--acc)" stroke-width="1.2" fill="none"/></svg>
+    VORTEX FLAME · 文档
+  </div>
+  <input placeholder="搜索文档..." id="searchInput">
+  <div class="topbar-actions">
+    <a href="index.html" class="topbar-btn">控制台</a>
+    <a href="gallery.html" class="topbar-btn">画廊</a>
+    <a href="design.html" class="topbar-btn">设计</a>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="group"><div class="group-label">入门</div><a href="#" class="active" onclick="show('overview')">概览</a><a href="#" onclick="show('quickstart')">快速开始</a><a href="#" onclick="show('install')">安装</a></div>
+    <div class="group"><div class="group-label">灵魂</div><a href="#" onclick="show('souls')">14 灵魂矩阵</a><a href="#" onclick="show('routing')">语义路由</a><a href="#" onclick="show('memory')">持久记忆</a></div>
+    <div class="group"><div class="group-label">工作流</div><a href="#" onclick="show('pipelines')">流水线</a><a href="#" onclick="show('skills')">技能进化</a><a href="#" onclick="show('arbitration')">仲裁</a></div>
+    <div class="group"><div class="group-label">API</div><a href="#" onclick="show('api-ref')">API 参考</a></div>
+  </nav>
+
+  <article id="article">
+    <div id="s-overview">
+      <div class="crumbs">文档 › 概览</div>
+      <h1>VORTEX FLAME</h1>
+      <p class="lede">14 专业知识库 · 语义路由 · 持久记忆 · 技能自进化</p>
+      <h2>系统架构</h2>
+      <pre><code>用户界面 ──→ 编排器 ──→ 14灵魂矩阵 ──→ Ollama引擎</code></pre>
+      <h2>灵魂层级</h2>
+      <table class="table"><thead><tr><th>层级</th><th>特点</th><th>灵魂</th></tr></thead><tbody>
+        <tr><td>A</td><td>核心专家</td><td>塞尚、爱因斯坦、伽利略、达尔文</td></tr>
+        <tr><td>B</td><td>技术专家</td><td>达芬奇、策略、洪堡、袁隆平</td></tr>
+        <tr><td>C</td><td>治理专家</td><td>孟德斯鸠、希罗多德</td></tr>
+        <tr><td>D</td><td>人文专家</td><td>硅酌</td></tr>
+        <tr><td>E</td><td>创意专家</td><td>莫奈、梵高、贝多芬</td></tr>
+      </tbody></table>
+    </div>
+
+    <div id="s-quickstart" style="display:none">
+      <div class="crumbs">文档 › 快速开始</div>
+      <h1>快速开始</h1>
+      <p class="lede">5 分钟启动</p>
+      <h2>启动服务</h2>
+      <pre><code>cd VORTEX_FLAME
+python vf_api_server.py</code></pre>
+      <h2>连接 Ollama</h2>
+      <pre><code>ollama pull hermes3:8b</code></pre>
+      <h2>打开界面</h2>
+      <pre><code>http://localhost:8765</code></pre>
+    </div>
+
+    <div id="s-install" style="display:none">
+      <div class="crumbs">文档 › 安装</div>
+      <h1>安装配置</h1>
+      <p class="lede">环境要求: Python 3.9+, Ollama 0.1.30+</p>
+      <pre><code>git clone https://github.com/maco1979/VORTEX_FLAME.git
+cd VORTEX_FLAME
+pip install fastapi uvicorn ollama</code></pre>
+    </div>
+
+    <div id="s-souls" style="display:none">
+      <div class="crumbs">文档 › 14 灵魂矩阵</div>
+      <h1>14 灵魂矩阵</h1>
+      <p class="lede">每个灵魂都有独立的专业知识库和记忆系统</p>
+      <h2>Tier A 核心专家</h2>
+      <div class="soul-grid">
+        <div class="soul-card"><div class="icon"><svg viewBox="0 0 16 16" fill="none"><polygon points="8,1 15,4.5 15,11.5 8,15 1,11.5 1,4.5" stroke="var(--t1)" stroke-width=".8" fill="none"/></svg></div><div class="name">塞尚 Cezanne</div><div class="domain">代码 · 逻辑 · 算法</div><div class="tier">A</div></div>
+        <div class="soul-card"><div class="icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t1)" stroke-width=".7" fill="none"/><ellipse cx="8" cy="8" rx="5" ry="2.5" stroke="var(--t1)" stroke-width=".5" fill="none" transform="rotate(-30 8 8)"/><ellipse cx="8" cy="8" rx="5" ry="2.5" stroke="var(--t1)" stroke-width=".5" fill="none" transform="rotate(30 8 8)"/></svg></div><div class="name">爱因斯坦 Einstein</div><div class="domain">物理 · 数学</div><div class="tier">A</div></div>
+        <div class="soul-card"><div class="icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4.5" stroke="var(--t1)" stroke-width=".7" fill="none"/><circle cx="2.5" cy="3" r=".9" fill="var(--t1)" opacity=".5"/><circle cx="12" cy="3.5" r=".7" fill="var(--t1)" opacity=".4"/></svg></div><div class="name">伽利略 Galileo</div><div class="domain">天文 · 逻辑</div><div class="tier">A</div></div>
+        <div class="soul-card"><div class="icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1L4 5h2L3 9h2l-3 4h12l-3-4h2L10 5h2z" stroke="var(--t1)" stroke-width=".8" fill="none"/></svg></div><div class="name">达尔文 Darwin</div><div class="domain">生物 · 进化</div><div class="tier">A</div></div>
+      </div>
+    </div>
+
+    <div id="s-routing" style="display:none">
+      <div class="crumbs">文档 › 语义路由</div>
+      <h1>语义路由</h1>
+      <p class="lede">混合语义+关键词评分，智能匹配最适专家</p>
+      <pre><code>查询: "优化 Python 函数性能"
+  → 塞尚 (0.94)
+  → 爱因斯坦 (0.42)</code></pre>
+      <div class="callout"><div class="label">路由参数</div>Top-K: 2 · 置信度阈值: 0.05 · 超导模式启用: &lt;0.15 差异</div>
+    </div>
+
+    <div id="s-memory" style="display:none">
+      <div class="crumbs">文档 › 持久记忆</div>
+      <h1>持久记忆</h1>
+      <p class="lede">每个灵魂独立 SQLite 记忆存储 + BM25S 检索</p>
+      <table class="table"><thead><tr><th>类型</th><th>用途</th></tr></thead><tbody>
+        <tr><td>knowledge</td><td>领域专业知识</td></tr>
+        <tr><td>domain_memory</td><td>深度记忆</td></tr>
+        <tr><td>trajectory</td><td>任务执行轨迹</td></tr>
+      </tbody></table>
+    </div>
+
+    <div id="s-pipelines" style="display:none">
+      <div class="crumbs">文档 › 流水线</div>
+      <h1>流水线</h1>
+      <p class="lede">Team · Ultrapilot · Ralph 三种执行模式</p>
+      <table class="table"><thead><tr><th>模式</th><th>方式</th><th>阶段</th></tr></thead><tbody>
+        <tr><td>Team</td><td>顺序</td><td>规划→编码→审查→测试→部署</td></tr>
+        <tr><td>Ultrapilot</td><td>并行</td><td>研究∥设计∥编码 → 仲裁</td></tr>
+        <tr><td>Ralph</td><td>迭代</td><td>验证→修复→复测→报告 ×N</td></tr>
+      </tbody></table>
+    </div>
+
+    <div id="s-skills" style="display:none">
+      <div class="crumbs">文档 › 技能进化</div>
+      <h1>技能自进化</h1>
+      <p class="lede">SkillEvolver：从任务自动生成可复用技能，五维审计</p>
+      <pre><code>POST /api/skills/evolve
+{"task": "自动生成数据报告", "soul": "cezanne"}</code></pre>
+    </div>
+
+    <div id="s-arbitration" style="display:none">
+      <div class="crumbs">文档 › 仲裁</div>
+      <h1>多专家仲裁</h1>
+      <p class="lede">Top-2 置信度差 &lt; 0.15 时自动启动超导模式</p>
+      <div class="callout"><div class="label">仲裁策略</div>加权投票 · 多数共识 · 层级叠加 · 黑格尔辩证法 · 集成平均</div>
+    </div>
+
+    <div id="s-api-ref" style="display:none">
+      <div class="crumbs">文档 › API 参考</div>
+      <h1>API 参考</h1>
+      <div class="api-endpoint"><span class="api-method">POST</span> <span class="api-path">/api/ask</span><div class="api-desc">多专家提问，支持显式指定灵魂或自动路由</div></div>
+      <div class="api-endpoint"><span class="api-method">POST</span> <span class="api-path">/api/orchestrate</span><div class="api-desc">跨知识库编排，支持 MoE / 自动 / 手动三种模式</div></div>
+      <div class="api-endpoint"><span class="api-method">GET</span> <span class="api-path">/api/status</span><div class="api-desc">系统状态：Ollama连接、记忆条目、活跃灵魂</div></div>
+      <div class="api-endpoint"><span class="api-method">GET</span> <span class="api-path">/api/souls</span><div class="api-desc">列出 14 专业知识库及能力</div></div>
+    </div>
+  </article>
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('[id^="s-"]').forEach(el=>el.style.display='none');
+  const target=document.getElementById('s-'+id);
+  if(target)target.style.display='';
+  document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));
+  const link=document.querySelector('.sidebar a[onclick*="'+id+'"]');
+  if(link)link.classList.add('active');
+}
+</script>
+</body>
+</html>

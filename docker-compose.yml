@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  jepa-api:
+    build: .
+    ports:
+      - "8199:8199"
+    volumes:
+      - soul_memory:/data/soul_memory
+      - checkpoints:/data/checkpoints
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - VORTEX_MEMORY_DIR=/data/soul_memory
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8199/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  soul_memory:
+  checkpoints:

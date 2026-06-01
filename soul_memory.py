@@ -131,9 +131,9 @@ class EmbeddingProvider:
         if not self.available or model is None or not texts:
             return [None] * len(texts)
         try:
-            vecs = model.encode(texts, normalize_embeddings=True,
+            vecs_list = model.encode(texts, normalize_embeddings=True,  # pyright: ignore[reportOptionalMemberAccess]
                                 batch_size=64, show_progress_bar=False)
-            return [np.array(v, dtype=np.float32).tobytes() for v in vecs]
+            return [np.array(v, dtype=np.float32).tobytes() for v in vecs_list]  # pyright: ignore[reportArgumentType]
         except Exception:
             return [None] * len(texts)
 

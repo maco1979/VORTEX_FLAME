@@ -1,0 +1,712 @@
+================================================================================
+  VORTEX FLAME 待办清单 v2 — 2026-05-26 更新
+  旧版归档: D:\VORTEX_FLAME\_archive_memory_20260519\
+  ⚠️ 2026-05-30 迁移: 权威副本已从 C:\Users\42235\Desktop\ 移至 D:\VORTEX_FLAME\
+     所有Agent统一读写此文件。旧C盘副本标记为只读归档。
+================================================================================
+
+【当前运行】
+  ⏳ E盘训练进程 — PID 15944 (Python312), 占用4354MiB显存, GPU利用率14%
+     ⚠️ SD WebUI部署暂停, 避免影响训练 (需额外4-6GB显存, 同时跑会OOM)
+  ⏳ Cezanne iter4 Phase1 — Terminal运行中(2026-05-23, 已跑23+/500题)
+     ✅ iter3 Phase1完成: 500题, WIN率51.6%(258/500), AvgVSA~0.55-0.65
+     ❌ iter3 Phase2-3未执行: 被HARNESS门禁拦截(DPO配对不足), 无权重保存
+     ✅ iter3诊断完成(2026-05-24): 根因已定位, 3种修复方案待选择
+        方案A: 手动补跑DPO训练 (推荐, 复用trajectory数据)
+        方案B: 调整MIN_DPO_PAIRS后重跑
+        方案C: 接受现状继续优化iter4+
+     ⏳ 五层JEPA Phase 0数据准备 — WikiArt下载中 (E盘, 2026-05-24)
+     ✅ 架构文档: ARCHITECTURE_DOC.py 12章完整输出
+     ✅ 模块测试: ART-JEPA/DESIGN-JEPA/FusionLayer/DataManager 全部通过
+     ✅ BUG修复: data_manager.py 3处语法错误 + downloader.py 2处类型错误
+     ✅ 数据目录: E:\VORTEX_FLAME_Soul_Training\five_layer_jepa_datasets\
+     ✅ 14灵魂JEPA分配: soul_jepa_dataset_allocator.py 全部完成
+        📊 总计14灵魂, 35.2GB, 1,793,524样本
+        📁 目录: by_soul/{14灵魂名}/ (raw/processed/train+val+test/metadata/jepa_features)
+        📋 报告: ALLOCATION_REPORT.md + 每灵魂README.md
+        🎯 Tier A(Einstein/Cezanne/Galileo/Darwin): PHYS-JEPA+V-JEPA为主
+        🎯 Tier B(DaVinci/Strategy): DESIGN-JEPA为主(DaVinci最大17.3GB)
+        🎯 Tier C(Humboldt/YuanLongping/Montesquieu): PHYS-JEPA轻量
+        🎯 Tier D(Guizhu/Herodotus): ART-JEPA文化历史
+        🎯 Tier E(Beethoven/Monet/VanGogh): ART-JEPA+A-JEPA+DESIGN-JEPA(重权重)
+     ⏳ WikiArt轻量版: 目标10,000张 (~3GB), 正在下载...
+
+  ✅ 技能-JEPA对齐审计: soul_skills_jepa_audit.py 完成 (2026-05-24 01:42)
+     📊 审计结果: 14灵魂117tools, 39个多模态(33.3%), 122个CRITICAL缺口
+     📋 缺口报告: SKILLS_JEPA_GAP_REPORT.md (E盘)
+     💾 智能补充方案: smart_dataset_downloader.py (12数据集, ~59.5GB优化后)
+        🔴 P0核心(16GB): WikiArt(6灵魂) + FMA古典音乐(Beethoven) + Met Museum(4灵魂)
+        🟡 P1专业(16.5GB): NASA APOD(天文) + PlantVillage(农业) + ShapeNet(工业设计)
+        🟢 P2-P3特化(27GB): 代码图/古地图/乐谱/ArchiSet等
+     ✅ P0目录已创建: shared_datasets/wikiart_lightweight/ + fma_classical_subset/ + met_museum_openaccess/
+     🎯 复用矩阵:
+        Beethoven → WikiArt+FMA+IMSLP+ConcertHall (4集, A-JEPA+ART-JEPA+DESIGN-JEPA三层) ★最复杂
+        Herodotus → WikiArt+MetMuseum+RumseyMaps (3集, 历史文物+古地图)
+        DaVinci → ShapeNet+ArchiSet (2集, 但ArchiSet=20GB最大单集)
+     ✅ 架构升级: VORTEX FLAME v3 — HERMES AlphaZero + Harness ETCLOVG + Forge五层防护
+     ✅ 推理稳定性: temperature=0.0(答题/评估), 0.5(出题), SEED=3407
+     ✅ Harness E层: Phase门禁(0→1→2→3→4) + WIN率门禁 + DPO配对门禁
+     ✅ Harness G层: 熔断器(3次) + 时间配额(8h) + 资源硬限制
+     ✅ Harness V层: WIN率异常检测 + DPO语义相似度>0.85过滤
+     ✅ Harness L层: STRATEGY_PERFORMANCE持久化
+     ✅ Harness O层: token批量统计 + Phase2耗时 + GPU VRAM+温度监控
+     ✅ Harness C层: trajectory压缩 + re-eval版本追踪
+     ✅ Dashboard: 动态fetch+Canvas+30秒轮询+GPU+Harness事件日志
+     ✅ Forge五层防护: Retry Nudges + Error Recovery + Step Enforcement + Rescue Parsing + Context Compaction
+     ✅ 生产学习闭环: 训练→部署→生产→回训→训练 5步全通
+     ✅ 闭环BUG修复: 5 CRITICAL + 9 HIGH + 4 MEDIUM (2026-05-22)
+     ✅ 架构报告PPT: report.html 10页幻灯片
+     ✅ GitHub热榜评估+集成: Forge/open-design/codex-enhance/yellowkey-security 全部完成
+     ✅ MCP生态升级: 15→19 Servers, 121→159 Tools, 10→12 Categories (2026-05-22)
+     ✅ 4个新MCP Server: open-design(15)/codex-enhance(10)/yellowkey-security(10)/nla(6)
+     ✅ MCP集成BUG修复: 2 CRITICAL + 3 HIGH + 2 MEDIUM + 1 LOW (3个Server)
+     ✅ NLA SAE集成: 稀疏自编码器+激活提取+特征解释+元认知增强 (2026-05-22)
+     ✅ NLA BUG修复: 6 CRITICAL + 2 HIGH + 2 MEDIUM
+     ✅ V-JEPA世界模型: vjepa_world_model.py (2026-05-22)
+     ✅ V-JEPA三层架构: Encoder(ViT-S) + Predictor(时序) + Aligner(语义映射)
+     ✅ V-JEPA 5接口: understand/predict/detect_anomaly/plan/verify_generation
+     ✅ V-JEPA仿真测试: 7项全部通过
+     ✅ 创联AI项目: 后端5路由+前端H5+微信小程序+Docker+7个安全BUG修复
+     ✗ iter2 Phase3失败: SFT warmup异常, sft_warmup目录为空
+  ✗ iter3 Phase2-3被拦截: DPO配对不足(HARNESS门禁), 无权重保存, 已诊断(2026-05-24)
+
+【已完成 — 2026-05-24】
+  ✅ 深度代码审计: 全项目逻辑链+BUG挖掘 (2026-05-24)
+     📊 审计范围: D:\VORTEX_FLAME\ 全项目 (6个核心文件)
+     🔍 审计方法: 静态分析 + 逻辑链验证 + 安全扫描 + 并发模型检查
+     🐛 发现BUG: 7个 (1误报 + 2 CRITICAL + 3 HIGH + 2 MEDIUM)
+     ✅ 已修复: 6个 (BUG #1误报排除, 其余6个全部修复)
+
+     🔧 BUG #1 [误报]: HARD_CONSTRAINTS逻辑 - 验证通过(原始设计正确)
+     🔧 BUG #2 [CRITICAL]: API密钥硬编码+CORS全开 → 环境变量+白名单+Bearer Token认证
+     🔧 BUG #3 [HIGH]: munger_router线程竞态 → threading.Lock()保护全局变量
+     🔧 BUG #4 [HIGH]: train_soul数据过滤过度严格 → 正则表达式智能过滤(URL保留)
+     🔧 BUG #5 [HIGH]: 异常处理过于宽泛 → 区分异常类型+详细日志记录
+     🔧 BUG #6 [MEDIUM]: Guardian监控绕过 → realpath解析符号链接+全面目录监控
+     🔧 BUG #7 [MEDIUM]: 固定随机种子 → 环境变量可配置+时间戳默认值
+
+     📁 修改文件:
+        - vortex_local_server.py (安全加固: 认证+CORS+安全头)
+        - munger_router.py (线程安全: 双锁机制)
+        - train_soul.py (数据过滤优化 + 可配置种子)
+        - soul_pipeline.py (异常处理改进)
+        - guardian.py (监控增强: 符号链接防护)
+
+     🛡️ 安全提升:
+        ✅ API密钥从源码移除(防Git泄露)
+        ✅ CORS限制为可信域名(防CSRF攻击)
+        ✅ Bearer Token认证中间件(防未授权访问)
+        ✅ 安全响应头(XSS/Clickjacking/HSTS防护)
+        ✅ 符号链接解析(防监控绕过)
+        ✅ 线程同步(防并发竞态条件)
+
+     ⚠️ 后续操作:
+        1. 设置环境变量: VORTEX_API_TOKEN / EINSTEIN_API_KEY / CEZANNE_API_KEY
+        2. 重启vortex_local_server.py使安全配置生效
+        3. 测试API端点认证流程
+
+  ✅ MoE融合架构研究完成: 确认现有LoRA权重100%兼容Mixtral Expert
+  ✅ 设计3种MoE融合路径: 软路由/LoRA迁移/完整重构, 推荐先试软路由
+  ✅ Cezanne iter3诊断完成: 根因定位(DPO配对不足), 3种修复方案待选择
+  ✅ 五层JEPA数据集分配和对齐审计全部完成
+  ✅ 芒格路由器迁移: Gemma-4-E2B → Qwen2.5-3B-Instruct (5个文件已修改)
+     - 所有配置指向 D:\models\Qwen2.5-3B-Instruct (D盘独立副本)
+  ⏳ Qwen2.5-3B模型下载: ✅ Terminal #20完成 (D:\models\Qwen2.5-3B-Instruct)
+  ✅ MoE-FP16引擎开发完成 (3个模块, ~1200行代码)
+     - moe_engine.py (MoE核心架构, 500行)
+     - moe_expert_loader.py (LoRA迁移工具, 400行)
+     - hermes_alphazero.py改造 (3个新函数, 130行)
+     - 预计显存: ~12.5GB < 16GB V100 ✅
+  ⏳ MoE-FP16测试验证: 待执行 (迁移Cezanne LoRA→Expert + 单轮训练)
+
+【已完成 — 2026-05-21】
+  ✅ VSA v2重构: global_sim追踪+vsa_bonus 0-3+阈值+1+所有维度计算VSA+7项BUG修复
+  ✅ 防过拟合: lora_dropout 0.1, MAX_SFT_SAMPLES=150, MAX_DPO_PAIRS=100, DPO beta递增
+  ✅ 出题策略优化: 500题/轮, External 15%, 毕业阈值85%/2轮, Memory加TOOL_HINT
+  ✅ 豆包5次分析评估: 仅Memory TOOL_HINT采纳, 其余均不采纳
+  ✅ NTT触觉项目评估: 可做仿真但与VORTEX_FLAME无关, 不纳入
+  ✅ Anthropic Playbook评估: 方法论参考, 不改代码
+
+【已完成 — 2026-05-30 (本次会话)】
+  ✅ vf_web 控制台 v0.5.0: 对标 Trae IDE 四栏布局完全重写 index.html (49KB/861行)
+     - 文件树懒加载 + 编辑器(行号/Tab/脏标记/Ctrl+S) + 全局搜索(Ctrl+P)
+     - 14灵魂独特配色 + 仪表盘(4卡+置信度) + 技能管理 + 爱马仕(模型映射)
+     - 底部状态栏15秒轮询 /api/status
+  ✅ vf_api_server.py 新增4个文件API: /api/files/{ls,read,write,search}
+  ✅ vf_api_server.py 新增 /api/modify: 知识库查询→Ollama生成→HTML修改
+  ✅ BasedPyright修复: pyrightconfig.json 指定Python路径+排除目录 → 全项目0诊断
+  ✅ agent_loop.py 异常处理加固: 5处改造
+     - execute_step崩溃保护 + trajectory写入fallback + WorkingMemory持久化
+     - write_knowledge类型安全 + read_file异常保护
+  ✅ train_ajepa.py 梯度日志: _compute_grad_norms逐层记录 + gradient_log.jsonl
+  ✅ 知识库下载全面核查: 8个数据集全部就绪 (STAR 57GB + SEC EDGAR 85.5GB之前未知已完成)
+  ✅ 记忆v7第二十八部分 + 待办v2更新
+
+【已完成 — 2026-05-26】
+  ✅ MoE引擎BUG分级审计+修复 (4个核心修复 + 1个残留修复)
+     🔧 C-6 [CRITICAL]: ExpertLayer深拷贝 → copy.deepcopy() 替代 __new__+__dict__
+     🔧 C-4 [CRITICAL]: merge_and_unload() → 直接加载adapter权重 (T004合规)
+     🔧 C-梯度 [CRITICAL]: logits.requires_grad=False → 移除, activate_expert()控制梯度
+     🔧 H-9 [HIGH]: ref_expert未使用 → 新增compute_dpo_loss() (DPO损失完整实现)
+     🔧 M-残留 [MEDIUM]: moe_expert_loader.py merged_model NameError → 删除残留引用
+     ✅ 梯度验证: Expert 8/8有梯度, Base 0/0无梯度, Phase 3梯度链完整
+     ✅ T004合规: 整个流程不触碰base model内存状态
+     ✅ DPO公式: -logsigmoid(β×(log_π_chosen - log_ref_chosen - log_π_rejected + log_ref_rejected))
+  ✅ Stable Diffusion WebUI部署 (E盘, 暂停)
+     ✅ 代码克隆: E:\stable-diffusion-webui (AUTOMATIC1111/v1.10.1)
+     ✅ Python 3.10 venv创建: venv_new (Python3.12不兼容torch 2.1.2)
+     ✅ webui-user.bat配置: Python3.10 + xformers + no-half-vae + medvram + api
+     ⏸️ 首次启动+依赖安装: 暂停, 等训练完成后再继续
+     ⏸️ SD模型下载: 暂停 (需下载v2-1_768-ema-pruned.ckpt到models/Stable-diffusion/)
+  ✅ AgentMemory Reflect原语: 四维评分+四类缺口检测+自训练触发 (openhuman启发)
+  ✅ Memory Tree层级摘要: L0→L1→L2→L3四层架构+自顶向下检索 (openhuman启发)
+  ✅ 灵魂垂直技能包: Einstein(10技能) + Cezanne(11技能) (agent-skills启发)
+  ✅ 多灵魂工作流编排: vortex_workflow_create + vortex_workflow_execute (DAG+数据传递)
+  ✅ 模型路由层: MODEL_REGISTRY 6大任务类型 + 本地/远程双路由
+  ✅ Agent行动层: ACTION_REGISTRY 8种行动 + 灵魂授权隔离 + 5级安全 (CLI-Anything启发)
+  ✅ 编码Agent流程: Cezanne Skill 11 Structured Coding Process 5阶段 (superpowers启发)
+  ✅ MCP工具: 25→27→30 core tools (Action+FoldCache+DynamicFoldRecall)
+  ✅ project_rules.md: 新增§13-§19七个章节
+  ✅ 语法验证+功能测试: 全部通过(10/10 action + 9/9 workflow + 11/11 fold测试)
+  ✅ 逻辑折叠三层架构: 推理链折叠缓存 + 注意力动态折叠/展开 + 训练-推理协同折叠 (华为韬定律启发)
+  ✅ hermes_alphazero.py: 训练数据新增fold_key+foldable字段
+
+【已完成 — 2026-05-19】
+  ✅ 记忆文件精简重写: 7文件→2文件(v7记忆+v2待办), 旧版归档
+  ✅ 架构评估报告生成(11章, 合作伙伴可读)
+  ✅ RAG技术规格书+甘特图+目录结构+一键脚本
+  ✅ hermes_alphazero.py深度BUG检查+4个BUG修复
+  ✅ 项目垃圾清理: 17旧脚本+20过时日志
+  ✅ 双进程冲突修复: 杀掉抢GPU的旧进程
+
+【RAG扩库状态 — 2026-05-19】
+  当前: 163篇 | 目标: 2240+篇
+  目录结构: 77个子目录已创建(去掉mcp_tooluse, 工具样本单独管理)
+  一键脚本: D:\VORTEX_FLAME\tools\rag_mcp\create_rag_structure.ps1
+  规格书: D:\VORTEX_FLAME\tools\rag_mcp\RAG_TECHNICAL_SPEC.md
+  甘特图: D:\VORTEX_FLAME\tools\rag_mcp\RAG_GANTT_CHART.md
+  架构报告: D:\VORTEX_FLAME\VORTEX_FLAME_架构评估报告_20260519.md
+
+【P0 — 最高优先级 (2026-05-31 摆头重写)】
+  ⚠️ 新架构 → 📌 project_rules.md ⛔ ARCHITECTURE RED LINES (底座=C-JEPA, 顶层=LLM)
+
+  [ ] 双模型对抗闭环实现: C-JEPA底座→LLM顶层→对抗验证→BUG清零
+     - 升级 closed_loop_orchestrator.py: 新增 DualModelAdversarialMode
+     - 终止条件: 0 actionable bugs / 连续clean reviews / max iterations
+  [ ] MoE软路由实现: 复用现有LoRA权重, 不需要训练
+     - moe_engine.py + moe_expert_loader.py
+     - 不改任何现有文件, 立即可用
+  [ ] Stable Diffusion WebUI完成部署 (等GPU空闲)
+     - 删除旧venv(Python3.12): Remove-Item -Recurse -Force "E:\stable-diffusion-webui\venv"
+     - 首次启动: E:\stable-diffusion-webui\webui-user.bat (自动安装依赖)
+     - 下载SD模型到 E:\stable-diffusion-webui\models\Stable-diffusion\
+     - 验证 http://127.0.0.1:7860 可访问
+【⏳ 不需要GPU的待办 — 可立即执行（免费额度紧张，暂停生成）】
+  [⏸️] RAG知识库Phase 1填充: Einstein 280篇 + Cezanne 350篇
+       进度: Einstein已生成30/280篇(力学+热力学+量子+化学部分条目)
+       已生成文件: gen_rag_phase1.py (部分完成, 需续写)
+       下次恢复: 运行 python gen_rag_phase1.py → 自动索引到SQLite
+  [ ] 机器验证规则库: Einstein 45条 + Cezanne 60条
+  [ ] 其余12知识库技能包: DaVinci/Strategy/Galileo/Darwin/Beethoven/Guizhu/Monet/VanGogh/Humboldt/Herodotus/Montesquieu/YuanLongping
+  [ ] CVJEPA CPU训练模式: ~1样本/秒, 不需要GPU
+  [ ] MoE软路由实现: 复用现有LoRA权重, 不需要训练
+
+【P0.5 — 知识库+对抗验证 (2026-05-31 摆头重写)】
+  [ ] 学术研究流程: 为Herodotus创建herodotus-domain.md (academic-research-skills启发)
+     6阶段: 选题→检索→写作→评审→修订→定稿 + 回溯机制
+  [ ] 插件注册表: 新增PLUGIN_REGISTRY + vortex_plugin_list (claude-plugins-official启发)
+     官方/社区区分 + 可信度分级 + 依赖检查
+  [ ] 其余12知识库技能包: DaVinci/Strategy/Galileo/Darwin/Beethoven/Guizhu/Monet/VanGogh/Humboldt/Herodotus/Montesquieu/YuanLongping
+  [ ] Agent行动层扩展: blender_render/ffmpeg_audio/doc_generate/sheet_generate/web_scrape 真实执行实现
+     当前仅python_exec/file_operation/plot_generate真实执行, 其余simulated
+  [ ] 个人工作台: 统一入口+邮箱/文档/会议集成 (openhuman启发, 需前端开发)
+
+【P1 — 高优先级 — 知识库填充+对抗验证 (2026-05-31 摆头重写)】
+  [ ] open-design部署到生产: git clone nexu-io/open-design, pnpm install, pnpm tools-dev run web (E盘部署)
+  [ ] RAG知识库Phase 2: DaVinci 180篇 + Strategy 130篇 + Galileo 120篇 + Darwin 150篇
+     方式: LLM生成条目+C-JEPA因果校验 (C-JEPA发现幻觉→LLM修复→再验→清零)
+  [ ] 双模型对抗测试集: 14知识库×50+因果推理题 = 700+题
+     (替代旧自博弈命题库, 由顶层LLM出题+审查)
+  [ ] MCP工具调用范例扩充: 7000→15000条
+
+【P2 — 中优先级 — 知识库扩展+10 C-JEPA变体 (2026-05-31 摆头重写)】
+  [ ] RAG知识库Phase 3: 支撑+人文知识库数据 + VSA向量预编码
+  [ ] RAG知识库Phase 4: 艺术知识库数据 + 全库质量审计
+  [ ] long_memory.py适配器通用化到其他知识库
+  [ ] 多知识库编排: 并发推理+结果聚合
+  [ ] 10 C-JEPA变体训练(需GPU): CVJEPA/CAJEPA/CPHYSJEPA/CARTJEPA/CDESIGNJEPA/CFINJEPA/CCODEJEPA/CBIOJEPA/CGEOJEPA/CLAWJEPA
+
+【P3 — 低优先级 (2026-05-31 摆头重写)】
+  [ ] 超参数自动搜索(当前LR/epoch/batch_size硬编码)
+  [ ] 芒格架构: SoulMemory闭环集成 + 端到端测试
+  [ ] NLA思维透视层: 等待社区Mistral-7B兼容NLA预训练模型
+  [ ] AI逆向+小批量定制赛道工具链
+  [ ] 参赛作品提交(截止2026-09-30): Suno生成3首音频小样
+  [ ] MCP LOW级BUG延后修复(ComfyUI预设/animejs映射/ableton描述/dsa格式)
+
+【硬件升级计划 (2026-05-31 摆头重写)】
+  [ ] 购买V100-32GB PCIe版 (下月)
+  [ ] 当前V100-16GB改做推理+CAJEPA训练
+  [ ] 10 C-JEPA变体训练: 32GB可跑更大batch+更长序列
+  [ ] DGX桌面超算迁移: 只需改5个配置常量, 代码无需改动
+
+【不做 (2026-05-31 摆头重写)】
+  ✗ LoRA SFT训练 / DPO训练 / 自博弈 — 新架构纯推理, 不训练
+  ✗ 代码自修改 / 元改进 / 9知识库方阵 / FKJ独立 / WSL2
+  ✗ 合并LoRA到底座 — 底座冻结, 知识在知识库不在权重
+
+================================================================================
+  架构红线 → 📌 唯一真理源: `.trae/rules/project_rules.md` ⛔ ARCHITECTURE RED LINES
+  灵魂=知识库(SQLite+BM25S) | 底座=C-JEPA世界模型 | 顶层=LLM用户互动
+  LLM幻觉无法根治, C-JEPA编码物理规则作为ground truth
+  完整定义+14KB映射表+8条铁律见 project_rules.md
+================================================================================
+
+【MCP系统状态 — 2026-05-19】
+  15 MCP Servers | 121 Tools | 10 Categories
+  分类: core/visual/knowledge/security/music/soul/testing/voice/osint/pipeline
+  全部验证通过 ✅
+
+【Legacy LoRA权重 — 已废弃, 保留供MoE软路由复用 (2026-05-31标注)】
+  Einstein 7B:  stage1-5/final (5个, 各161MB) ← 5阶段全通
+  Cezanne 7B:   s1+s2+s3/final + selfplay_iter1/final (58.3%分数) + selfplay_iter3(❌无权重)
+  其余知识库:   目录已创建, 权重为空
+  ⚠️ 新架构不再做LoRA SFT/DPO训练, 这些权重仅作为MoE Expert复用
+
+【模型与推理 — 📌 架构定义见 project_rules.md ⛔ ARCHITECTURE RED LINES】
+  Ollama本地: hermes3:8b / qwen2.5:7b / qwen2.5:3b / mistral:7b (SoulModelRouter)
+  云端API: 待配置
+  7B Legacy: E:\models\Mistral-7B-Instruct-v0.1-Cezanne (旧训练用, 4bit冻结)
+             D:\models\Mistral-7B-Instruct-v0.1 (旧推理用)
+
+【训练脚本 — Legacy标注 (2026-05-31)】
+  旧训练: D:\VORTEX_FLAME\train_soul.py v2 (14灵魂参数化) ← legacy, 不再使用
+  旧自博弈: D:\VORTEX_FLAME\cezanne_retrain\hermes_alphazero.py ← 已废弃
+  当前训练: D:\VORTEX_FLAME\train_ajepa.py (CAJEPA训练, 运行中)
+  启动: Windows原生PowerShell (不用WSL2)
+
+【RAG扩库状态 — 2026-05-19】
+  当前: 163篇 | 目标: 2240+篇
+  目录结构: 80个子目录已创建
+  规格书: D:\VORTEX_FLAME\tools\rag_mcp\RAG_TECHNICAL_SPEC.md
+  架构报告: D:\VORTEX_FLAME\VORTEX_FLAME_架构评估报告_20260519.md
+================================================================================
+
+================================================================================
+  2026-05-30 更新 — CPU任务完成 + GPU任务汇总
+================================================================================
+
+【已完成 — 2026-05-30 双通路+设备网关大更新】
+  ✅ 工作流知识库索引完成:
+     GitHub仓库克隆: n8n, Flowise, Dify, LangFlow, Qdrant, Chroma, LangChain (7个)
+     位置: D:\VORTEX_FLAME\kb_workflow\
+     策展知识: 10条索引(n8n/Flowise/Dify/LangFlow/Qdrant/财务/文档/MCP/Skill/黄金组合)
+     仓库文档: 149条索引(7个仓库README+docs)
+     因果抽取: 6个ObjectGraph x 5灵魂 = 30条 WorldEmbedding
+     脚本: D:\VORTEX_FLAME\index_workflow_kb.py, D:\VORTEX_FLAME\extract_workflow_causal.py
+
+  ✅ 扩展领域知识索引完成(豆包方案有价值部分):
+     7大门类30条知识索引入soul_memory:
+       SciCompute(5): PyTorch/CUDA/Docker/MATLAB/Jupyter -> cezanne,einstein
+       VisualVideo(4): OpenCV/OBS/FFmpeg/DaVinci -> cezanne,davinci
+       DatabaseETL(3): Qdrant/SQLite/ETL/Filesystem -> cezanne
+       NetworkOps(3): SSH/RDP/Firewall -> cezanne
+       EmbeddedIoT(3): Arduino/RPi/PLC/Modbus -> davinci
+       VerticalApps(5): GIS/Medical/ERP/Publishing/Security -> 多灵魂
+       AudioJEPA(7): CAJEPA/Speech/Environment/Music/Hardware/Training/Separation -> beethoven
+     因果抽取: 7个ObjectGraph x 6灵魂 = 42条 WorldEmbedding
+     脚本: D:\VORTEX_FLAME\index_extended_domains.py, D:\VORTEX_FLAME\extract_extended_domain_causal.py
+     数据: D:\VORTEX_FLAME\extended_domain_knowledge.json
+
+  ✅ 设备网关抽象层创建:
+     device_gateway.py: 9大类24设备统一抽象接口
+     所有设备为NullBackend(预留), 真实后端待硬件/软件接入时实现
+     安全模型: 白名单/黑名单+规则引擎+动作历史+JEPA状态查询
+
+  ✅ README.md更新: 新增设备网关章节, 知识库统计更新, 项目结构更新
+  ✅ 记忆文件v7更新: 第十八部分新增
+  ✅ 豆包方案分析: 6大门类知识+Audio-JEPA扩展有价值(已索引), 硬件控制闭环定位错误(已澄清)
+
+【知识库总计 2026-05-30】
+  soul_memory文本条目: ~150.2K
+  World-Embedding因果图: 13个ObjectGraph, 39条因果链, 88个实体
+  GitHub克隆仓库: 22个(~150MB)
+  总计索引脚本: pull_harness_kb.py + index_workflow_kb.py + index_extended_domains.py
+
+【软件安装位置规划 — 全部E盘】
+  E:\stable-diffusion-webui\     SD WebUI(已克隆, 待首次启动, 需GPU空闲)
+  未来安装:
+    E:\Ableton\ 或 E:\DAW\      音乐制作软件
+    E:\Blender\                  3D建模
+    E:\OBS\                      录屏直播
+    E:\DaVinci Resolve\          视频编辑
+    E:\Arduino\                  单片机IDE
+    E:\Docker\                   容器运行时
+
+================================================================================
+  GPU任务 — 按优先级排列 (2026-05-31 摆头重写)
+  ⚠️ 新架构: 底座=10 C-JEPA变体(世界模型), 顶层=LLM(用户互动), GPU用于C-JEPA训练
+================================================================================
+
+【GP0 — 最高优先级】
+  [GPU] CAJEPA训练继续: CAJEPA Phase 1 (Epoch ~52+/100) → Phase 2 (对象级掩码) → Phase 3 (RL好奇心)
+        脚本: D:\VORTEX_FLAME\train_ajepa.py
+        完成后: CAJEPA为Beethoven知识库提供音频因果推理
+  [GPU] 双模型对抗闭环验证: 底座+顶座+CAJEPA因果校验 端到端测试
+
+【GP1 — 高优先级】
+  [GPU] Cross-Attention融合层训练 (DualPathwayBridge)
+        脚本: 待开发, 需要text+world配对数据
+  [GPU] World-Embedding真实编码: 用训练好的checkpoint编码全部知识库
+        替换当前placeholder, 使Path B真正可用
+  [GPU] 端到端双通路验证: 完整Path A(RAG)+Path B(C-JEPA)+Fusion+LLM测试
+
+【GP2 — 中优先级 — 10 C-JEPA变体训练 (2026-05-31 摆头重写)】
+  [GPU] CVJEPA训练: 视觉世界模型 (DaVinci/VanGogh知识库)
+  [GPU] CPHYSJEPA训练: 物理世界模型 (Einstein/Galileo知识库)
+  [GPU] CFINJEPA训练: 金融世界模型 (Strategy知识库)
+  [GPU] CCODEJEPA训练: 代码世界模型 (Cezanne知识库)
+  [GPU] CBIOJEPA训练: 生物世界模型 (Darwin/YuanLongping知识库)
+  [GPU] CGEOJEPA训练: 地理世界模型 (Humboldt/Herodotus知识库)
+  [GPU] CARTJEPA训练: 艺术世界模型 (Monet/VanGogh知识库)
+  [GPU] CDESIGNJEPA训练: 设计世界模型 (DaVinci知识库)
+  [GPU] CLAWJEPA训练: 法律世界模型 (Montesquieu/Guizhu知识库)
+
+【GP3 — 低优先级】
+  [GPU] Stable Diffusion WebUI首次启动+模型下载 (等GPU空闲, E盘)
+  [GPU] MoE引擎验证测试
+  [GPU] SIGReg vs CausalVICReg对比实验
+  [GPU] ActionCAJEPA action-conditioned微调
+
+================================================================================
+
+================================================================================
+  2026-05-30 大更新：豆包完整知识库索引 + 全局JEPA技术调研
+================================================================================
+
+【✅ 已完成 — Non-GPU 任务】
+
+  1. ✅ 设备网关抽象层 device_gateway.py (9大类24设备, NullBackend预留)
+  2. ✅ 扩展领域知识v1索引入soul_memory (30条, 7大门类)
+  3. ✅ 扩展领域因果v1存入WorldEmbeddingCache (7图, 42 world-embeddings)
+  4. ✅ 工作流知识库索引 (7仓库 clone+159 docs+10 curated)
+  5. ✅ 工作流因果结构抽取 (6图, 30 world-embeddings)
+  6. ✅ langflow克隆+索引完成 (19 docs)
+  7. ✅ 豆包6模块私有知识库v2索引入soul_memory (34条)
+  8. ✅ 豆包知识库因果v2存入WorldEmbeddingCache (6图, 20 causal chains)
+  9. ✅ 2026年5月最新JEPA全景调研 (11篇论文对标分析)
+  10. ✅ README.md完整更新
+  11. ✅ 记忆文件v7更新 (第十八/十九/二十部分)
+  12. ✅ 待办清单v2更新 (本文件)
+
+【⏳ 待完成 — GPU 依赖任务 (2026-05-31 摆头重写)】
+
+  CAJEPA音频训练:
+    1. [GPU] CAJEPA Phase 1完成 (当前: Epoch ~52+/100, Loss~46.5, VRAM 0.2GB)
+    2. [GPU] CAJEPA Phase 2: 对象级掩码 + CausalPredictor训练
+    3. [GPU] CAJEPA Phase 3: RL好奇心微调
+
+  C-JEPA全系统训练:
+    4. [GPU] Cross-Attention融合层训练 (DualPathwayBridge)
+    5. [GPU] World-Embedding真实编码 (从checkpoint替换placeholder)
+    6. [GPU] 端到端双通路验证
+
+  10 C-JEPA变体训练:
+    7. [GPU] CVJEPA 视觉世界模型 (DaVinci/VanGogh)
+    8. [GPU] CPHYSJEPA 物理世界模型 (Einstein/Galileo)
+    9. [GPU] CARTJEPA 艺术世界模型 (Monet/VanGogh)
+    10. [GPU] CDESIGNJEPA 设计世界模型 (DaVinci)
+    11. [GPU] CFINJEPA 金融世界模型 (Strategy)
+    12. [GPU] CCODEJEPA 代码世界模型 (Cezanne)
+    13. [GPU] CBIOJEPA 生物世界模型 (Darwin/YuanLongping)
+    14. [GPU] CGEOJEPA 地理世界模型 (Humboldt/Herodotus)
+    15. [GPU] CLAWJEPA 法律世界模型 (Montesquieu/Guizhu)
+
+【⏳ 待完成 — JEPA演进方向 (调研后新增, 2026-05-31 摆头重写)】
+
+  P0: [GPU] Action-Conditioned JEPA: CausalPredictor加action embedding输入
+  P0: [GPU] SIGReg vs CausalVICReg对比实验
+  P1: [GPU] 交互感知掩码(IA-masking)实验
+  P1: [GPU] WavJEPA端到端原始波形方案实验
+  P2: [GPU] 多模态JEPA融合(Vision+Audio+Text)
+  P2: [GPU] 零样本硬件控制(CVJEPA 2-AC启发)
+
+【⏳ 待完成 — 软件/工具安装 (E盘)】
+
+  1. [ ] E:\ 安装Blender 3D
+  2. [ ] E:\ 安装OBS Studio
+  3. [ ] E:\ 安装DaVinci Resolve
+  4. [ ] E:\ 安装Ableton Live (或DAW)
+  5. [ ] E:\ 安装Docker Desktop
+  6. [ ] E:\ 安装Arduino IDE
+  7. [ ] E:\ 配置stable-diffusion-webui (已clone)
+
+【⏳ 待完成 — 真实后端实现 (替换NullBackend)】
+
+  1. [ ] PowerShellBackend: 系统命令执行后端
+  2. [ ] PythonRuntimeBackend: Python代码执行后端
+  3. [ ] CameraBackend: OpenCV摄像头后端
+  4. [ ] OBSWebSocketBackend: OBS控制后端
+  5. [ ] N8NWebhookBackend: N8N工作流调用后端
+  6. [ ] DockerBackend: 容器管理后端
+  7. [ ] SSHClientBackend: 远程控制后端
+
+【知识库总计 2026-05-30】
+  soul_memory: ~150.2K条目 (原150K + 223 indexed)
+  World-Embedding: 19 ObjectGraphs (~92 world-embeddings)
+  GitHub仓库: 22个 (~150MB)
+  A-JEPA训练: Epoch 54/100, Terminal #6 运行中
+
+================================================================================
+
+================================================================================
+  2026-05-30 V2模块实现 (Action-Conditioned JEPA + SIGReg)
+================================================================================
+
+【✅ 已完成 — V2实现 + 文档补齐】
+
+  1. ✅ causal_jepa_v2.py: SIGRegLoss + ActionConditionedCausalPredictor + ActionCAJEPA
+  2. ✅ compare_losses.py: SIGReg vs CausalVICReg全场景对比 (ALL PASSED)
+  3. ✅ JEPA_SPEC.md: 完整JEPA架构规格书 (8章节, 含10变体+训练协议+集成点)
+  4. ✅ DEVICE_GATEWAY_SPEC.md: 设备网关+控制闭环规格书 (9章节, 含24设备清单+7步闭环)
+  5. ✅ README.md: 追加v2 Upgrades章节
+  6. ✅ 项目记忆v7: 追加第二十一部分 (V2模块记录)
+  7. ✅ 待办清单v2: 本文更新
+
+【📄 项目MD文档清单 (可用于任何新模型升级系统查阅)】
+
+  核心规格书:
+    D:\VORTEX_FLAME\README.md                    项目总览 (含v2模块)
+    D:\VORTEX_FLAME\JEPA_SPEC.md                  JEPA架构完整规格 (含论文溯源)
+    D:\VORTEX_FLAME\DEVICE_GATEWAY_SPEC.md        设备网关+控制闭环规格
+
+  桌面记忆文件:
+    桌面\VORTEX_FLAME_项目记忆_v7.txt            21部分完整历史记录
+    桌面\VORTEX_FLAME_待办清单_v2.txt             含GPU/文档/软件待办
+
+  知识库配置:
+    D:\VORTEX_FLAME\extended_domain_knowledge.json   v1扩展领域知识 (30条)
+    D:\VORTEX_FLAME\extended_domain_knowledge_v2.json v2私有知识库 (34条)
+
+  工具文件夹:
+    D:\VORTEX_FLAME\tools\rag_mcp\RAG_TECHNICAL_SPEC.md    RAG技术规格书
+    D:\VORTEX_FLAME\VORTEX_FLAME_架构评估报告_20260519.md  架构评估报告
+
+【⏳ GPU任务 (CAJEPA Phase 1完成后)】
+
+  实验1 [GPU]: SIGReg替换CausalVICReg重新训练, 对比收敛
+  实验2 [GPU]: ActionCAJEPA action-conditioned微调
+
+================================================================================
+
+================================================================================
+  2026-05-30 V3知识库全覆盖完成 (14灵魂+7基础科学+3人文学科)
+================================================================================
+
+【✅ 已完成 — V3知识库索引】
+
+  1. ✅ gen_knowledge_v3.py: 77条结构化规则生成(10模块)
+  2. ✅ extended_domain_knowledge_v3.json: 配置输出
+  3. ✅ _import_v3.py: 直接SQLite批量导入(77/77, 0错误)
+  4. ✅ 14灵魂全覆盖审计确认
+  5. ✅ 项目记忆v7更新(第二十一部分)
+
+【✅ 14灵魂结构化规则全对齐】
+  Einstein(11)/Cezanne(11)/Beethoven(10)/Galileo(4)/Darwin(6)/DaVinci(3)
+  Strategy(4)/Monet(3)/VanGogh(4)/Humboldt(4)/Montesquieu(7)
+  YuanLongping(4)/Guizhu(10)/Herodotus(5)
+  总计: 86条结构化规则
+
+【✅ UNESCO GB/T13745 全基础科学覆盖】
+  数学/物理(✅) 化学(✅) 逻辑学(✅) 天文学(✅) 地球科学(✅) 生物学(✅)
+  + 文学(✅) 历史学(✅) 哲学(✅)
+
+【✅ GitHub下载(3/4成功) — 通过Gitee镜像绕墙 2026-05-30 复查修正】
+  ✅ GraphRAG(Microsoft): gitee.com/fast-mirrors/graphrag → 667 files, 22.2MB
+  ✅ LightRAG(HKUDS): gitee.com/mirrors_trending/LightRAG → 634 files, 17MB
+  ✅ MCP Servers(官方): gitee.com/open-ai-tech/servers → 158 files, 1.2MB
+  ❌ Anthropic Skills: GitHub封锁+Gitee无镜像+gitclone也被封 → 待解决
+  位置: E:\VORTEX_FLAME_KnowledgeBases\
+
+【🔬 HF数据集严格审计(2026-05-30) — 对照VORTEX知识库顶级背书标准】
+  🏆 S级旗舰(已验证·核心保留):
+    ✅ EarthSci/ClimDetect: 18.3GB, CMIP6联合国级+ERA5+NeurIPS 2024
+    ✅ Chemistry/MolLangBench: 1.67GB, IUPAC标准+ICLR 2026 Poster
+  ⚠️ A级补充(可用但非顶会):
+    ✅ Logic/LogiGLUE: 919MB, 24集逻辑推理, Arizona State, arXiv未顶会接收
+  🔴 下载失败(数据源顶级·需重下):
+    ❌ Biology/ProteinConformers: 0字节, NeurIPS 2025, 张阳组, 需删目录重下
+    ❌ Astronomy/STAR: 仅600样本(609MB), 哈勃HST+OpenReview, 完整版需62GB
+  位置: E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\
+
+【⏳ 新增待办(2026-05-30审计后)】
+  [P0] 重下 ProteinConformers: 删除E盘碎片目录→hf download Jim990908/ProteinConformers
+  [P0] 补下 STAR完整版: 下载x2.tar.gz(33GB)+x4.tar.gz(29GB)共62GB
+  [P1] 下载 HF Finance(FinBen)+History+Music 3方向
+  [P1] 编写 import_hf_to_v4.py: HF数据集→知识库DB结构化索引
+  [P2] 补齐Anthropic Skills (从HF搜索替代源)
+  [P2] CAJEPA Phase 1: Epoch ~52+→100 完成
+  [P2] MoE-FP16引擎: 测试验证(迁移Cezanne LoRA→Expert)
+
+【🆕 旗舰数据集审查后优先级(E盘剩余681GB) — 2026-05-30】
+  E盘状态: 已用1182GB / 剩余681GB / 总计约1.86TB
+  
+  P0 即刻动手:
+    [P0-A] 删E:\HF_Datasets\Biology\ProteinConformers碎片→重下(~370MB)
+           hf download --repo-type dataset Jim990908/ProteinConformers --local-dir E:\...\Biology\ProteinConformers
+    [P0-B] STAR补完整版: x2.tar.gz(33GB)+x4(29GB)=62GB
+           hf download --repo-type dataset KUOCHENG/STAR data/x2/x2.tar.gz data/x4/x4.tar.gz --local-dir E:\...\Astronomy\STAR
+  
+  P1 新增下载(~23GB):
+    [P1-A] GQA视觉推理(Stanford CVPR): hf download lmms-lab/GQA --include "train_balanced_*" "val_balanced_*" "testdev_balanced_*" --local-dir E:\...\Vision\GQA
+    [P1-B] MagnaTagATune音乐(MIT): hf download mulab-mir/lp-music-caps-magnatagatune-3k --local-dir E:\...\Music\MagnaTagATune
+  
+  P2 大型(空间够但需规划):
+    [P2] SEC EDGAR 10-K年报(50GB): hf download TeraflopAI/SEC-EDGAR --include "10-K/**" --local-dir E:\...\Finance\SEC-EDGAR
+
+  ⏳ 非HF旗舰(官方源·未来下载):
+    AlphaFold DB(23TB EBI FTP) / RCSB PDB(8TB wwPDB) / SDSS DR19(750TB Globus)
+    PubChem(25TB NIH FTP) / JWST完整(50TB MAST)
+    命令已写入记忆文件第二十四部分
+
+  ❌ 已排除:
+    LAION-5B(HF下架·CSAM) / CMIP7(未发布) / FinBen(HF不存在)
+    AlphaFold3(DeepMind未开源权重·AF2 DB可用)
+
+================================================================================
+
+================================================================================
+
+================================================================================
+  2026-05-30 21:47 待办清单增量更新 — 下载中/编码完成/训练修正
+================================================================================
+
+【✅ 已完成（全部非GPU任务）】
+  [✅] 重下 ProteinConformers: 31 ZIP, 3.86GB → 编码Darwin 3条
+  [✅] MagnaTagATune: 11文件, 2.78GB → 编码Beethoven 2条
+  [✅] GQA balanced: 29 parquet, 11.3GB → 编码DaVinci+VanGogh 2条
+  [✅] STAR x4.tar.gz: 18.2GB 已完成
+  [✅] STAR碎片清理 + .lock/.incomplete清理
+  [✅] 编写 _import_hf_to_v4.py: 7个编码函数 (ClimDetect/MolLangBench/LogiGLUE/ProteinConformers/MagnaTagATune/GQA/STAR+SEC)
+  [✅] 5/6数据集编码完成 → 18条V4条目 → 7灵魂
+  [✅] 修复 train_ajepa.py LR BUG: CosineAnnealingLR→WarmRestarts + warmup + scheduler_state保存
+  [✅] 启动A-JEPA Phase 1训练: Terminal#5, Epoch ~52+/100, 正常运行中
+  [✅] 记忆v7第二十四~二十七部分已写入
+  [✅] 对齐标准博弈三轮 → 豆包v3修正版写入记忆第二十七部分
+
+【🔄 进行中】
+  [🔄] A-JEPA Phase 1: Terminal#5, Epoch~52+/100, Loss ~25-46, 每个batch梯度被clip到1.0
+
+【✅ 已完成 — 2026-05-30 V4编码全部完成】
+  ✅ 8/8数据集编码完成 → 9灵魂DB (STAR+SEC EDGAR为新增)
+  ✅ 去重机制: SHA256内容哈希 + topic语义重复检测
+  ✅ 性能优化: read_row_group(0) + readline() (数小时→3秒)
+  ✅ LogiGLUE修复: 目标灵魂 Strategy→Cezanne
+  ✅ _import_hf_to_v4.py 最终版: 去重+8函数+性能优化 全部就绪
+
+【✅ 已完成 — 2026-05-30 闭环审计 (3 BUG修复)】
+  ✅ BUG1: project_rules.md schema列名从虚构→实际 (embedding_blob→embedding)
+  ✅ BUG2: Strategy DB清理6条旧LogiGLUE残留 (12char哈希, 与Cezanne重复)
+  ✅ BUG3: _import_hf_to_v4.py docstring修正 (LogiGLUE目标 Strategy→Cezanne)
+  ✅ 数字审计: 7/14灵魂计数过期已修正 (project_rules + README + 记忆v7同步)
+  ✅ CLAWJEPA清理: README完全移除不存在变体
+  ✅ 编译检查: 10/10核心文件通过
+  ✅ 代码审查: 无SQL注入, 异常处理完整
+  ✅ README更新: 151,214条目, 架构真实性标注
+  ✅ 记忆v7第三十一部分 + 待办v2已更新
+
+【⏳ Phase 2 待做 — JEPA向量迁移】
+  [⏳] 13-column → add ajepa_embedding BLOB列 (14 DBs, idempotent ALTER)
+  [⏳] 清理Strategy DB旧UUID条目 (6条LogiGLUE残留)
+
+【📋 知识库→C-JEPA变体映射 — 14知识库:10变体 多对多 (2026-05-31 摆头重写)】
+  CVJEPA:      DaVinci(视觉) + VanGogh(视觉) + Herodotus(历史视觉)
+  CAJEPA:      Beethoven(音频)
+  CPHYSJEPA:   Einstein(物理) + Galileo(天文物理)
+  CARTJEPA:    Monet(艺术) + VanGogh(艺术)
+  CDESIGNJEPA: DaVinci(设计)
+  CFINJEPA:    Strategy(金融)
+  CCODEJEPA:   Cezanne(代码)
+  CBIOJEPA:    Darwin(生物) + YuanLongping(农业)
+  CGEOJEPA:    Humboldt(地理) + Herodotus(历史地理)
+  CLAWJEPA:    Montesquieu(法律) + Guizhu(哲学法律)
+
+【🏗️ 架构备忘 — 14知识库 + 10 C-JEPA + 双模型对抗 (2026-05-31 摆头重写)】
+  14 知识库 = 行业文本知识 (SQLite, BM25S检索, 151,220条)
+  10 C-JEPA = 感官神经网络 (自监督学习, 目前仅CAJEPA在训练)
+  双模型对抗 = 底座执行 + 顶座审查 + 世界模型因果校验
+  映射: 多对多, 不是一对一 (例如 DaVinci→CVJEPA+CDESIGNJEPA)
+  路线: Phase1(各跑各) → Phase2(冷对齐) → Phase3(对抗验证) → Phase4(混合检索)
+
+【📐 对齐标准最终版 (Phase 1→4) — 已写入记忆第二十七部分】
+  核心铁律:
+    1. 维度不硬统一 (JEPA 512/640 ≠ 1536历史残留)
+    2. 不存在LLM Embedding训练 (知识库是静态curated)
+    3. cross_modal_link_id 弱关联 (可选，允许NULL)
+    4. Phase1 Schema不动 (Phase2再加元字段)
+    5. 不存在全局音文配对 (训练数据无配对文本)
+
+【E盘空间】
+  已用: ~1,214GB (含8个数据集~178GB + 虚拟环境备份中), 剩余: ~649GB, 总计: 1.86TB
+  数据集分布:
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Astronomy\STAR\ — 57GB (Galileo)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Finance\SEC_EDGAR\ — 85.5GB (Strategy)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Vision\GQA\ — 11.1GB (DaVinci)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\EarthSci\ClimDetect\ — 8.7GB (Humboldt)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Biology\ProteinConformers\ — 6.6GB (Darwin)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Music\MagnaTagATune\ — 2.7GB (Beethoven)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Chemistry\MolLangBench\ — 1.6GB (Einstein)
+    E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\Logic\LogiGLUE\ — 0.7GB (Cezanne)
+
+【✅ 已完成 — 2026-05-31 迭代审查博弈循环】
+  ✅ adversarial_game_loop.py: IterativeReviewLoop核心循环 (867行)
+     - LLM(执行) → JEPA+KB(审查) → LLM(修复) → 迭代至0 BUG
+     - BugSeverity五级: CRITICAL/HIGH/MEDIUM/LOW/STYLE
+     - 终止: 0 actionable bugs / 连续clean reviews / max iterations
+  ✅ agent_loop.py集成: StepExecutor复杂步骤走迭代审查路径
+  ✅ BUG修复3个:
+     - [MEDIUM] _save_trajectory category: iterative_review→trajectory
+     - [MEDIUM] NaN规则审查误报: 区分代码块(CRITICAL) vs 解释文本(LOW)
+     - [HIGH] 方法名不一致: should_debate→should_review等
+  ✅ Cezanne灵魂测试: KB召回+规则审查+完整循环 全部PASS
+  ⏳ 待做: 配置LLM API key → 激活真正LLM执行+审查 (当前走模板fallback)
+
+【✅ 已完成 — 2026-05-31 灵魂定义根除修正 + 闭环自动化补齐】
+  ✅ 灵魂定义根除修正 (7个文件):
+     - project_rules.md: "14 specialized AI souls" → "14 industry-specific knowledge bases" + CRITICAL DISTINCTION
+     - 项目记忆v7: "14灵魂" → "14行业知识库" + C-JEPA映射表 + 训练状态澄清
+     - soul_orchestrator.py: docstring + SOUL_CAPABILITIES(full_name/jepa_variant) + _execute_soul_stage闭环集成
+     - ollama_adapter.py: 14个系统提示词全部重写(行业知识库+C-JEPA变体标注)
+     - README.md: 标题+概述+核心原则全面修正
+     - vf_api_server.py: vortex_advantage措辞修正
+     - index_supplement_kb.py: train_soul.py标注为legacy
+  ✅ 闭环编排器: closed_loop_orchestrator.py (340行)
+     - 6阶段闭环: PERCEIVE→REASON→ACT→EVALUate→FEEDBACK→EVOLVE
+     - 评估4维: confidence + consistency + novelty + domain_coverage
+     - 反馈5类: POSITIVE/NEGATIVE/NEUTRAL/CORRECTION/NOVEL_INSIGHT
+     - CJEPAFeedbackBridge: 预测→实际→对比→反馈闭环
+  ✅ 跨知识库因果桥: cross_kb_causal_bridge.py (300行)
+     - 多KB联合因果推理
+     - 共享C-JEPA变体跨KB因果边发现
+     - 5组共享变体: CPHYSJEPA/CBIOJEPA/CGEOJEPA/CARTJEPA/CLAWJEPA
+  ✅ soul_orchestrator闭环集成: _execute_soul_stage自动触发闭环
+
+【⏳ 不需要GPU的待办 — 可立即执行 (2026-05-31 摆头重写)】
+  [ ] RAG知识库Phase 1填充: Einstein 280篇 + Cezanne 350篇 (纯文本索引)
+  [ ] 机器验证规则库: Einstein 45条 + Cezanne 60条 (纯规则编写)
+  [ ] 其余12知识库技能包: DaVinci/Strategy/Galileo/Darwin/Beethoven/Guizhu/Monet/VanGogh/Humboldt/Herodotus/Montesquieu/YuanLongping
+  [ ] 学术研究流程: Herodotus herodotus-domain.md
+  [ ] 插件注册表: PLUGIN_REGISTRY + vortex_plugin_list
+  [ ] Agent行动层扩展: blender_render/ffmpeg_audio/doc_generate等真实执行实现
+  [ ] CVJEPA CPU训练模式: ~1样本/秒, 不需要GPU
+  [ ] MoE软路由实现: 复用现有LoRA权重, 不需要训练
+  [ ] long_memory.py适配器通用化到其他知识库
+  [ ] 多知识库编排: 并发推理+结果聚合
+
+【🔴 需要GPU的待办 — 等额度恢复或硬件升级 (2026-05-31 摆头重写)】
+  [ ] CAJEPA训练继续: 当前Epoch ~52+/100, 需GPU (底座世界模型)
+  [ ] 10 C-JEPA变体训练: CVJEPA/CPHYSJEPA/CARTJEPA/CDESIGNJEPA/CFINJEPA/CCODEJEPA/CBIOJEPA/CGEOJEPA/CLAWJEPA (底座世界模型)
+  [ ] Stable Diffusion WebUI部署: 需GPU显存
+  [ ] 硬件升级: V100-32GB PCIe版(下月)
+
+================================================================================

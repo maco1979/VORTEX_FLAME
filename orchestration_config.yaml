@@ -1,0 +1,206 @@
+# Multi-KB Orchestration Config
+# Cross-knowledge-base collaboration patterns for VORTEX FLAME
+#
+# Each pattern defines how multiple knowledge bases coordinate on a task type.
+# The orchestrator selects the appropriate pattern based on query analysis.
+
+patterns:
+
+  # ─── Cross-KB Patterns ─────────────────────────────────────────────
+
+  code_review:
+    trigger: ["审查", "review", "audit", "检查"]
+    primary: cezanne
+    support: [einstein, davinci, guizhu]
+    strategy: parallel
+    fusion: weighted_vote
+    description: 代码审查：Cezanne主审逻辑，Einstein审数学，DaVinci审设计，Guizhu审哲学一致性
+
+  architecture_design:
+    trigger: ["架构", "architecture", "设计", "design"]
+    primary: davinci
+    support: [cezanne, einstein, van_gogh]
+    strategy: sequential
+    fusion: merge_layer
+    description: 架构设计：DaVinci美学先行，Cezanne落地实现，Einstein物理约束，VanGogh创意发散
+
+  scientific_analysis:
+    trigger: ["物理", "物理", "数学", "科学", "physics", "math", "science"]
+    primary: einstein
+    support: [galileo, humboldt, darwin]
+    strategy: parallel
+    fusion: consensus
+    description: 科学分析：Einstein理论框架，Galileo实验验证，Humboldt自然观察，Darwin演化视角
+
+  philosophical_inquiry:
+    trigger: ["哲学", "意义", "本质", "伦理", "philosophy", "ethics"]
+    primary: guizhu
+    support: [herodotus, einstein, beethoven]
+    strategy: sequential
+    fusion: dialectic
+    description: 哲学探究：Guizhu东方智慧，Herodotus历史视角，Einstein科学理性，Beethoven情感维度
+
+  creative_production:
+    trigger: ["创作", "创意", "艺术", "画", "绘", "设计", "颜色", "art", "creative", "paint", "draw"]
+    primary: van_gogh
+    support: [monet, davinci, beethoven]
+    strategy: ultrapilot
+    fusion: ensemble
+    description: 创意生产：VanGogh激情主导，Monet印象质感，DaVinci结构主义，Beethoven韵律节奏
+
+  data_analysis:
+    trigger: ["数据分析", "统计分析", "data analysis", "statistics", "数据挖掘"]
+    primary: cezanne
+    support: [einstein, strategy, galileo]
+    strategy: sequential
+    fusion: weighted_vote
+    description: 数据分析：Cezanne代码处理，Einstein模型构建，Strategy决策优化，Galileo验证
+
+  governance_audit:
+    trigger: ["治理", "合规", "法律", "audit", "compliance", "law"]
+    primary: montesquieu
+    support: [guizhu, strategy, herodotus]
+    strategy: sequential
+    fusion: consensus
+    description: 治理审查：Montesquieu法治框架，Guizhu伦理审视，Strategy博弈分析，Herodotus历史先例
+
+  agricultural_optimization:
+    trigger: ["农业", "种植", "优化", "农业", "agriculture", "optimization"]
+    primary: yuanlongping
+    support: [humboldt, einstein, strategy]
+    strategy: parallel
+    fusion: weighted_vote
+    description: 农业优化：YuanLongping育种经验，Humboldt地理气候，Einstein量化模型，Strategy资源分配
+
+  audio_composition:
+    trigger: ["音频", "音乐", "作曲", "audio", "music", "composition"]
+    primary: beethoven
+    support: [monet, van_gogh, guizhu]
+    strategy: ultrapilot
+    fusion: ensemble
+    description: 音频创作：Beethoven和声结构，Monet音色质感，VanGogh情感表达，Guizhu意境营造
+
+  visual_design:
+    trigger: ["视觉", "画面", "图像", "visual", "image", "graphic"]
+    primary: monet
+    support: [davinci, van_gogh, cezanne]
+    strategy: parallel
+    fusion: merge_layer
+    description: 视觉设计：Monet色彩光影，DaVinci黄金比例，VanGogh笔触质感，Cezanne几何构图
+
+  strategy_game:
+    trigger: ["策略", "博弈", "竞争", "strategy", "game", "competition"]
+    primary: strategy
+    support: [montesquieu, guizhu, cezanne]
+    strategy: sequential
+    fusion: consensus
+    description: 策略博弈：Strategy决策树，Montesquieu规则框架，Guizhu长期视角，Cezanne战术实现
+
+  earth_science:
+    trigger: ["地球", "地质", "气候", "earth", "geology", "climate"]
+    primary: humboldt
+    support: [darwin, einstein, yuanlongping]
+    strategy: parallel
+    fusion: weighted_vote
+    description: 地球科学：Humboldt系统观测，Darwin生物演化，Einstein物理模型，YuanLongping生态农业
+
+  history_research:
+    trigger: ["历史", "史料", "纪事", "history", "historical", "archive"]
+    primary: herodotus
+    support: [guizhu, galileo, montesquieu]
+    strategy: sequential
+    fusion: dialectic
+    description: 历史研究：Herodotus叙事框架，Guizhu哲学解读，Galileo实证验证，Montesquieu制度分析
+
+  biology_evolution:
+    trigger: ["生物", "进化", "基因", "biology", "evolution", "genetic"]
+    primary: darwin
+    support: [humboldt, strategy, guizhu]
+    strategy: parallel
+    fusion: consensus
+    description: 生物进化：Darwin自然选择，Humboldt生态背景，Strategy适应博弈，Guizhu生命哲学
+
+  security_audit:
+    trigger: ["安全审计", "sec audit", "cso", "漏洞扫描", "安全扫描", "security scan"]
+    primary: cezanne
+    support: [strategy, montesquieu, einstein]
+    strategy: sequential
+    fusion: consensus
+    description: 安全审计：Cezanne代码安全，Strategy博弈威胁，Montesquieu合规框架，Einstein数学正确性
+    pipeline: vf_sec
+    pipeline_config:
+      mode: daily
+      phases: 16
+      threshold: 6.0
+
+  release_engineering:
+    trigger: ["发布", "ship", "release", "版本", "deploy", "上线"]
+    primary: cezanne
+    support: [strategy, davinci, guizhu]
+    strategy: sequential
+    fusion: weighted_vote
+    description: 发布工程：Cezanne代码质量，Strategy风险评估，DaVinci设计一致性，Guizhu哲学审视
+    pipeline: vf_ship
+    pipeline_config:
+      steps: 20
+      three_layer_review: true
+      auto_version: true
+
+  astronomical_exploration:
+    trigger: ["天文", "宇宙", "星星", "行星", "恒星", "轨道", "astronomy", "cosmos", "stellar", "orbit"]
+    primary: galileo
+    support: [einstein, humboldt, guizhu]
+    strategy: parallel
+    fusion: weighted_vote
+    description: 天文探索：Galileo观测天文学，Einstein理论物理，Humboldt宇宙地图，Guizhu宇宙观
+
+
+# ─── Fusion Strategies ────────────────────────────────────────────────
+
+fusion_strategies:
+  weighted_vote:
+    algorithm: confidence_weighted_average
+    tie_breaker: max_confidence
+    description: 按置信度加权投票，平局取最高置信度
+
+  consensus:
+    algorithm: majority_vote
+    min_agreement: 0.6
+    fallback: max_confidence
+    description: 多数共识，至少60%一致，否则回退到最高置信度
+
+  merge_layer:
+    algorithm: layered_merge
+    order: sequential_overlay
+    description: 层级叠加合并，按顺序逐层整合
+
+  dialectic:
+    algorithm: thesis_antithesis_synthesis
+    primary_role: thesis
+    support_role: antithesis
+    finalizer: synthesis
+    description: 黑格尔辩证法：正题→反题→合题
+
+  ensemble:
+    algorithm: ensemble_average
+    normalization: softmax
+    description: 集成平均，Softmax归一化权重
+
+  supermind:
+    algorithm: semantic_router_aggregation
+    router_config:
+      hybrid_alpha: 0.7
+      min_confidence: 0.15
+      ultrapilot_gap_threshold: 0.2
+    description: 语义路由聚合，14个知识库全量参与
+
+
+# ─── Default Routing ──────────────────────────────────────────────────
+
+default_routing:
+  unknown_query: supermind
+  min_confidence: 0.05
+  fallback_soul: cezanne
+  max_kbs_per_query: 5
+  parallel_workers: 5
+  timeout_seconds: 300

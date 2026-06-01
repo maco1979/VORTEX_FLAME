@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VORTEX FLAME · Design</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 4L28 10v12L16 28 4 22V10z' stroke='%23c8a951' stroke-width='2' fill='none'/></svg>">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --c0:#080808;--c1:#121212;--c2:#1a1a1a;--c3:#242424;--c4:#2e2e2e;
+  --t0:#f0f0f0;--t1:#c0c0c0;--t2:#808080;--t3:#505050;
+  --acc:#c8a951;--ok:#6b8;--warn:#da8;--err:#c66;
+  --ff:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --ffs:'Noto Serif SC','STSong','SimSun',serif;
+  --ffm:'JetBrains Mono',ui-monospace,monospace;
+  --r:4px;--rl:8px;
+}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:var(--ff);font-size:14px;line-height:1.7;background:var(--c0);color:var(--t1)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--c4);border-radius:3px}
+
+.topbar{
+  background:var(--c1);border-bottom:1px solid var(--c3);padding:12px 24px;
+  display:flex;align-items:center;position:sticky;top:0;z-index:100;
+}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500}
+.topbar .brand svg{width:28px;height:28px;flex-shrink:0}
+.topbar .brand svg path{stroke:var(--acc);stroke-width:1.2}
+.topbar-actions{margin-left:auto;display:flex;gap:8px}
+.topbar-btn{
+  padding:6px 14px;border-radius:var(--r);background:var(--c2);border:1px solid var(--c4);
+  color:var(--t3);cursor:pointer;font-size:11px;text-decoration:none;transition:all .12s;
+}
+.topbar-btn:hover{color:var(--acc);border-color:var(--acc)}
+
+.container{max-width:1100px;margin:0 auto;padding:40px 28px}
+h1{font-family:var(--ffs);font-size:2rem;font-weight:300;color:var(--t0);margin:0 0 4px}
+.subtitle{color:var(--t3);font-size:13px;margin-bottom:40px}
+
+.section{margin-bottom:56px}
+.section-title{font-family:var(--ffs);font-size:1.2rem;font-weight:400;color:var(--t1);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.section-title svg{width:18px;height:18px;color:var(--t3)}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);padding:22px;transition:border .12s}
+.card:hover{border-color:var(--c4)}
+.card .demo-area{display:flex;align-items:center;justify-content:center;min-height:160px;margin-bottom:14px}
+.card .demo-area svg{opacity:.7}
+.card .title{font-weight:500;font-size:13px;margin-bottom:4px}
+.card .desc{color:var(--t3);font-size:11px;line-height:1.6}
+
+.logo-showcase{display:flex;gap:40px;align-items:center;flex-wrap:wrap}
+.logo-item{text-align:center}
+.logo-item .logo{margin-bottom:10px}
+.logo-item .label{font-family:var(--ffm);font-size:11px;color:var(--t3)}
+
+.soul-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.si{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);transition:border .12s}
+.si:hover{border-color:var(--c4)}
+.si svg{width:36px;height:36px;opacity:.6}
+.si .name{font-size:11px;font-weight:500}
+.si .domain{font-size:10px;color:var(--t3)}
+
+.color-palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.cs{display:flex;flex-direction:column;gap:6px}
+.cs .swatch{height:60px;border-radius:var(--r);border:1px solid var(--c4)}
+.cs .name{font-family:var(--ffm);font-size:10px}
+.cs .hex{font-family:var(--ffm);font-size:9px;color:var(--t3)}
+
+/* ── Skill Marketplace ── */
+.marketplace-controls{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.skill-search-input{
+  flex:1;min-width:180px;padding:8px 14px;background:var(--c1);border:1px solid var(--c4);
+  border-radius:var(--r);color:var(--t1);font-size:12px;outline:none;transition:border .15s;
+}
+.skill-search-input:focus{border-color:var(--acc)}
+.skill-filter-select{
+  padding:8px 12px;background:var(--c2);border:1px solid var(--c4);border-radius:var(--r);
+  color:var(--t2);font-size:11px;outline:none;cursor:pointer;
+}
+.skill-filter-select option{background:var(--c2)}
+.skill-refresh-btn{
+  padding:8px 16px;background:var(--c1);border:1px solid var(--c4);border-radius:var(--r);
+  color:var(--t3);font-size:11px;cursor:pointer;transition:all .12s;
+}
+.skill-refresh-btn:hover{color:var(--acc);border-color:var(--acc)}
+.skill-refresh-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.marketplace-stats{display:flex;gap:8px;margin-bottom:18px}
+.st{flex:1;background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);padding:14px;text-align:center}
+.st .num{font-size:24px;font-weight:400;color:var(--acc);font-family:var(--ffm)}
+.st .lab{font-size:10px;color:var(--t3);margin-top:2px}
+
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.sc{background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);padding:16px;transition:border .12s}
+.sc:hover{border-color:var(--c4)}
+.sc-header{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.sc-tier{padding:2px 8px;border-radius:8px;font-size:9px;font-weight:500;background:rgba(200,169,81,.1);color:var(--acc)}
+.sc-verified{font-size:9px;color:var(--ok)}
+.sc-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.sc-name-zh{font-size:11px;color:var(--t3);margin-bottom:6px}
+.sc-desc{font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:8px}
+.sc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.sc-tag{padding:1px 6px;border-radius:6px;font-size:9px;background:var(--c3);color:var(--t3)}
+.sc-meta{display:flex;gap:10px;align-items:center;font-size:10px;color:var(--t3);font-family:var(--ffm)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none"><path d="M16 4L28 10v12L16 28 4 22V10z" stroke="var(--acc)" stroke-width="1.2" fill="none"/></svg>
+    Design System
+  </div>
+  <div class="topbar-actions">
+    <a href="index.html" class="topbar-btn">控制台</a>
+    <a href="gallery.html" class="topbar-btn">画廊</a>
+    <a href="docs.html" class="topbar-btn">文档</a>
+  </div>
+</header>
+
+<div class="container">
+  <h1>Design System</h1>
+  <p class="subtitle">VORTEX FLAME 视觉设计语言</p>
+
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1"/></svg>
+      Logo
+    </div>
+    <div class="logo-showcase">
+      <div class="logo-item">
+        <svg viewBox="0 0 64 64" fill="none" width="80" height="80" class="logo">
+          <circle cx="32" cy="32" r="28" stroke="var(--acc)" stroke-width="1.5" fill="none"/>
+          <circle cx="32" cy="32" r="18" stroke="var(--acc)" stroke-width="1" fill="none" opacity=".6"/>
+          <path d="M32 4v56" stroke="var(--acc)" stroke-width=".6" opacity=".3"/>
+        </svg>
+        <div class="label">Primary</div>
+      </div>
+      <div class="logo-item">
+        <svg viewBox="0 0 48 48" fill="none" width="48" height="48" class="logo">
+          <path d="M24 3L42 13v20L24 43 6 33V13z" stroke="var(--acc)" stroke-width="1.2" fill="none"/>
+        </svg>
+        <div class="label">Mark</div>
+      </div>
+      <div class="logo-item">
+        <svg viewBox="0 0 160 36" fill="none" width="160" height="36" class="logo">
+          <path d="M18 4L30 10v12L18 28 6 22V10z" stroke="var(--acc)" stroke-width="1" fill="none"/>
+          <text x="42" y="24" font-family="var(--ffm)" font-size="15" font-weight="500" fill="var(--t1)">VORTEX FLAME</text>
+        </svg>
+        <div class="label">Wordmark</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1"/></svg>
+      Deconstruct
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="demo-area">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <g transform="translate(60,60)">
+              <path d="M0 0 Q37 0 37 -37 Q37 -60 60 -60" stroke="var(--acc)" stroke-width="1" fill="none" opacity=".6"/>
+              <path d="M0 0 Q0 23 23 23" stroke="var(--acc)" stroke-width=".8" fill="none" opacity=".4"/>
+              <circle cx="0" cy="0" r="2" fill="var(--acc)" opacity=".5"/>
+            </g>
+          </svg>
+        </div>
+        <div class="title">Golden Spiral</div>
+        <div class="desc">φ=1.618 斐波那契螺旋</div>
+      </div>
+      <div class="card">
+        <div class="demo-area">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <g transform="translate(60,60)">
+              <ellipse cx="0" cy="0" rx="42" ry="12" stroke="var(--t3)" stroke-width="1" fill="none" transform="rotate(-30)"/>
+              <ellipse cx="0" cy="0" rx="42" ry="12" stroke="var(--t3)" stroke-width="1" fill="none" transform="rotate(30)" opacity=".7"/>
+              <circle cx="0" cy="0" r="8" fill="var(--acc)" opacity=".4"/>
+            </g>
+          </svg>
+        </div>
+        <div class="title">Spacetime</div>
+        <div class="desc">相对论时空弯曲</div>
+      </div>
+      <div class="card">
+        <div class="demo-area">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <g transform="translate(60,60)">
+              <polygon points="0,-42 36,-21 36,21 0,42 -36,21 -36,-21" stroke="var(--t2)" stroke-width="1" fill="none"/>
+              <polygon points="0,-26 22,-13 22,13 0,26 -22,13 -22,-13" stroke="var(--t2)" stroke-width=".8" fill="none" opacity=".6"/>
+              <line x1="0" y1="-42" x2="0" y2="42" stroke="var(--t3)" stroke-width=".5" opacity=".3"/>
+            </g>
+          </svg>
+        </div>
+        <div class="title">Hexagon</div>
+        <div class="desc">几何解构，分形递归</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width=".8"/></svg>
+      Palette
+    </div>
+    <div class="color-palette">
+      <div class="cs"><div class="swatch" style="background:#080808"></div><div class="name">Base 0</div><div class="hex">#080808</div></div>
+      <div class="cs"><div class="swatch" style="background:#121212"></div><div class="name">Base 1</div><div class="hex">#121212</div></div>
+      <div class="cs"><div class="swatch" style="background:#1a1a1a"></div><div class="name">Base 2</div><div class="hex">#1a1a1a</div></div>
+      <div class="cs"><div class="swatch" style="background:#242424"></div><div class="name">Base 3</div><div class="hex">#242424</div></div>
+      <div class="cs"><div class="swatch" style="background:#2e2e2e"></div><div class="name">Base 4</div><div class="hex">#2e2e2e</div></div>
+      <div class="cs"><div class="swatch" style="background:#f0f0f0"></div><div class="name">Text 0</div><div class="hex">#f0f0f0</div></div>
+      <div class="cs"><div class="swatch" style="background:#c0c0c0"></div><div class="name">Text 1</div><div class="hex">#c0c0c0</div></div>
+      <div class="cs"><div class="swatch" style="background:#808080"></div><div class="name">Text 2</div><div class="hex">#808080</div></div>
+      <div class="cs"><div class="swatch" style="background:#505050"></div><div class="name">Text 3</div><div class="hex">#505050</div></div>
+      <div class="cs"><div class="swatch" style="background:#c8a951"></div><div class="name">Accent</div><div class="hex">#c8a951</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 18 18" fill="none"><path d="M3 4v10l6 3 6-3V4L9 1 3 4z" stroke="currentColor" stroke-width="1"/></svg>
+      Skills
+    </div>
+    <div class="marketplace-controls">
+      <input type="text" id="skillSearch" placeholder="搜索技能..." class="skill-search-input">
+      <select id="skillCategory" class="skill-filter-select"><option value="">全部分类</option></select>
+      <select id="skillTier" class="skill-filter-select"><option value="">全部层级</option><option value="tier1_core">核心</option><option value="tier2_popular">热门</option><option value="tier3_trending">趋势</option><option value="tier4_community">社区</option></select>
+      <button onclick="refreshRegistry()" class="skill-refresh-btn">同步</button>
+    </div>
+    <div class="marketplace-stats" id="marketplaceStats"></div>
+    <div class="sg" id="skillGrid"></div>
+  </div>
+</div>
+
+<script>
+async function loadMarketplace(){
+  try{
+    const[statsRes,catRes]=await Promise.all([fetch('/api/skills/registry/stats'),fetch('/api/skills/registry/categories')]);
+    const s=await statsRes.json(),c=await catRes.json();
+    document.getElementById('marketplaceStats').innerHTML='<div class="st"><div class="num">'+s.total+'</div><div class="lab">总数</div></div><div class="st"><div class="num">'+s.verified_count+'</div><div class="lab">已验证</div></div><div class="st"><div class="num">'+s.trending_count+'</div><div class="lab">趋势</div></div><div class="st"><div class="num">'+Object.keys(s.by_category).length+'</div><div class="lab">分类</div></div>';
+    const sel=document.getElementById('skillCategory');
+    c.categories.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.name_zh;sel.appendChild(o)});
+    searchSkills();
+  }catch(e){document.getElementById('skillGrid').innerHTML='<p style="color:var(--t3);font-size:12px">加载失败</p>'}
+}
+async function searchSkills(){
+  const q=document.getElementById('skillSearch').value,cat=document.getElementById('skillCategory').value,tier=document.getElementById('skillTier').value;
+  try{
+    const r=await fetch('/api/skills/registry/search?q='+encodeURIComponent(q)+'&category='+cat+'&tier='+tier+'&limit=50&sort_by=stars');
+    const d=await r.json();renderSkills(d.results);
+  }catch(e){document.getElementById('skillGrid').innerHTML='<p style="color:var(--t3);font-size:12px">搜索失败</p>'}
+}
+function renderSkills(skills){
+  const g=document.getElementById('skillGrid');
+  if(!skills.length){g.innerHTML='<p style="color:var(--t3);font-size:12px">无匹配</p>';return}
+  g.innerHTML=skills.map(s=>{
+    const v=s.verified?'<span class="sc-verified">✓</span>':'';
+    const f='<div class="sc"><div class="sc-header"><span class="sc-tier">'+(s.tier||'?')+'</span>'+v+'</div><div class="sc-name">'+s.name+'</div><div class="sc-name-zh">'+s.name_zh+'</div><div class="sc-desc">'+(s.description_zh||s.description||'')+'</div><div class="sc-tags">'+(s.tags||[]).slice(0,4).map(t=>'<span class="sc-tag">'+t+'</span>').join('')+'</div><div class="sc-meta">'+(s.stars?'⭐ '+(s.stars>1000?(s.stars/1000).toFixed(1)+'k':s.stars):'')+'<span>'+s.source+'</span></div></div>';
+    return f;
+  }).join('');
+}
+async function refreshRegistry(){
+  const b=document.querySelector('.skill-refresh-btn');b.textContent='同步中...';b.disabled=true;
+  try{const r=await fetch('/api/skills/registry/refresh',{method:'POST'});await r.json();searchSkills()}catch(e){}
+  b.textContent='同步';b.disabled=false;
+}
+document.getElementById('skillSearch').addEventListener('input',function(){clearTimeout(this._t);this._t=setTimeout(searchSkills,300)});
+document.getElementById('skillCategory').addEventListener('change',searchSkills);
+document.getElementById('skillTier').addEventListener('change',searchSkills);
+loadMarketplace();
+</script>
+</body>
+</html>

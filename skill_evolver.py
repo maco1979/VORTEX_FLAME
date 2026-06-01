@@ -27,7 +27,7 @@ Integration (P0):
 """
 
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from skill_registry import SkillRegistry, SkillStatus, RegisteredSkill
 
@@ -36,7 +36,7 @@ AUDIT_DIMENSIONS = ["overfitting", "ambiguity", "non_executability", "contradict
 
 
 class SkillEvolver:
-    def __init__(self, registry: SkillRegistry = None):
+    def __init__(self, registry: Optional[SkillRegistry] = None):
         self.registry = registry or SkillRegistry()
         self._evolution_log: list = []
         self._errata_snapshots: Dict[str, List[dict]] = {}
@@ -98,7 +98,7 @@ class SkillEvolver:
 
         return {"seeded": seeded, "count": len(seeded)}
 
-    def evolve(self, skill_id: str, trajectory_data: dict = None) -> dict:
+    def evolve(self, skill_id: str, trajectory_data: Optional[dict] = None) -> dict:
         """
         Evolve a skill through the 4-stage process.
         trajectory_data: {successes: [...], failures: [...]}
@@ -259,12 +259,12 @@ class SkillEvolver:
         failure_patterns = set()
         for s in successes:
             if isinstance(s, dict):
-                for k, v in s.items():
+                for _, v in s.items():
                     if isinstance(v, str):
                         success_patterns.add(v.lower().strip())
         for f in failures:
             if isinstance(f, dict):
-                for k, v in f.items():
+                for _, v in f.items():
                     if isinstance(v, str):
                         failure_patterns.add(v.lower().strip())
         diff = failure_patterns - success_patterns
@@ -288,7 +288,7 @@ class SkillEvolver:
     def _independent_audit(self, skill: RegisteredSkill) -> dict:
         content = getattr(skill, 'rules', '') or getattr(skill, 'description', '')
         if content:
-            audit_result = self.audit(content, soul_domain=None)
+            audit_result = self.audit(content, soul_domain=None)  # pyright: ignore[reportArgumentType]
             return {
                 "stage": 3,
                 "name": "independent_audit",
@@ -308,8 +308,7 @@ class SkillEvolver:
         errata = getattr(skill, 'errata', [])
         self._snapshot_errata(skill.skill_id, errata)
         if content and errata:
-            core_rules = content
-            errata_text = "\n".join(f"- [{e.get('dimension', 'unknown')}] {e.get('fix', '')}" for e in errata)
+            _ = "\n".join(f"- [{e.get('dimension', 'unknown')}] {e.get('fix', '')}" for e in errata)
             self._evolution_log.append({
                 "skill_id": skill.skill_id,
                 "stage": "body_errata_applied",

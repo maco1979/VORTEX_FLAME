@@ -1,0 +1,380 @@
+[
+  {
+    "topic": "[SciCompute] PyTorch Deep Learning Framework",
+    "text": "PyTorch Deep Learning Framework Knowledge Base for VORTEX FLAME.\nCORE CAPABILITIES: Tensor computation with GPU acceleration (CUDA/cuDNN), automatic differentiation (autograd), neural network modules, distributed training (DDP/FSDP), model quantization (dynamic/static/QAT), TorchScript and torch.compile for production.\nTRAINING INFRASTRUCTURE: Optimizers (Adam/AdamW/SGD), LR schedulers (CosineAnnealing/OneCycleLR), mixed precision (AMP fp16/bf16), gradient accumulation, checkpoint save/resume.\nJEPA INTEGRATION: C-JEPA uses PyTorch as primary tensor backend. SlotAttention via nn.MultiheadAttention. CausalPredictor uses TransformerEncoder. VICReg loss in pure PyTorch. Target encoder uses EMA updates.\nSAFETY: Never run destructive model ops without permission. Monitor GPU memory. Checkpoints saved before risky operations. Model weights never leave local machine.",
+    "soul": "cezanne",
+    "tags": [
+      "sci-compute",
+      "pytorch",
+      "deep-learning",
+      "gpu",
+      "training"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[SciCompute] CUDA and GPU Computing",
+    "text": "NVIDIA CUDA GPU Computing Knowledge Base.\nSTACK: CUDA Toolkit (nvcc compiler, cuBLAS/cuDNN/cuFFT libraries). GPU architectures: Volta (V100), Ampere (A100), Hopper (H100). Memory hierarchy: global/shared/local/constant/texture. Streams and events for async execution. Tensor Cores for matrix multiply.\nV100 SPECIFICS (our hardware): 16GB HBM2, 900 GB/s bandwidth, 5120 CUDA cores, 640 Tensor cores. FP16: 28 TFLOPS, FP32: 14 TFLOPS. TCC mode (Windows native, not WSL2). Max power: 250W.\nMEMORY: torch.cuda.memory_allocated(), empty_cache(), fragmentation detection, OOM prevention via gradient checkpointing and batch size tuning. 4bit NF4 quantization ~4x memory reduction.\nSAFETY: Monitor GPU temp (throttle >85C), never allocate >80% VRAM, run nvidia-smi before new process, kill zombie processes.",
+    "soul": "cezanne",
+    "tags": [
+      "sci-compute",
+      "cuda",
+      "gpu",
+      "v100",
+      "hardware"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[SciCompute] Docker Container Orchestration",
+    "text": "Docker Container Knowledge Base.\nCORE CONCEPTS: Images (immutable templates), Containers (running instances), Volumes (persistent data), Networks (bridge/host/overlay/macvlan), Docker Compose (multi-container orchestration).\nKEY COMMANDS: docker build -t name:tag ., docker run -d --name xxx -p 8080:80 -v /host:/container image, docker exec -it container bash, docker logs -f container, docker-compose up -d.\nJEPA/VORTEX USAGE: Run training in isolated container for reproducibility. MCP servers containerized. Knowledge base databases (Qdrant/Chroma) in containers. API gateway with health checks.\nSAFETY: Never --privileged flag. Never mount sensitive host dirs (/etc,/sys). Always specific image tags. Resource limits: --memory/--cpus. Never expose Docker socket.",
+    "soul": "cezanne",
+    "tags": [
+      "sci-compute",
+      "docker",
+      "container",
+      "devops"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[SciCompute] MATLAB and Scientific Simulation",
+    "text": "MATLAB / Scientific Simulation Knowledge Base.\nMATLAB: Matrix operations, signal processing toolbox, control system design, Simulink block modeling, optimization toolbox, parallel computing.\nSIMULATION: ANSYS (FEA structural/thermal/fluid), COMSOL (multiphysics), OpenFOAM (open-source CFD).\nJEPA INTEGRATION: MATLAB exports models via ONNX. Simulation data feeds PHYS-JEPA training. Physical simulation results validate JEPA predictions. Counterfactual scenarios feed causal learning.\nSAFETY: Validate simulation params before long runs. Never modify production simulation without version control. Results must be reproducible (seed RNG).",
+    "soul": "einstein",
+    "tags": [
+      "sci-compute",
+      "matlab",
+      "simulation",
+      "ansys",
+      "physics"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[SciCompute] Jupyter Interactive Computing",
+    "text": "Jupyter Interactive Computing Knowledge Base.\nECOSYSTEM: Jupyter Notebook (.ipynb), JupyterLab (IDE), JupyterHub (multi-user), IPython (enhanced shell), nbconvert (to script/HTML/PDF).\nBEST PRACTICES: Clear outputs before git commit. Use %matplotlib inline. Use %%time/%%timeit for perf. Use ! for shell, % for magics. Restart kernel and run all before sharing.\nVORTEX INTEGRATION: Notebooks as KB entries. Jupyter kernel for sandbox code execution. nbconvert for docs. Papermill for parameterized execution.",
+    "soul": "cezanne",
+    "tags": [
+      "sci-compute",
+      "jupyter",
+      "notebook",
+      "interactive"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VisualVideo] OpenCV Computer Vision",
+    "text": "OpenCV Computer Vision Knowledge Base.\nCORE: Image I/O (imread/imwrite/imshow), color space conversion (BGR<->RGB<->HSV<->GRAY), image processing (resize/blur/threshold/morphology), feature detection (SIFT/ORB/Harris), object detection (Haar/HOG/DNN), video capture (VideoCapture).\nDEEP LEARNING: cv2.dnn.readNetFromCaffe/TensorFlow/ONNX, YOLO integration, face/pose/segmentation.\nV-JEPA INTEGRATION: Camera frames to V-JEPA visual encoder. Object detection results to ObjectGraph entities. Motion detection to temporal causal chains. Scene understanding to world model state update.\nSAFETY: Never save camera frames without consent. Face detection results not persisted without authorization. Video streams processed locally only. Camera access explicitly granted per session.",
+    "soul": "cezanne",
+    "tags": [
+      "visual-video",
+      "opencv",
+      "computer-vision",
+      "camera"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VisualVideo] OBS Studio and Streaming",
+    "text": "OBS Studio Streaming Software Knowledge Base.\nCAPABILITIES: Scene composition (multiple sources layered), sources (display/window/game/video/image/text capture), audio mixing (per-source volume/filters/monitoring), streaming (RTMP to Twitch/YouTube/Bilibili), recording (local file custom encoder), virtual camera output.\nSCRIPTING: obs-websocket for remote control. Switch scenes programmatically. Start/stop streaming. Get source properties, modify filters.\nVORTEX INTEGRATION: OBS as visual data source for V-JEPA. Scene switching via JEPA anomaly detection. Streaming automation via device_gateway. Recording triggered by events.",
+    "soul": "cezanne",
+    "tags": [
+      "visual-video",
+      "obs",
+      "streaming",
+      "recording"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VisualVideo] FFmpeg Media Processing",
+    "text": "FFmpeg Media Processing Knowledge Base.\nCORE: Format conversion, codec selection (-c:v libx264/-c:a aac), resolution scaling (-vf scale), frame extraction (-vf fps=1), audio extraction (-vn -acodec copy), video trimming (-ss/-t).\nADVANCED: Hardware acceleration (-hwaccel cuda/qsv), filter graphs (multi-step), streaming output (-f flv rtmp://), concatenation.\nJEPA INTEGRATION: Video preprocessing for V-JEPA training, frame extraction at target FPS, audio extraction for A-JEPA input, batch processing for datasets.",
+    "soul": "cezanne",
+    "tags": [
+      "visual-video",
+      "ffmpeg",
+      "media",
+      "video-processing"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VisualVideo] DaVinci Resolve Video Editing",
+    "text": "DaVinci Resolve Professional Video Editing Knowledge Base.\nCAPABILITIES: Edit (timeline NLE), Color (professional grading, HDR), Fusion (node-based compositing/VFX), Fairlight (audio post), Deliver (custom presets).\nSCRIPTING: Python API for automation. Timeline manipulation. Render automation via job queue. Media pool management.\nVORTEX INTEGRATION: Automated video rendering pipeline. Color grading consistency via DESIGN-JEPA. Batch processing via workflow.",
+    "soul": "davinci",
+    "tags": [
+      "visual-video",
+      "davinci",
+      "video-editing",
+      "color-grading"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[DatabaseETL] Vector Databases Qdrant Chroma Milvus",
+    "text": "Vector Database Knowledge Base.\nQDRANT (our primary): Rust-based high-performance vector search. Payload pre-filtering. Quantization (scalar/product/binary). Collections with configurable dimensions. Distance: Cosine/Euclidean/Dot.\nCHROMA: Python-native embedded vector DB. Simple add/query/update/delete API. Metadata filtering. Persistent and ephemeral modes.\nMILVUS: Cloud-native distributed. Multiple index types (IVF_FLAT/HNSW/ANNOY). Hybrid search. Partitioning.\nVORTEX USAGE: soul_memory uses semantic search (all-MiniLM-L6-v2, 384-dim). WorldEmbeddingCache uses FTS5+numpy. KB entries chunked/embedded/stored. Hybrid BM25+semantic retrieval.\nSAFETY: Never delete collections without backup. Collection creation requires permission. Embedding model version tracked. Index rebuilds planned.",
+    "soul": "cezanne",
+    "tags": [
+      "database-etl",
+      "vector-db",
+      "qdrant",
+      "chroma",
+      "milvus"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[DatabaseETL] SQL Databases and ETL Pipelines",
+    "text": "SQL Database and ETL Knowledge Base.\nDATABASES: SQLite (embedded, file-based, zero-config, soul_memory backend), PostgreSQL (advanced, JSON, FTS), MySQL/MariaDB (widely used), Redis (in-memory KV, pub/sub).\nETL PATTERNS: Extract (API/file/DB/webhook), Transform (clean/normalize/join/aggregate/enrich), Load (batch/upsert/incremental).\nOPERATIONS: SELECT with JOIN/GROUP BY/HAVING/window functions, INSERT ON CONFLICT (upsert), CREATE INDEX, EXPLAIN ANALYZE, transactions (BEGIN/COMMIT/ROLLBACK).\nPIPELINE TOOLS: Apache Airflow (DAG scheduling), Prefect (Python-native), dbt (transformation), Kafka (streaming).\nSAFETY: Never DROP TABLE or DELETE without WHERE. Always parameterized queries. Backup before migration. Monitor connection pools. Never expose DB ports publicly.",
+    "soul": "cezanne",
+    "tags": [
+      "database-etl",
+      "sql",
+      "etl",
+      "postgresql",
+      "airflow"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[DatabaseETL] File Systems and Storage Management",
+    "text": "File System and Storage Knowledge Base.\nLOCAL: NTFS (Windows permissions/compression/encryption). Path conventions. Large file chunked read/write. File watching (watchdog).\nNETWORK: NAS (SMB/NFS), cloud sync (OneDrive/Google Drive, caution: privacy). Backup: 3-2-1 rule (3 copies, 2 media, 1 offsite).\nVORTEX LAYOUT: D:/VORTEX_FLAME/ = project root. E:/ = training data and large assets. .vf_memory/ = soul DBs. .vf_world_cache/ = world embedding cache. ajepa_checkpoints/ = training snapshots.\nSAFETY: Never delete project files without confirmation. Checkpoints critical (version before cleaning). Monitor disk space. Log rotation.",
+    "soul": "cezanne",
+    "tags": [
+      "database-etl",
+      "filesystem",
+      "storage",
+      "nas",
+      "backup"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[NetworkOps] SSH Remote Shell Access",
+    "text": "SSH Remote Access Knowledge Base.\nPROTOCOL: Secure Shell encrypted remote terminal. Key-based auth (ssh-keygen -t ed25519). Port forwarding (-L/-R/-D). SCP/SFTP secure file transfer. Config file (~/.ssh/config).\nCOMMANDS: ssh user@host command, ssh -i keyfile user@host, ssh -L 8080:localhost:80 user@host, scp file.txt user@host:/path/, rsync -avz.\nWINDOWS: OpenSSH client (built-in Win10+), PuTTY (GUI), WinSCP (GUI file transfer).\nVORTEX INTEGRATION: Remote training monitoring via SSH. Model deployment to remote servers. Log retrieval. Device gateway network backend.\nSAFETY: Never hardcode SSH keys. Use ed25519 (not RSA<2048). Disable password auth on prod. Rate-limit SSH attempts. Never expose port 22 publicly.",
+    "soul": "cezanne",
+    "tags": [
+      "network-ops",
+      "ssh",
+      "remote",
+      "security"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[NetworkOps] Remote Desktop and GUI Control",
+    "text": "Remote Desktop Control Knowledge Base.\nPROTOCOLS: RDP (Windows native), VNC (cross-platform), TeamViewer/AnyDesk (NAT traversal), Sunshine/Moonlight (low latency).\nWINDOWS RDP: System->Remote Desktop->On, mstsc.exe client, multi-monitor, clipboard/drive redirection.\nVORTEX: Remote GUI control via device_gateway, visual state observation for V-JEPA, software operation verification.\nSAFETY: Strong password or cert auth. Never expose port 3389. Use VPN/SSH tunnel. Auto-lock on disconnect.",
+    "soul": "cezanne",
+    "tags": [
+      "network-ops",
+      "remote-desktop",
+      "rdp",
+      "vnc"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[NetworkOps] Network Monitoring and Firewall",
+    "text": "Network Monitoring Knowledge Base.\nTOOLS: Wireshark (packet capture), tcpdump (CLI), netstat/ss (connections), ntopng (traffic), Prometheus+Grafana (dashboards).\nFIREWALL: Windows Defender Firewall, iptables/nftables (Linux), pfSense/OPNsense, nmap (port scanning).\nVORTEX: API server port monitoring, MCP server health checks, network latency impact on cloud LLM calls, local network isolation.\nSAFETY: Never disable firewall. Monitor unexpected outbound connections. API servers bind localhost by default. Use HTTPS for external services.",
+    "soul": "cezanne",
+    "tags": [
+      "network-ops",
+      "firewall",
+      "monitoring",
+      "security"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[EmbeddedIoT] Arduino Microcontrollers",
+    "text": "Arduino Microcontroller Knowledge Base.\nBOARDS: Uno (ATmega328P/16MHz/32KB), Mega (more I/O), ESP32 (WiFi+BT/dual-core/240MHz), STM32 (ARM Cortex-M), RP2040.\nPROGRAMMING: Arduino IDE (C/C++ simplified API), PlatformIO (professional), MicroPython. Digital I/O: pinMode/digitalWrite/digitalRead. Analog: analogRead (ADC)/analogWrite (PWM). Serial: begin/print/read.\nPROTOCOLS: I2C (Wire, 2 wires), SPI (high-speed master-slave), UART/Serial (point-to-point), CAN bus.\nVORTEX: Sensor data collection to JEPA world state. Motor/actuator via device_gateway. Feedback: sense->JEPA->act. Firmware OTA.\nSAFETY: Always watchdog timer in firmware. Emergency stop for motors. Current limiting on outputs. Never connect high voltage to GPIO.",
+    "soul": "davinci",
+    "tags": [
+      "embedded-iot",
+      "arduino",
+      "microcontroller",
+      "esp32",
+      "sensors"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[EmbeddedIoT] Raspberry Pi Single Board Computers",
+    "text": "Raspberry Pi Knowledge Base.\nMODELS: Pi 4B (quad Cortex-A72, up to 8GB), Pi 5 (faster CPU, PCIe), Pi Zero 2W (ultra-compact). GPIO: 40-pin (I2C/SPI/UART/PWM).\nOS: Raspberry Pi OS (Debian), Ubuntu Server/Desktop ARM, DietPi (lightweight).\nCAPABILITIES: GPIO (RPi.GPIO/gpiozero), Camera (picamera2), HATs (add-on boards), I2C (raspi-config), Network (WiFi/Ethernet/BT).\nVORTEX: Edge computing for local JEPA inference. Sensor hub (collect/preprocess). Camera feed to V-JEPA. Audio input to A-JEPA. MQTT IoT bridge.\nSAFETY: Proper PSU (5V/3A min for Pi4). Heat sink for sustained loads. Safe shutdown (sudo shutdown -h now). Never hot-plug GPIO. ESD protection.",
+    "soul": "davinci",
+    "tags": [
+      "embedded-iot",
+      "raspberry-pi",
+      "sbc",
+      "gpio",
+      "edge-computing"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[EmbeddedIoT] Industrial Protocols PLC",
+    "text": "Industrial Communication Protocols Knowledge Base.\nMODBUS: RTU (serial RS-232/485 binary), TCP (Ethernet port 502). Function codes (read coils/registers, write). Master-slave architecture. PLC/sensors/actuators.\nOPC UA: Platform-independent service-oriented. Security (encryption/auth/auditing). Information modeling (object-oriented). Pub/Sub extension.\nCAN BUS: Controller Area Network message-based. No host needed. Automotive/industrial. CANopen higher protocol.\nVORTEX: Industrial sensor data to JEPA world state. PLC control via device_gateway modbus backend. Predictive maintenance via JEPA anomaly detection. Process optimization via JEPA counterfactual.\nSAFETY: Never modify PLC program without offline test. Emergency stop must be hardware. Industrial protocols need isolated network. Verify signal range before actuation.",
+    "soul": "davinci",
+    "tags": [
+      "embedded-iot",
+      "modbus",
+      "opc-ua",
+      "plc",
+      "industrial"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VerticalApps] GIS Geospatial Systems",
+    "text": "GIS Geographic Information Systems Knowledge Base.\nTOOLS: ArcGIS (commercial), QGIS (open-source Python scripting), GDAL/OGR (translation), PostGIS (spatial PostgreSQL), Leaflet/OpenLayers (web).\nFORMATS: Vector (Shapefile/GeoJSON/KML/GeoPackage), Raster (GeoTIFF/NetCDF/HDF), CRS (WGS84 EPSG:4326, Web Mercator EPSG:3857).\nANALYSIS: Spatial query (point-in-polygon/buffer/intersection), Geocoding, Terrain (slope/aspect/watershed), Network (shortest path/service area).\nVORTEX: CGEOJEPA causal ecosystem/geographic modeling. Spatial causal chains (deforestation->erosion->flood). Map data as structured knowledge. Humboldt soul integration.\nSAFETY: Verify coordinate system before analysis. Spatial data precision matters. Large rasters need tiled processing.",
+    "soul": "humboldt",
+    "tags": [
+      "vertical-apps",
+      "gis",
+      "geospatial",
+      "mapping"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VerticalApps] Medical Imaging DICOM",
+    "text": "Medical Imaging Knowledge Base.\nMODALITIES: X-ray (projection), CT (3D reconstruction), MRI (soft tissue), Ultrasound (real-time), PET/SPECT (functional/molecular).\nDICOM STANDARD: .dcm format (header+pixel data). Tags (patient/study/modality/series). PACS (archiving system).\nANALYSIS: Segmentation (U-Net/nnU-Net), Classification, Registration (multi-modal alignment), Measurement (distance/area/volume).\nVORTEX: CBIOJEPA medical causal reasoning (Darwin soul). Image analysis via V-JEPA encoder. Diagnostic support (anomaly detection).\nSAFETY: Medical data must be de-identified. Never claim diagnostic certainty. AI-assisted disclaimer required. HIPAA/GDPR compliance. DICOM headers contain PHI.",
+    "soul": "darwin",
+    "tags": [
+      "vertical-apps",
+      "medical",
+      "dicom",
+      "imaging",
+      "diagnosis"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VerticalApps] ERP Financial Systems",
+    "text": "ERP Financial Systems Knowledge Base.\nSYSTEMS: SAP (largest ERP), Oracle ERP (cloud), Kingdee/Yonyou (Chinese leaders), Odoo (open-source).\nMODULES: General Ledger (chart of accounts/journal entries), AP/AR (invoicing/payments), Asset Management (depreciation/lifecycle), Financial Reporting (P&L/balance sheet/cash flow), Tax Management (VAT/income tax), Budgeting/Forecasting.\nSTANDARDS: IFRS (international), GAAP (US), XBRL (reporting language).\nVORTEX: CFINJEPA causal financial modeling (Strategy soul). Automated reconciliation via workflow. Anomaly detection in transactions. Counterfactual scenario modeling.\nSAFETY: Financial data encrypted at rest. Never modify records without audit trail. Reconciliation verified by human for large amounts. Tax calculations follow current regulations. AI suggests, human approves.",
+    "soul": "strategy",
+    "tags": [
+      "vertical-apps",
+      "erp",
+      "finance",
+      "accounting",
+      "kingdee"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VerticalApps] Publishing Printing Software",
+    "text": "Publishing and Printing Knowledge Base.\nDTP: Adobe InDesign (professional layout), QuarkXPress (alternative), Scribus (open-source), LaTeX (academic typesetting).\nPRINT: CMYK color space (vs RGB), bleed/trim/safe zone, 300 DPI (print) vs 72 DPI (screen), font embedding/licensing, PDF/X standards.\nDIGITAL: EPUB (reflowable e-book), PDF, HTML/CSS (web publications), XML/DITA (structured authoring).\nVORTEX: Document generation via workflow automation. CARTJEPA aesthetic layout evaluation (Monet soul). Automated LaTeX typesetting. Batch document conversion.",
+    "soul": "monet",
+    "tags": [
+      "vertical-apps",
+      "publishing",
+      "printing",
+      "latex",
+      "indesign"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[VerticalApps] Security Surveillance Systems",
+    "text": "Security Surveillance Knowledge Base.\nHARDWARE: IP Cameras (Hikvision/Dahua), NVR (Network Video Recorder), Access control (card/biometric), Alarm systems (motion/door/glass break).\nPROTOCOLS: RTSP (Real Time Streaming), ONVIF (open camera standard), H.264/H.265 (video codecs).\nANALYTICS: Motion detection (frame differencing), Object detection (person/vehicle/face), LPR/ANPR, Intrusion detection (zone-based), Crowd analysis.\nVORTEX: CVJEPA anomaly detection in surveillance video. Real-time alerting via workflow. Event-triggered recording. Scene understanding for security state.\nSAFETY: Surveillance data is privacy-sensitive. Face recognition requires consent in many jurisdictions. Retention period defined/enforced. Access logs for all data access. Encryption for stored footage.",
+    "soul": "cezanne",
+    "tags": [
+      "vertical-apps",
+      "security",
+      "surveillance",
+      "camera",
+      "hikvision"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Audio-JEPA World Model Core",
+    "text": "Audio-JEPA (CAJEPA) Auditory World Model Knowledge Base.\nARCHITECTURE: Input (raw waveform or mel spectrogram). Encoder (CNN feature projector to 512-dim). Slot Attention (5 slots: drums_percussion, bass, vocals, melody_lead, harmony_pads). CausalPredictor (predicts masked slot evolution over time). CausalVICRegLoss (sim+var+cov+causal 4-term).\nTRAINING OBJECTIVES: Predict next beat/tempo from rhythm. Predict harmonic progression from chords. Predict timbre change from instrument state. Counterfactual: what if bass drops out? Cross-source prediction.\nCURRENT STATUS: A-JEPA Phase 1 training (Epoch 50+/100, loss ~47). Training Data: E: large audio dataset.\nAPPLICATIONS: Music analysis (key/tempo/structure). Sound source separation. Audio anomaly detection. Environmental sound understanding. Speech emotion.\nHARDWARE (reserved): Sound card to CAJEPA encode. DAW (Ableton/Logic) to CAJEPA analysis. Microphone to real-time audio stream. Speakers to playback verification.",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "cajepa",
+      "sound",
+      "music",
+      "world-model"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Speech Voice Understanding",
+    "text": "Speech and Voice Understanding Knowledge Base.\nMODALITIES: ASR (speech to text), Speaker identification, Emotion recognition (happy/sad/angry/neutral), Intent detection, Language identification.\nDATASETS: LibriSpeech (1000h English), CommonVoice (multilingual), VoxCeleb (speaker ID), RAVDESS (emotional), SpeechCommands (keyword spotting).\nFEATURES: MFCC (mel-frequency cepstral), Pitch/F0 tracking, Formants (vocal tract resonances), Energy/volume, Zero-crossing rate.\nA-JEPA INTEGRATION: Speech waveform to CAJEPA slot encoding. Speaker embedding as persistent slot identity. Emotion as slot attribute (continuous dimension).\nSAFETY: Voice data is biometric (PII). Never store raw audio without consent. Speaker identification restricted to authorized cases. Transcription accuracy not overstated.",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "speech",
+      "voice",
+      "asr",
+      "emotion"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Environmental Sound Understanding",
+    "text": "Environmental Sound Understanding Knowledge Base.\nCATEGORIES: Natural (rain/wind/thunder/waves/birds/animals), Urban (traffic/sirens/construction/footsteps), Domestic (doorbell/phone/appliance/water), Industrial (motor/fan/alarm/machine), Human (speech/cough/laugh/cry/clap).\nDATASETS: ESC-50 (2000 clips/50 classes), UrbanSound8K (8732 clips/10 classes), FSD50K (51K clips/200 classes), MIMII (industrial normal/anomaly).\nANALYSIS: Scene classification, Event detection, Anomaly detection, Audio tagging (multi-label).\nA-JEPA INTEGRATION: Environmental sound to CAJEPA world state. Anomaly detection via deviation from learned patterns. Scene context for multi-modal world model. Industrial monitoring.\nSAFETY: Environmental audio may capture private conversations. Industrial monitoring not a replacement for safety systems. Alert sensitivity configurable.",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "environmental-sound",
+      "acoustic-scene",
+      "anomaly"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Music Theory Acoustics",
+    "text": "Music Theory and Acoustics Knowledge Base.\nTHEORY: Pitch (frequency/Hz, MIDI notes, note names C/D/E...). Intervals (octave 2:1, fifth 3:2, fourth 4:3). Scales (major/minor/pentatonic/modes). Chords (triads/7th/extended/inversions/voicings). Key (tonic center, key signature, modulation). Rhythm (tempo/BPM, time signature, beat, subdivision). Form (verse/chorus/bridge/ABA/sonata).\nACOUSTICS: Harmonic series (f_n=n*f0). Timbre (spectral envelope/formants/attack/decay). Room (reverb/RT60/reflection/absorption). Psychoacoustics (loudness/pitch perception/masking).\nCHINESE MUSIC: Pentatonic scale, 12 pitches system.\nDAW PRODUCTION: Tracks (audio/MIDI/instrument/FX/bus). Processing (EQ/compression/reverb/delay/distortion). Mixing (level/panning/frequency). Mastering (LUFS/dynamic range/stereo).\nBEETHOVEN INTEGRATION: CAJEPA learns harmonic causal relationships between instrument slots. Music theory rules constrain JEPA predictions. Chord progression prediction. Counterfactual key changes.\nSOFTWARE (reserved): DAW (Ableton/Logic/Cubase/Reaper/FL Studio), Notation (MuseScore/Sibelius/Dorico), Analysis (Sonic Visualiser/Praat/librosa), AI (Demucs/Basic Pitch).",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "music-theory",
+      "acoustics",
+      "harmony",
+      "daw"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Audio Hardware Signal Processing",
+    "text": "Audio Hardware and Signal Processing Knowledge Base.\nINTERFACES: Focusrite Scarlett (USB), Allen & Heath (mixers), RME (pro/low-latency), ASIO (low-latency Windows driver), WASAPI.\nMICROPHONES: Dynamic (rugged/live, SM58), Condenser (sensitive/studio, U87), Ribbon (warm/vintage), Lavalier (clip-on/speech), Measurement (flat/calibration).\nSIGNAL: Sampling (44.1kHz CD/48kHz video/96kHz pro), Bit depth (16-bit CD/24-bit pro/32-bit float DAW), Anti-aliasing filter, Dithering.\nDSP: FFT (time to frequency domain), STFT (spectrogram), Mel spectrogram (perceptual frequency), MFCC (cepstral), Filtering (LP/HP/BP/notch).\nA-JEPA INPUT PIPELINE: 1. Raw audio (WAV/MP3) resample to 22050Hz mono. 2. Mel spectrogram (n_mels=128, hop=512, n_fft=2048). 3. AudioFeatureProjector CNN to 512-dim. 4. SlotAttention to 5 slots x 128-dim. 5. CausalPredictor temporal reasoning.\nSAFETY: Monitor input levels (avoid clipping >0dBFS). Phantom power (+48V) only for condenser mics. Ground loop prevention (balanced XLR/TRS). Never hot-plug with phantom on. Hearing protection (<85dB SPL).",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "audio-hardware",
+      "dsp",
+      "signal-processing",
+      "microphone"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Training Deployment",
+    "text": "Audio-JEPA Training and Deployment Knowledge Base.\nTRAINING: Data prep (mp3/wav to mel spectrogram to AudioDataset). Model (AudioFeatureProjector+CJEPALayer 5 slots). Loss (CausalVICRegLoss sim=2.0/var=1.0/cov=0.5/causal=0.3). Optimizer (AdamW lr=5e-5 wd=1e-4). Scheduler (CosineAnnealing+warmup). Protection (jepa_training_guard.py).\nSTATUS: Phase 1 (pretrain slot attention, no masking) Epoch 50+/100. Training on E: audio data. Loss ~47 decreasing. VRAM ~0.2GB.\nPHASES: Phase 2 (object-level masking+causal prediction), Phase 3 (RL curiosity fine-tuning), Phase 4 (Beethoven soul integration+LoRA adapters).\nDEPLOYMENT: Checkpoints at D:/VORTEX_FLAME/ajepa_checkpoints/. Inference (load checkpoint -> encode audio -> get slot embeddings). Real-time (streaming audio -> buffer -> periodic encode). Integration (JEPASoulBridge dual_pathway_query with modality).\nGPU TASKS (pending): 1. Complete Phase 1 (100 epochs). 2. Phase 2 masking+CausalPredictor. 3. Phase 3 RL fine-tuning. 4. Cross-Attention fusion training. 5. World-Embedding real encoding.",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "training",
+      "deployment",
+      "checkpoint"
+    ],
+    "category": "knowledge"
+  },
+  {
+    "topic": "[AudioJEPA] Sound Source Separation Analysis",
+    "text": "Sound Source Separation and Analysis Knowledge Base.\nSEPARATION: Demucs (Meta, hybrid spectrogram+waveform, drums/bass/vocals/other, real-time GPU). Spleeter (Deezer, U-Net, 2/4/5 stem, CPU-friendly). UVR (community models, MDX-Net/Demucs/VR, best vocal/instrumental).\nANALYSIS: Key detection (Krumhansl-Schmuckler/CNN), Tempo/beat (madmom/librosa.beat), Chord recognition (CNN+HMM/CREPE), Structure (self-similarity matrix), Onset detection (spectral flux/CNN).\nTRANSCRIPTION: Basic Pitch (multi-pitch note on/off), Piano (Onsets and Frames), Drum (DNN hit detection), Guitar tab (automated).\nA-JEPA ENHANCEMENT: Separated stems as individual slot training data. Beat-aligned segments for temporal supervision. Chord labels as harmonic constraints. Multi-instrument for richer slot semantics.\nSAFETY: Copyright (separation output may retain original rights). Quality varies by genre (best on pop/rock). Real-time requires GPU. Separated audio may have phase artifacts.",
+    "soul": "beethoven",
+    "tags": [
+      "audio-jepa",
+      "source-separation",
+      "demucs",
+      "transcription",
+      "analysis"
+    ],
+    "category": "knowledge"
+  }
+]

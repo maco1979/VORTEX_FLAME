@@ -1,0 +1,317 @@
+================================================================================
+  VORTEX FLAME 待办清单 v3 — 2026-05-31 全面复盘版
+  旧版: VORTEX_FLAME_待办清单_v2.txt (2026-05-26→05-31增量, 信息过时)
+  工作目录: D:\VORTEX_FLAME\
+================================================================================
+
+【本次复盘发现的问题】
+  1. v2待办清单中的部分已完成项未标记完成 (validation_rules/vortex_plugin_list/train_cvjepa_cpu等)
+  2. RAG gen_rag_phase1.py 脚本文件丢失 (部分功能已在validation_rules.py中实现)
+  3. E盘 GitHub知识库镜像丢失 (GraphRAG/LightRAG/MCP Servers, 之前日志称已clone但不复存在)
+  4. E盘 HF_Datasets/History/ 空目录 (0MB, 从未下载)
+  5. E盘 shared_datasets/ 目录不存在 (旧计划P0数据集未下载)
+  6. vf_api_server.py 有致命运行时错误 (list.get() + SkillEvolver方法缺失 + asdict未定义)
+
+================================================================================
+  ⛔ 架构红线 → 📌 唯一真理源: D:\VORTEX_FLAME\.trae\rules\project_rules.md
+  底座=10 C-JEPA变体(世界模型) | 顶层=LLM(用户互动) | 知识=14行业知识库(SQLite+向量)
+  C-JEPA变体: CVJEPA/CAJEPA/CPHYSJEPA/CARTJEPA/CDESIGNJEPA/CFINJEPA/CCODEJEPA/CBIOJEPA/CGEOJEPA/CLAWJEPA
+================================================================================
+
+================================================================================
+  A. 知识库状态全览 (SQLite .db + 向量填充 + E盘数据集)
+================================================================================
+
+【A1. SQLite知识库 — 14/14 .db 全部100%向量化】
+  位置: D:\VORTEX_FLAME\.vf_memory\
+  嵌入: all-MiniLM-L6-v2 (384维, float32 blob, SentenceTransformer)
+
+  beethoven.db      225.2MB | 16,016条 | 100% VEC ✅
+  cezanne.db        145.1MB | 11,682条 | 100% VEC ✅
+  darwin.db          99.0MB | 10,234条 | 100% VEC ✅
+  davinci.db        102.5MB |  8,490条 | 100% VEC ✅
+  einstein.db       208.0MB | 23,564条 | 100% VEC ✅
+  galileo.db        100.9MB | 11,294条 | 100% VEC ✅
+  guizhu.db         311.1MB | 20,917条 | 100% VEC ✅
+  herodotus.db       88.5MB |  6,939条 | 100% VEC ✅
+  humboldt.db        94.7MB |  9,970条 | 100% VEC ✅
+  monet.db           85.2MB |  6,617条 | 100% VEC ✅
+  montesquieu.db     85.8MB |  7,111条 | 100% VEC ✅
+  strategy.db        78.0MB |  8,333条 | 100% VEC ✅
+  vangogh.db         59.6MB |  5,010条 | 100% VEC ✅
+  yuanlongping.db    51.9MB |  5,047条 | 100% VEC ✅
+  ─────────────────────────────────────────────
+  总计: 1735MB (1.7GB) | 151,224条 | 100%向量化
+
+【A2. E盘 HF_Datasets — 184.9GB, 8/9类有数据, History空】
+  位置: E:\VORTEX_FLAME_KnowledgeBases\HF_Datasets\
+
+  ✅ Astronomy/STAR:            58.4GB  (Galileo)
+  ✅ Biology/ProteinConformers:  8.2GB  (Darwin)
+  ✅ Chemistry/MolLangBench:     1.7GB  (Einstein)
+  ✅ EarthSci/ClimDetect:       18.4GB  (Humboldt)
+  ✅ Finance/SEC-EDGAR:         87.5GB  (Strategy)
+  ❌ History:                    0.0MB  ← 空目录, 未下载
+  ✅ Logic/LogiGLUE:             0.9GB  (Cezanne)
+  ✅ Music/MagnaTagATune:        2.8GB  (Beethoven)
+  ✅ Vision/GQA:                11.3GB  (DaVinci+VanGogh)
+  ─────────────────────────────────────────────
+  总计: 184.9GB (8类有数据 + 1类空)
+
+【A3. E盘 Soul Training Data — 14.7GB, 14灵魂目录有数据】
+  位置: E:\VORTEX_FLAME_Soul_Training\
+
+  beethoven/   1017MB | cezanne/    1350MB | darwin/      414MB
+  davinci/     1234MB | einstein/    853MB | fkj/         371MB
+  galileo/      414MB | guizhu/      886MB | herodotus/   122MB
+  humboldt/     414MB | monet/       813MB | montesquieu/  45MB
+  strategy/     683MB | vangogh/     387MB | yuanlongping/414MB
+  ajepa_mel_cache/ 5677MB | five_layer_jepa_datasets/ 0.1MB (几乎空)
+  docs/           0MB (空) | scripts/ 0.1MB
+
+【A4. E:\AI_Data\ — 部分外部数据】
+  Capybara/              68.5MB
+  Opus-4.6-Reasoning/    16.2MB  (14 soul_config 引用的 external_dataset)
+  rStar-Coder/           86GB    (大型代码数据集)
+  MetObjects.csv        303MB    (博物馆元数据)
+
+================================================================================
+  B. 已完成 — 2026-05-31 本轮会话 (全部CPU任务)
+================================================================================
+
+【B1. 代码/模块创建 (4个新文件)】
+  ✅ vortex_plugin_list.py:     16插件+12 MCP服务器+17工具+9执行能力+resolve/resolve_kb/stats
+  ✅ train_cvjepa_cpu.py:       纯CPU验证训练, 5.6M参数, 0.7s/epoch, 已验证通过
+  ✅ moe_expert_loader.py:      14专家+双语关键词路由
+  ✅ long_memory.py:            SQLite持久记忆+CrossKBLink+TTL自动清理
+
+【B2. soul_config YAML修复 (6个)】
+  ✅ guizhu.yaml:    完整重写 — CAJEPA/false audio slots→CLAWJEPA+7 law_philosophy slots
+  ✅ davinci.yaml:   CDESIGNJEPA→CVJEPA+CDESIGNJEPA
+  ✅ herodotus.yaml: CGEOJEPA→CVJEPA+CGEOJEPA + 3 visual secondary slots + 清理错误law引用
+  ✅ beethoven.yaml: skills:[空]→kwp_writing/design/education, tools:[空]→ci_search/context/ask
+  ✅ yuanlongping.yaml: skills:[空]→kwp_research/data/operations, tools:[空]→ci_search/context/domain
+  ✅ vangogh.yaml:   CVISJEPA幽灵→CARTJEPA + 7 slot (emotion/color/composition/texture/contrast/movement/expression)
+
+【B3. soul_orchestrator.py 架构接入 (3模块集成)】
+  ✅ LongMemory + MoEExpertLoader + ValidationEngine 单例导入
+  ✅ 8 getter函数 + PIPELINE_ROLES + EXECUTION_MODES + MAGIC_KEYWORDS
+  ✅ orchestrate_cross_kb() + moe_route_query() + validate_knowledge_base()
+
+【B4. 幽灵清理 (CVISJEPA = LLM幻觉)】
+  ✅ 全项目 .py/.yaml 0残留
+  ✅ cross_kb_causal_bridge.py: daVinci CVISJEPA→CVJEPA, Herodotus CGEOJEPA→CVJEPA
+  ✅ ollama_adapter.py: daVinci system prompt CVISJEPA→CVJEPA
+  ✅ _align_souls_jepa.py: 2处 CVISJEPA→CVJEPA
+
+【B5. validation_rules.py (此前已完成, 补标)】
+  ✅ 105条正则谓词规则: E01-E45物理+C01-C60代码
+  ✅ 修复C21/C22三元表达式语法错误→辅助函数
+
+【B6. 知识库V4编码 (此前已完成)】
+  ✅ 8/8数据集编码→9灵魂DB (ClimDetect/MolLangBench/LogiGLUE/ProteinConformers/MagnaTagATune/GQA/STAR/SEC_EDGAR)
+  ✅ 去重+性能优化+_import_hf_to_v4.py
+
+【B7. 架构文档/组件 (此前已完成)】
+  ✅ adversarial_game_loop.py: LLM+C-JEPA+KB 迭代审查循环
+  ✅ closed_loop_orchestrator.py: 6阶段闭环编排
+  ✅ cross_kb_causal_bridge.py: 跨KB因果桥
+  ✅ 灵魂定义根除修正 (7文件)
+  ✅ device_gateway.py: 9大类24设备抽象
+
+================================================================================
+  C. 🔴 需要立即修复 — 运行时BUG (会crash, 不需要GPU)
+================================================================================
+
+【C1. vf_api_server.py — 6个致命错误】
+  ❌ L125/191/270/428: 在list对象上调用.get() — AttributeError
+  ❌ L314: SkillEvolver.list_skills() 不存在 — AttributeError
+  ❌ L348: SkillEvolver.register_evolved_skill() 不存在 — AttributeError
+  ❌ L476: asdict未导入 (dataclasses.asdict) — NameError
+
+【C2. closed_loop_orchestrator.py — 4个致命错误】
+  ❌ L287-291: 在Dict上访问.confidence/.consistency_score等属性 — AttributeError
+  ❌ L143-149: 4行return后的死代码 — 永远不会执行
+  ❌ L151: EvaluationResult类型不匹配
+
+================================================================================
+  D. 🟡 非GPU待办 — 可立即执行
+================================================================================
+
+【D1. P0 — 立即 (代码修复)】
+  [ ] 修复 vf_api_server.py 6个致命错误 (C1)
+  [ ] 修复 closed_loop_orchestrator.py 3个致命错误 (C2)
+
+【D2. P0 — 立即 (知识库下载/补全)】
+  [ ] E盘 History 数据集下载: HF历史方向 (Herodotus/Montesquieu/Guizhu)
+     (History目录已是空壳, 需确定下载什么)
+  [ ] 核实 E盘 GitHub 镜像是否存在: GraphRAG+LightRAG+MCP_Servers
+     (之前日志称已clone到 E:\VORTEX_FLAME_KnowledgeBases\GitHub\, 但实测不存在)
+  [ ] E盘 shared_datasets/ 创建+P0数据集下载 (非GPU, 纯下载):
+     - WikiArt轻量版 (Beethoven/VanGogh/DaVinci/Humboldt/Herodotus/Monet)
+     - FMA古典子集 (Beethoven)
+     - Met Museum (Monet/VanGogh/DaVinci/Herodotus)
+     - ShapeNet (DaVinci)
+     - NASA APOD (Galileo/Humboldt)
+     - PlantVillage (YuanLongping/Darwin)
+     预估总大小: ~59.5GB → 脚本参考: smart_dataset_downloader.py (如文件存在)
+
+【D3. P1 — 短期 (功能补全)】
+  [ ] RAG知识库Phase 1: Einstein 280篇 + Cezanne 350篇
+     (之前因API免费额度暂停, gen_rag_phase1.py已丢失)
+     新方案: 用本地Ollama生成 + 105条validation_rules校验 → 索引到DB
+  [ ] 其余12知识库技能包: DaVinci/Strategy/Galileo/Darwin/Beethoven/Guizhu/
+     Monet/VanGogh/Humboldt/Herodotus/Montesquieu/YuanLongping
+  [ ] Herodotus学术研究流程: 6阶段(选题→检索→写作→评审→修订→定稿)+回溯机制
+  [ ] MoE软路由实现: 14专家双语关键词路由 (moe_expert_loader已有, 需接入orchestrator)
+  [ ] long_memory.py适配器通用化到13个其他知识库 (目前仅通过LongMemoryAdapter支持)
+
+【D4. P2 — 中期 (架构增强)】
+  [ ] 多知识库编排: 并发推理+结果聚合 (soul_orchestrator已有orchestrate_cross_kb, 需真实LLM接入)
+  [ ] Agent行动层扩展: blender_render/ffmpeg_audio/doc_generate/web_scrape真实实现
+     (当前仅python_exec/file_operation/plot_generate真实, 其余simulated)
+  [ ] 配置LLM API key: 激活adversarial_game_loop.py真实LLM执行+审查
+     (当前走模板fallback)
+  [ ] 13-column→14 souls DB add ajepa_embedding列 (Phase2向量迁移准备)
+  [ ] 清理Strategy DB旧UUID条目 (6条LogiGLUE残留)
+
+【D5. P3 — 长期 (软件/工具安装, E盘)】
+  [ ] E:\ 安装 Blender 3D
+  [ ] E:\ 安装 OBS Studio
+  [ ] E:\ 安装 DaVinci Resolve
+  [ ] E:\ 安装 Docker Desktop
+  [ ] E:\ 安装 Arduino IDE
+  [ ] E:\ 配置 stable-diffusion-webui (已clone)
+  [ ] E:\ 安装 Ableton Live (或DAW替代)
+
+================================================================================
+  E. 🔵 需要GPU的待办 — 等GPU空闲或硬件升级
+================================================================================
+
+【E1. 当前训练 (运行中)】
+  [GPU] CAJEPA训练 Terminal#5: Epoch ~52+/100, Loss~46, VRAM 0.2GB
+  [GPU] A-JEPA Phase 1→2→3: 音频训练完成
+
+【E2. 10 C-JEPA变体训练 (底座世界模型)】
+  [GPU] CVJEPA:      视觉世界模型 (DaVinci/VanGogh/Herodotus)
+  [GPU] CPHYSJEPA:   物理世界模型 (Einstein/Galileo)
+  [GPU] CARTJEPA:    艺术世界模型 (Monet/VanGogh)
+  [GPU] CDESIGNJEPA: 设计世界模型 (DaVinci)
+  [GPU] CFINJEPA:    金融世界模型 (Strategy)
+  [GPU] CCODEJEPA:   代码世界模型 (Cezanne)
+  [GPU] CBIOJEPA:    生物世界模型 (Darwin/YuanLongping)
+  [GPU] CGEOJEPA:    地理世界模型 (Humboldt/Herodotus)
+  [GPU] CLAWJEPA:    法律世界模型 (Montesquieu/Guizhu)
+
+【E3. 进阶GPU实验】
+  [GPU] Cross-Attention融合层训练 (DualPathwayBridge)
+  [GPU] World-Embedding真实编码 (从checkpoint替换placeholder)
+  [GPU] SIGReg vs CausalVICReg对比实验
+  [GPU] ActionCAJEPA action-conditioned微调
+  [GPU] Stable Diffusion WebUI首次启动+模型下载 (需额外4-6GB显存)
+  [GPU] MoE引擎验证测试
+
+【E4. 硬件升级】
+  [ ] 购买 V100-32GB PCIe版 (下月计划)
+
+================================================================================
+  F. 不做 (架构红线, 已确认)
+================================================================================
+  ✗ LoRA SFT/DPO/自博弈训练 — 新架构纯推理+JEPA世界模型
+  ✗ 合并LoRA权重到底座 — 底座冻结
+  ✗ 元改进/代码自修改
+  ✗ WSL2 — Windows原生即可
+
+================================================================================
+  G. 14知识库 ↔ 10 C-JEPA 多对多映射 (SSOT=project_rules.md)
+================================================================================
+  灵魂            训练序号  C-JEPA变体
+  ────────────────────────────────────────
+  Einstein        1        CPHYSJEPA
+  Cezanne         2        CCODEJEPA
+  DaVinci         3        CVJEPA + CDESIGNJEPA
+  Strategy        4        CFINJEPA
+  Galileo         5        CPHYSJEPA
+  Darwin          6        CBIOJEPA
+  Beethoven       7        CAJEPA
+  Guizhu          8        CLAWJEPA
+  Monet           9        CARTJEPA
+  VanGogh         10       CARTJEPA
+  Humboldt        11       CGEOJEPA
+  Herodotus       12       CVJEPA + CGEOJEPA
+  Montesquieu     13       CLAWJEPA
+  YuanLongping    14       CBIOJEPA
+
+================================================================================
+  H. 项目文件清单 (核心脚本/模块)
+================================================================================
+  架构层:
+    project_rules.md             SSOT唯一真理源
+    soul_orchestrator.py         编排引擎 (3新模块已集成)
+    closed_loop_orchestrator.py  闭环编排 (有BUG)
+    cross_kb_causal_bridge.py    跨KB因果桥
+    adversarial_game_loop.py     迭代审查循环
+    device_gateway.py            设备网关 (NullBackend)
+
+  JEPA层:
+    five_layer_jepa/causal_jepa.py   核心JEPA (10变体)
+    five_layer_jepa/causal_jepa_v2.py SIGReg+ActionCAJEPA
+    five_layer_jepa/jepa_interface_spec.py 接口/数据集方案
+    train_ajepa.py                A-JEPA训练 (运行中, GPU)
+    train_cvjepa_cpu.py           CVJEPA CPU验证训练 ✅
+
+  知识层:
+    soul_memory.py                BM25S+向量检索引擎
+    validation_rules.py           105条验证规则
+    moe_expert_loader.py          14专家MoE路由
+    long_memory.py                SQLite跨KB持久记忆
+    vortex_plugin_list.py         插件注册表
+    _import_hf_to_v4.py           HF数据集编码器
+
+  服务层:
+    vf_api_server.py              API服务 (有BUG)
+    vf_web/index.html             Web控制台 v0.5
+    cli_anything.py               CLI统一入口
+
+  Soul配置:
+    soul_config/{14灵魂名}.yaml   每个400+行业条目
+
+================================================================================
+  I. 知识库下载来源对照 (需下载 ← 确定目标地址)
+================================================================================
+  数据集                    目标            预估大小  状态
+  ─────────────────────────────────────────────────────────
+  WikiArt 轻量版            6KB              ~3GB      ❌
+  FMA 古典子集              Beethoven        ~3GB      ❌
+  Met Museum 开放数据       Monet/VanGogh    ~302MB    ✅ CSV在E盘
+  ShapeNet                  设计              ~12GB     ❌
+  NASA APOD                 天文              ~1GB      ❌
+  PlantVillage              农业              ~3GB      ❌
+  GQA 视觉推理              DaVinci/VanGogh  11.3GB    ✅
+  STAR 天文                 Galileo          58.4GB    ✅
+  SEC EDGAR 10-K            Strategy         87.5GB    ✅
+  MolLangBench              化学Einstein     1.7GB     ✅
+  ProteinConformers         生物             8.2GB     ✅
+  ClimDetect                地球科学         18.4GB    ✅
+  MagnaTagATune             音乐             2.8GB     ✅
+  LogiGLUE                  逻辑             0.9GB     ✅
+  HF History 方向           历史/法律         ?         ❌ 空目录
+
+================================================================================
+  ✅ 2026-05-31 本轮会话完成清单
+================================================================================
+  1.  guizhu.yaml JEPA重写 (CAJEPA→CLAWJEPA)
+  2.  davinci.yaml CDESIGNJEPA→CVJEPA+CDESIGNJEPA
+  3.  herodotus.yaml CGEOJEPA→CVJEPA+CGEOJEPA
+  4.  beethoven/yuanlongping yaml填充skills+tools
+  5.  vortex_plugin_list.py 插件注册表
+  6.  train_cvjepa_cpu.py CPU训练脚本+修复
+  7.  moe_expert_loader.py MoE专家路由
+  8.  long_memory.py 跨KB记忆
+  9.  validation_rules.py (此前已完成, 补标)
+  10. soul_orchestrator.py 3模块集成
+  11. 全项目CVISJEPA幽灵清零
+  12. 全项目JEPA映射14/14=SSOT验证
+  13. 知识库全面审计: 14 KB 100%向量化, 151K条目
+  14. 待办清单v3创建 (本文件)
+================================================================================

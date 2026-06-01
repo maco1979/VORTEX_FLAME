@@ -1,0 +1,159 @@
+# VF Data Pipeline Configuration
+# ===============================
+# 企业级数据处理系统全局配置
+# 修改后自动热加载（无需重启），所有变更记录在审计日志
+
+system:
+  name: VF_DATA_PIPELINE
+  version: 1.0.0
+  max_batch_size: 50000
+  max_workers: 4
+  temp_dir: .vf_data_temp
+  audit_dir: .vf_data_audit
+  log_level: INFO
+  supported_formats: [json, csv, xml, jsonl, parquet]
+
+resources:
+  cpu_limit_pct: 80.0
+  mem_limit_pct: 70.0
+  disk_min_free_gb: 5.0
+  gpu_enabled: false
+  batch_timeout_s: 3600
+
+dedup:
+  enabled: true
+  methods: [exact, simhash, fuzzy]
+  simhash_fp_len: 64
+  simhash_ngram: 3
+  simhash_threshold: 3
+  fuzzy_threshold: 0.85
+  semantic_enabled: false
+  semantic_threshold: 0.92
+  conflict_resolution: keep_first
+  fields_weight:
+    id: 2.0
+    name: 1.5
+    title: 1.5
+    content: 0.5
+
+cleanse:
+  enabled: true
+  normalize_dates: true
+  normalize_numbers: true
+  normalize_text: true
+  outlier_method: iqr
+  outlier_threshold: 3.0
+  missing_strategy: mode
+  filter_patterns: []
+  filter_keywords: []
+
+inspect:
+  enabled: true
+  completeness_check: true
+  accuracy_check: true
+  consistency_check: true
+  compliance_check: true
+  required_fields: []
+  business_rules: []
+  compliance_rules: []
+  report_format: json
+
+distill:
+  enabled: true
+  entity_extraction: true
+  topic_modeling: true
+  summarization: true
+  skill_extraction: false
+  target_reduction_ratio: 0.5
+  min_core_value_retention: 0.90
+  llm_enabled: false
+  llm_model: ""
+
+automation:
+  webhook_host: "0.0.0.0"
+  webhook_port: 9845
+  watch_paths: [".vf_data_temp", "kb_harness"]
+  watch_patterns: ["*.json", "*.csv", "*.ready", "*.done", "*.trigger"]
+  event_workflow_map:
+    full_pipeline:
+      - "data.arrived"
+      - "file.created.json"
+    dedup_only:
+      - "dedup.requested"
+    cleanse_only:
+      - "cleanse.requested"
+
+workflows:
+  full_pipeline:
+    description: "Complete data processing pipeline: dedup → cleanse → inspect → distill"
+    steps:
+      - step_id: dedup
+        module: dedup
+        depends_on: []
+        timeout_s: 600
+        retry_on_failure: true
+      - step_id: cleanse
+        module: cleanse
+        depends_on: [dedup]
+        timeout_s: 600
+        retry_on_failure: true
+      - step_id: inspect
+        module: inspect
+        depends_on: [cleanse]
+        timeout_s: 300
+        retry_on_failure: false
+      - step_id: distill
+        module: distill
+        depends_on: [cleanse]
+        timeout_s: 600
+        retry_on_failure: true
+
+  quick_validate:
+    description: "Fast validation: dedup + inspect only"
+    steps:
+      - step_id: dedup
+        module: dedup
+        depends_on: []
+        timeout_s: 300
+        retry_on_failure: false
+      - step_id: inspect
+        module: inspect
+        depends_on: [dedup]
+        timeout_s: 300
+        retry_on_failure: false
+
+scheduler:
+  time_triggers: []
+  event_triggers:
+    - event: data.arrived
+      workflow: full_pipeline
+    - event: file.created.json
+      workflow: full_pipeline
+    - event: file.created.csv
+      workflow: full_pipeline
+  retry_max: 3
+  retry_delay_s: 60
+  timeout_s: 3600
+
+notifications:
+  enabled: false
+  webhook_url: ""
+  email_to: ""
+  alert_on_error: true
+  alert_on_completion: false
+
+adapters:
+  knowledge_base:
+    type: sqlite
+    path: .vf_memory
+    table: kb_entries
+    batch_size: 1000
+  skill_platform:
+    type: json
+    path: kb_harness
+    pattern: "knowledge_*.json"
+  mcp_system:
+    type: directory
+    path: kb_harness/harness
+    recursive: true
+    extensions: [.yaml, .json, .py]

@@ -58,6 +58,9 @@ from mcp.types import (
     GetPromptResult,
 )
 
+CLIENT_TEMPLATES_DIR = PROJECT_ROOT / "client_templates"
+KB_HARNESS_DIR = PROJECT_ROOT / "kb_harness"
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("vf-mcp-server")
 
@@ -221,16 +224,24 @@ class VFToolbox:
 
     def run_knowledge_filter(self, entries: List[Dict]) -> Dict:
         from vf_knowledge_filter import classify_entry
-        results = {"GENERALIZABLE": 0, "PROJECT_SPECIFIC": 0, "NOISE": 0, "details": []}
+        labels = {"GENERALIZABLE": 0, "PROJECT_SPECIFIC": 0, "NOISE": 0}
+        details = []
         for e in entries:
-            category = classify_entry(e)
-            results[category] = results.get(category, 0) + 1  # type: ignore[reportArgumentType]
-            results["details"].append({
+            result = classify_entry(e)
+            label = result.label if hasattr(result, 'label') else str(result)
+            labels[label] = labels.get(label, 0) + 1
+            details.append({
                 "id": e.get("id", e.get("title", "")),
-                "category": category,
-                "score": e.get("_score", 0),
+                "category": label,
+                "confidence": getattr(result, 'confidence', 0),
+                "reasons": getattr(result, 'reasons', []),
             })
-        return results
+        return {
+            "GENERALIZABLE": labels.get("GENERALIZABLE", 0),
+            "PROJECT_SPECIFIC": labels.get("PROJECT_SPECIFIC", 0),
+            "NOISE": labels.get("NOISE", 0),
+            "details": details,
+        }
 
     def query_knowledge(self, pattern: str = "") -> List[Dict]:
         kb_dir = PROJECT_ROOT / "kb_harness"
@@ -266,6 +277,139 @@ class VFToolbox:
             "modules_available": self._available,
             "project_root": str(PROJECT_ROOT),
             "python_version": sys.version,
+            "templates_count": len(list(CLIENT_TEMPLATES_DIR.glob("*.html"))) if CLIENT_TEMPLATES_DIR.exists() else 0,
+            "kb_entries_count": self._count_kb_entries(),
+        }
+
+    def _count_kb_entries(self) -> int:
+        count = 0
+        if KB_HARNESS_DIR.exists():
+            for fp in KB_HARNESS_DIR.glob("knowledge_*.json"):
+                try:
+                    data = json.loads(fp.read_text(encoding="utf-8"))
+                    if isinstance(data, list):
+                        count += len(data)
+                except Exception:
+                    pass
+        return count
+
+    def query_delivery_sop(self, phase: str = "") -> Dict:
+        sop_file = KB_HARNESS_DIR / "knowledge_ai_delivery_executable_sop.json"
+        if not sop_file.exists():
+            return {"error": "SOP knowledge not found", "file": str(sop_file)}
+
+        data = json.loads(sop_file.read_text(encoding="utf-8"))
+        if not data:
+            return {"error": "SOP is empty"}
+
+        sop = data[0]
+        if phase:
+            phase_key = f"phase_{phase}"
+            for key, val in sop.items():
+                if key.startswith(phase_key) or phase.lower() in key.lower():
+                    return {
+                        "sop_title": sop.get("topic", ""),
+                        "phase": key,
+                        "content": val,
+                    }
+            return {"error": f"Phase '{phase}' not found", "available_phases": [k for k in sop if k.startswith("phase_")]}
+
+        return sop
+
+    def audit_delivery(self, project_dir: str) -> Dict:
+        project = Path(project_dir)
+        if not project.exists():
+            return {"error": f"Project not found: {project_dir}"}
+
+        sop_file = KB_HARNESS_DIR / "knowledge_ai_delivery_executable_sop.json"
+        if not sop_file.exists():
+            return {"error": "SOP knowledge base not found"}
+
+        data = json.loads(sop_file.read_text(encoding="utf-8"))
+        sop = data[0]
+
+        phase_21 = sop.get("phase_6_shipping", {}).get("step_21_package", {}).get("deliverables_checklist", [])
+        found = []
+        missing = []
+
+        file_map = {
+            "api_server.py": ["api_server.py", "main.py", "app.py"],
+            "kb_engine.py": ["kb_engine.py", "knowledge_engine.py", "kg_engine.py"],
+            "business_rules.py": ["business_rules.py", "agri_core.py", "rules.py", "core.py"],
+            "intent_router.py": ["intent_router.py", "router.py", "intent.py"],
+            "auth.py": ["auth.py", "authentication.py"],
+            "wechat_bot.py": ["wechat_bot.py", "wecom_bot.py"],
+            "chat_ui.html": ["chat_ui.html", "index.html"],
+            "kb_upload.html": ["kb_upload.html", "upload.html"],
+            "admin.html": ["admin.html", "dashboard.html"],
+            "deploy.ps1": ["deploy.ps1", "start.ps1", "run.ps1"],
+            "deploy.sh": ["deploy.sh", "start.sh", "run.sh"],
+            "docker-compose.yml": ["docker-compose.yml", "docker-compose.yaml"],
+            ".env.example": [".env.example", ".env.template", "env.example"],
+            "requirements.txt": ["requirements.txt"],
+            "README_客户版.md": ["README_客户版.md", "README.md", "readme.md"],
+            "test_e2e.py": ["test_e2e.py", "test.py", "tests.py"],
+        }
+
+        project_files = {f.name.lower(): f.name for f in project.rglob("*") if f.is_file()}
+
+        for item in file_map:
+            item_name = item.replace("☐ ", "")
+            candidates = file_map[item]
+            matched = False
+            for cand in candidates:
+                if cand.lower() in project_files:
+                    found.append({"item": item_name, "found": project_files[cand.lower()]})
+                    matched = True
+                    break
+            if not matched:
+                missing.append({"item": item_name})
+
+        total_checks = len(file_map)
+        completion = len(found) / total_checks * 100 if total_checks > 0 else 0
+
+        return {
+            "project": str(project),
+            "completion_pct": round(completion, 1),
+            "total_checks": total_checks,
+            "found_count": len(found),
+            "missing_count": len(missing),
+            "verdict": "READY" if completion >= 90 else "INCOMPLETE" if completion >= 40 else "CRITICAL",
+            "missing": missing,
+            "found": found if len(found) < 10 else found[:10],
+        }
+
+    def list_client_templates(self) -> List[Dict]:
+        templates = []
+        if CLIENT_TEMPLATES_DIR.exists():
+            for fp in sorted(CLIENT_TEMPLATES_DIR.glob("*")):
+                if fp.is_file():
+                    templates.append({
+                        "name": fp.name,
+                        "size": fp.stat().st_size,
+                        "description": self._template_description(fp.name, fp),
+                    })
+        return templates
+
+    def _template_description(self, name: str, fp: Path) -> str:
+        descriptions = {
+            "chat_ui.html": "客户聊天界面 — 对话窗口、多轮对话、流式输出、品牌可定制",
+            "kb_upload.html": "知识库上传管理 — 拖拽上传、自动分段、向量检索、质量审计",
+        }
+        return descriptions.get(name, f"客户端模板文件 ({fp.stat().st_size} bytes)")
+
+    def get_client_template(self, name: str) -> Dict:
+        fp = CLIENT_TEMPLATES_DIR / name
+        if not fp.exists():
+            available = [f.name for f in CLIENT_TEMPLATES_DIR.glob("*")] if CLIENT_TEMPLATES_DIR.exists() else []
+            return {"error": f"Template '{name}' not found", "available": available}
+
+        content = fp.read_text(encoding="utf-8")
+        return {
+            "name": fp.name,
+            "size": len(content),
+            "lines": content.count('\n'),
+            "content": content,
         }
 
     def run_evaluation(self, project_dir: str) -> Dict:
@@ -635,6 +779,59 @@ async def main():
             },
         ))
 
+        tools.append(Tool(
+            name="vf_delivery_sop",
+            description="AI项目交付标准操作流程(SOP)：查询6阶段22步完整交付规范。可按阶段筛选，如输入phase='1'获取MVP阶段步骤。任何AI模型开发客户项目时必须遵循此SOP。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "phase": {
+                        "type": "string",
+                        "description": "可选阶段号(1-6)，留空返回完整SOP",
+                    }
+                },
+            },
+        ))
+
+        tools.append(Tool(
+            name="vf_delivery_audit",
+            description="项目交付完整性审计：对照22步SOP检查目标项目缺失了哪些交付物，返回完成度百分比、缺失清单、判定(READY/INCOMPLETE/CRITICAL)。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "project_dir": {
+                        "type": "string",
+                        "description": "待审计项目的绝对路径",
+                    }
+                },
+                "required": ["project_dir"],
+            },
+        ))
+
+        tools.append(Tool(
+            name="vf_template_list",
+            description="列出所有可用的客户端模板文件(聊天界面/知识库上传/管理后台等)，用于分发给客户项目。",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+            },
+        ))
+
+        tools.append(Tool(
+            name="vf_template_get",
+            description="获取指定客户端模板的完整源代码。拿到后修改品牌名/API地址即可用于客户项目。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "模板文件名，如 chat_ui.html 或 kb_upload.html",
+                    }
+                },
+                "required": ["name"],
+            },
+        ))
+
         return tools
 
     @server.call_tool()
@@ -666,6 +863,14 @@ async def main():
                 result = toolbox.get_status()
             elif name == "vf_evaluate_score":
                 result = toolbox.run_evaluation(arguments.get("project_dir", ""))
+            elif name == "vf_delivery_sop":
+                result = toolbox.query_delivery_sop(arguments.get("phase", ""))
+            elif name == "vf_delivery_audit":
+                result = toolbox.audit_delivery(arguments.get("project_dir", ""))
+            elif name == "vf_template_list":
+                result = toolbox.list_client_templates()
+            elif name == "vf_template_get":
+                result = toolbox.get_client_template(arguments.get("name", ""))
             else:
                 return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -699,6 +904,15 @@ async def main():
                 description="代码质量检查提示词：引导AI使用auto_fix + precommit_gate建立质量闭环",
                 arguments=[
                     PromptArgument(name="file_count", description="待检查的文件数量", required=False),
+                ],
+            ),
+            Prompt(
+                name="vf_ai_project_delivery",
+                description="AI项目全栈交付提示词：引导AI按照6阶段22步SOP完整交付客户项目(前端+后端+知识库+部署+集成+监控)。任何AI模型在开发客户AI项目时，必须先调用此prompt获取完整流程，然后逐阶段执行。",
+                arguments=[
+                    PromptArgument(name="project_name", description="项目名称", required=True),
+                    PromptArgument(name="domain", description="业务领域，如：农产品供应链、医疗问诊、法律咨询", required=True),
+                    PromptArgument(name="client_language", description="客户使用的语言，默认zh(中文)", required=False),
                 ],
             ),
         ]
@@ -747,6 +961,81 @@ For each stage, report: input count, output count, key metrics, and any issues f
 4. Loop until all gates pass
 
 Current scope: {file_count} files"""
+                        ),
+                    )
+                ],
+            )
+
+        if name == "vf_ai_project_delivery":
+            project_name = arguments.get("project_name", "未命名项目") if arguments else "未命名项目"
+            domain = arguments.get("domain", "通用") if arguments else "通用"
+            lang = arguments.get("client_language", "zh") if arguments else "zh"
+            return GetPromptResult(
+                description=f"AI项目全栈交付: {project_name}",
+                messages=[
+                    PromptMessage(
+                        role="user",
+                        content=TextContent(
+                            type="text",
+                            text=f"""你正在开发客户项目「{project_name}」，业务领域：{domain}。你必须按照VORTEX_FLAME的6阶段22步SOP完整交付，不可跳过任何阶段。所有输出必须使用中文。
+
+## 第一步：获取完整流程
+
+先调用 `vf_delivery_sop` 获取完整SOP，然后逐阶段执行。
+
+## 第二步：创建项目目录
+
+为「{project_name}」创建项目目录，所有文件放进去。
+
+## 第三步：按阶段执行
+
+### 阶段1: MVP（最小可用产品）
+1. 调用 `vf_delivery_sop` phase='1' 获取阶段1的详细步骤
+2. 调用 `vf_template_get` name='chat_ui.html' 获取聊天界面模板
+3. 修改模板中的品牌名、API地址、系统提示词
+4. 创建 api_server.py（FastAPI, CORS, 流式SSE, /api/chat + /api/health + /api/config）
+5. 创建 deploy.ps1 和 deploy.sh 部署脚本
+6. 创建 requirements.txt
+
+### 阶段2: 知识引擎
+1. 调用 `vf_delivery_sop` phase='2' 
+2. 调用 `vf_template_get` name='kb_upload.html' 获取知识库上传模板
+3. 创建 kb_engine.py（文档解析+分段+向量化+检索）
+
+### 阶段3: 业务逻辑
+1. 调用 `vf_delivery_sop` phase='3'
+2. 创建 intent_router.py（意图分类）
+3. 创建 business_rules.py（业务规则引擎）
+4. 实现对话记忆管理
+
+### 阶段4: 多渠道集成
+1. 调用 `vf_delivery_sop` phase='4'
+2. 创建 wechat_bot.py（企业微信）
+
+### 阶段5: 管理后台
+1. 调用 `vf_delivery_sop` phase='5'
+2. 创建 admin.html 管理面板
+3. 创建 auth.py 用户认证
+
+### 阶段6: 交付
+1. 调用 `vf_delivery_sop` phase='6'
+2. 创建 docker-compose.yml
+3. 创建 .env.example
+4. 创建 README_客户版.md（纯中文、非技术语言）
+5. 创建 test_e2e.py
+6. 最后调用 `vf_delivery_audit` project_dir='{project_name}' 审计完整性
+7. 如果 audit 显示 verdict 不是 READY，补齐缺失项
+
+## 核心约束
+
+- 所有输出必须是中文（代码注释、README、界面文字）
+- 每完成一个阶段，调用 `vf_delivery_audit` 检查进度
+- 禁止只交付后端API就停止
+- 禁止跳过前端UI
+- 禁止跳过部署脚本
+- 禁止使用 gradio/streamlit 作为"产品界面"——那是开发者工具，不是客户产品
+
+开始从阶段1执行。"""
                         ),
                     )
                 ],

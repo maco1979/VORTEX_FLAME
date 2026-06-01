@@ -450,10 +450,17 @@ class InspectEngine(BaseProcessor):
         wb.save(str(output_path))
 
     def report(self) -> Dict[str, Any]:
+        serialized_issues = []
+        for i in self._report.issues:
+            d = asdict(i)
+            if hasattr(i, 'record_index'):
+                d["record_index"] = i.record_index
+            serialized_issues.append(d)
         return {
             "module": self.module_name,
             "overall_score": round(self._report.overall_score, 4),
-            "issues": len(self._report.issues),
+            "issues_count": len(self._report.issues),
+            "issues": serialized_issues,
             "dimensions": {
                 "completeness": round(self._report.completeness_score, 4),
                 "accuracy": round(self._report.accuracy_score, 4),
@@ -461,5 +468,6 @@ class InspectEngine(BaseProcessor):
                 "compliance": round(self._report.compliance_score, 4),
             },
             "stats": asdict(self.stats),
+            "summary": self._report.summary,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }

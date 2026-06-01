@@ -66,8 +66,8 @@ check_data = [
 inspector.process(check_data)
 report = inspector.report()
 print(f"  Overall score: {report['overall_score']:.2%}")
-print(f"  Issues: {report['issues']}")
-check("Issues found", report["issues"] >= 1)
+print(f"  Issues: {report['issues_count']}")
+check("Issues found", report["issues_count"] >= 1)
 
 print("\n=== TEST 5: Distill ===")
 docs = [

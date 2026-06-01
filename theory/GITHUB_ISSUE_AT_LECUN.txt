@@ -1,0 +1,33 @@
+UPP Hypothesis: A Simple Corollary of C-JEPA That Might Matter
+
+---
+
+@ylecun — building directly on your C-JEPA paper (arXiv:2602.11389). We're running a pure-audio C-JEPA with Object-Level Temporal Masking and Slot Attention, and we stumbled on a corollary that seems straightforward but we haven't seen stated explicitly anywhere.
+
+**The Unimodal Physical Prior (UPP) Hypothesis:**
+
+AlignmentQuality(M_A, M_V) ≤ min(PhysicalUnderstanding(M_A), PhysicalUnderstanding(M_V))
+
+In plain English: cross-modal alignment's ceiling is set entirely by the *weaker* modality's independent physical understanding. You can't transfer "this sound means the object is approaching" from vision to audio via contrastive loss. The audio encoder has to figure that out on its own first. Alignment is confirmation, not instruction.
+
+**Why this follows from C-JEPA:**
+
+Your Object-Level Temporal Masking forces the predictor to infer a masked object's state from *other* objects. In our audio pipeline, we mask entire slot histories and the Transformer has to recover them from observable slots. This naturally forces physical reasoning: "Slot 3 got quieter and its spectral centroid shifted down → Slot 3 is probably receding → Slot 3's future should continue that trajectory." No reconstruction loss needed. The architecture itself induces the physical modeling.
+
+**Biological evidence:**
+
+Congenitally blind individuals build complete spatial world models purely through audition — distance, motion, occlusion, causality. Never seen a room, can still describe its dimensions. Vision-first architectures implicitly make vision a prerequisite. Audition-first architectures don't.
+
+**What we're doing:**
+
+- CAJEPA: 5 Object Slots × 128-dim, Per-Slot Differentiable Projection, Full-History Object Masking
+- 51-class audio classification (ESC-50 + music anchor)
+- JEPA temporal prediction + supervised contrastive loss jointly optimized
+- Single GPU, <1 hour training, 110× throughput via Mel precomputation cache
+- Full writeup: https://github.com/maco1979/VORTEX_FLAME/blob/main/theory/AUDITORY_PREDICTION_PRIMACY_EN.md
+
+**Question for you:**
+
+Is the UPP hypothesis trivial (just a restatement of "JEPA works because prediction = understanding"), or does it say something additional about the *sequential ordering* of training objectives? We think the latter — the order matters. Unimodal physical pretraining → cross-modal alignment, not the reverse. Would love your take.
+
+*(One-person research project; not an academic lab. Just trying to understand C-JEPA at a deeper level.)*

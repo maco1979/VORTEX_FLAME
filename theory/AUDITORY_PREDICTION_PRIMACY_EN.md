@@ -118,6 +118,12 @@ For auditory intelligence specifically: the ear must first learn that volume ris
 
 A compelling empirical test of this principle comes from human audition itself: **congenitally blind individuals build full physical world models—distance, spatial layout, motion, causality—purely through hearing, independent of vision.** They navigate rooms, estimate crowd sizes, and operate computers via auditory interfaces. Analogously, unimodal audio encoders can learn complete physical regularities without visual supervision. This carries a direct engineering consequence: *audition-first architectures are inherently accessible.* Vision-first architectures, by contrast, implicitly require visual input as a prerequisite to understanding—a barrier for visually impaired users. In our framework, cross-modal alignment is neither necessary nor sufficient for sensory intelligence. It is confirmation, not instruction.
 
+This principle generalizes beyond sensory modalities to cognitive modalities. **Humans without programming knowledge are structurally analogous to congenitally blind individuals:** we lack access to a critical modality—code syntax, low-level tensor operations—yet build complete cognitive world models through alternative accessible modalities: natural language, intuition, causal reasoning. We understand what we want to build, why it matters, and how it should behave, even if we cannot write the implementation. The UPP ceiling extends cleanly:
+
+$$\text{AI Utility} \leq \min\big(\text{Human Semantic Understanding}, \text{AI Implementation Capability}\big)$$
+
+Cross-modal alignment allows us to delegate low-level implementation to AI, just as blind users delegate visual perception to auditory cues. We do not need to learn code; AI does not need to learn natural language—both sides need only align on shared semantics after achieving independent competence. **All intelligence builds world models through whichever modality it has access to. Alignment is the bridge, not the foundation.**
+
 **The ear is not a microphone. It is a prediction engine wearing a filterbank.**
 
 ---

@@ -85,3 +85,4 @@ __pycache__/
 *.swo
 .DS_Store
 Thumbs.db
+.vf_data_audit/

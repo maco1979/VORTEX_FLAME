@@ -102,12 +102,12 @@ def compare_losses():
 
     cvr_out = causal_vicreg(pred_g, target_g)
     cvr_out['total'].backward()
-    cvr_grad_norm = pred_g.grad.norm().item()
+    cvr_grad_norm = pred_g.grad.norm().item()  # type: ignore[reportOptionalMemberAccess]
     pred_g.grad = None
 
     sigreg_out = sigreg(pred_g)
     sigreg_out['total'].backward()
-    sr_grad_norm = pred_g.grad.norm().item()
+    sr_grad_norm = pred_g.grad.norm().item()  # type: ignore[reportAttributeAccessIssue]
 
     print(f"  CausalVICReg grad norm: {cvr_grad_norm:.6f}")
     print(f"  SIGReg grad norm:       {sr_grad_norm:.6f}")
@@ -137,7 +137,7 @@ def compare_losses():
             else:
                 out = loss_fn(param, target_p)
             out['total'].backward()
-            grad_norms.append(param.grad.norm().item())
+            grad_norms.append(param.grad.norm().item())  # type: ignore[reportOptionalMemberAccess]
             opt.step()
             losses.append(out['total'].item())
 

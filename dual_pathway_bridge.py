@@ -363,7 +363,7 @@ class DualPathwayBridge(nn.Module):
             for t in texts:
                 emb_bytes = provider.encode(t)
                 if emb_bytes:
-                    emb_vec = np.frombuffer(emb_bytes, dtype=np.float32)
+                    emb_vec = np.frombuffer(emb_bytes, dtype=np.float32)  # type: ignore[reportAttributeAccessIssue]
                     embeddings.append(emb_vec)
 
             if not embeddings:

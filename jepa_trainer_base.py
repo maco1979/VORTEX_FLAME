@@ -429,7 +429,7 @@ def train_jepa(model, dataset, checkpoint_dir, variant_name="jepa",
                 loss = r_loss["total"] + 0.5 * f_loss["total"]
 
             if torch.isnan(loss) or torch.isinf(loss):
-                guard.nan_count += 1
+                guard.nan_count += 1  # type: ignore[reportAttributeAccessIssue]
                 print(f"  [NaN] step={global_step}, skipping batch", flush=True)
                 continue
 

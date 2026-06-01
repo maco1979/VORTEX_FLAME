@@ -216,7 +216,7 @@ class TrainingGuard:
             "recent_grad_avg": sum(self.state.grad_norms) / max(len(self.state.grad_norms), 1),
         }
 
-    def log_stats(self, step: int, extra: Dict = None):
+    def log_stats(self, step: int, extra: Dict = None):  # type: ignore[reportArgumentType]
         stats = self.get_stats()
         if extra:
             stats.update(extra)

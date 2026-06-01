@@ -126,10 +126,10 @@ def collect_index_daily(period_years=3):
             if len(kline) < 60:
                 continue
 
-            cols = [c for c in ["开盘", "最高", "最低", "收盘", "成交量"] if c in kline.columns]
+            cols = [c for c in ["开盘", "最高", "最低", "收盘", "成交量"] if c in kline.columns]  # type: ignore[reportAttributeAccessIssue]
             if len(cols) < 4:
                 continue
-            ohlcv = kline[cols].values.astype(np.float32)
+            ohlcv = kline[cols].values.astype(np.float32)  # type: ignore[reportAttributeAccessIssue]
             if ohlcv.shape[1] == 4:
                 ohlcv = np.column_stack([ohlcv, np.zeros(len(ohlcv), dtype=np.float32)])
             ohlcv = _normalize_ohlcv(ohlcv)

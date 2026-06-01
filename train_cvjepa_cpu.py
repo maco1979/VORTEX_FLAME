@@ -71,7 +71,7 @@ class SyntheticVisualDataset:
     def __getitem__(self, idx):
         if self._data is None:
             self._generate()
-        full_seq = self._data[idx]
+        full_seq = self._data[idx]  # type: ignore[reportOptionalSubscript]
         return full_seq[:HISTORY_LEN], full_seq[HISTORY_LEN:HISTORY_LEN + FUTURE_LEN]
 
 
@@ -182,7 +182,7 @@ def main():
     print()
 
     dataset = SyntheticVisualDataset(num_sequences=args.sequences, input_dim=args.input_dim)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch, shuffle=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch, shuffle=True)  # type: ignore[reportArgumentType]
 
     checkpoint_dir = Path(args.checkpoint_dir)
     total_steps = args.epochs * len(dataloader)

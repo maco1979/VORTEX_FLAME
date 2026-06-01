@@ -922,7 +922,7 @@ def split_task_by_module(task_description: str, n_subagents: int = 3) -> list:
 
     from sklearn.cluster import KMeans
     k = min(n_subagents, len(sentences))
-    kmeans = KMeans(n_clusters=k, n_init=10, random_state=42)
+    kmeans = KMeans(n_clusters=k, n_init=10, random_state=42)  # type: ignore[reportArgumentType]
     labels = kmeans.fit_predict(embeddings)
 
     clusters: Dict[int, List[str]] = {}

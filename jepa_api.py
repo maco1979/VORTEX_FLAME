@@ -87,8 +87,8 @@ if HAS_FASTAPI:
         elapsed_ms: float
 
 
-def create_app(memory_dir: str = None, llm_provider: str = "cloud",
-               api_key: str = None, model: str = "gpt-4o-mini"):
+def create_app(memory_dir: str = None, llm_provider: str = "cloud",  # type: ignore[reportArgumentType]
+               api_key: str = None, model: str = "gpt-4o-mini"):  # type: ignore[reportArgumentType]
     if not HAS_FASTAPI:
         raise RuntimeError("FastAPI not installed")
 

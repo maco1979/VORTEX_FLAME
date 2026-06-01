@@ -462,7 +462,7 @@ class MCPSandboxServer:
         self._result_cache: Dict[str, Any] = {}
         _init_registry()
 
-    def list_tools(self, soul: str = None, category: str = None) -> List[dict]:
+    def list_tools(self, soul: str = None, category: str = None) -> List[dict]:  # type: ignore[reportArgumentType]
         tools = list(MCP_TOOL_REGISTRY.values())
         if soul:
             tools = [t for t in tools if soul in t.soul_mapping]
@@ -564,7 +564,7 @@ class MCPSandboxServer:
             expr = arguments.get("expression", "")
             if op == "symbolic" or op in ("simplify", "diff", "integrate", "solve", "expand"):
                 return asdict(adapter.symbolic(expr))
-            return asdict(adapter.evaluate(expr, arguments.get("variables")))
+            return asdict(adapter.evaluate(expr, arguments.get("variables")))  # type: ignore[reportArgumentType]
 
         elif tool_id == "science_plot_mcp":
             from science_adapter import get_adapter as get_science

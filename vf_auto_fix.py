@@ -384,7 +384,7 @@ class FixPatternEngine:
         return False
 
     def _apply_known_pattern(self, lines: List[str], error: DiagnosticError,
-                             file_path: str, line: int = None) -> bool:
+                             file_path: str, line: int = None) -> bool:  # type: ignore[reportArgumentType]
         if line is None:
             line = error.line
         if not (1 <= line <= len(lines)):

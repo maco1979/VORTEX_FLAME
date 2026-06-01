@@ -509,14 +509,14 @@ def _stream_hf_dataset(hf_id: str, split: str = "train",
             logger.info(f"  Scanned {scanned}, matched {len(entries)}/{max_entries}")
             last_log = now
 
-        if filter_config and not _matches_filter(record, filter_config):
+        if filter_config and not _matches_filter(record, filter_config):  # type: ignore[reportArgumentType]
             continue
 
-        content = _extract_content(record, content_fields or ["text"])
+        content = _extract_content(record, content_fields or ["text"])  # type: ignore[reportArgumentType]
         if not content or len(content.strip()) < 50:
             continue
 
-        title = record.get("title", record.get("name", "")) or ""
+        title = record.get("title", record.get("name", "")) or ""  # type: ignore[reportAttributeAccessIssue]
         entry = {
             "topic": title[:200] if title else "untitled",
             "detail": content[:5000],

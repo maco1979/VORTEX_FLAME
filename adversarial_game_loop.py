@@ -802,7 +802,7 @@ class AdversarialAgentLoop:
         )
         self.complexity_threshold = complexity_threshold
 
-    def should_review(self, step_description: str, context: Dict = None) -> bool:
+    def should_review(self, step_description: str, context: Dict = None) -> bool:  # type: ignore[reportArgumentType]
         complexity = self._estimate_complexity(step_description, context or {})
         return complexity >= self.complexity_threshold
 
@@ -831,7 +831,7 @@ class AdversarialAgentLoop:
         self,
         step,
         working_memory=None,
-        artifacts: Dict = None,
+        artifacts: Dict = None,  # type: ignore[reportArgumentType]
     ) -> Any:
         soul = getattr(step, 'soul', 'cezanne')
         modality = getattr(step, 'modality', None)

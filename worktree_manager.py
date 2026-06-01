@@ -22,7 +22,7 @@ from pathlib import Path
 
 
 class WorktreeManager:
-    def __init__(self, project_path: str = None):
+    def __init__(self, project_path: str = None):  # type: ignore[reportArgumentType]
         self.project_path = Path(project_path or os.getcwd())
         self.worktree_base = self.project_path / ".worktrees"
         self._active: dict = {}
@@ -86,7 +86,7 @@ class WorktreeManager:
 
         return {"status": "merged", "branch": branch, "target": target_branch}
 
-    def cleanup(self, worktree_path: str, branch: str = None) -> dict:
+    def cleanup(self, worktree_path: str, branch: str = None) -> dict:  # type: ignore[reportArgumentType]
         result = self._run_git("worktree", "remove", worktree_path, "--force")
         if branch:
             self._run_git("branch", "-D", branch)

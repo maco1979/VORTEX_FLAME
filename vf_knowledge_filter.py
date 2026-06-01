@@ -53,6 +53,7 @@ GENERALIZABLE_DOMAINS = {
     "agriculture.logistics",
     "agriculture.fintech",
     "agriculture.marketplace",
+    "agriculture.enterprise",
 }
 
 PROJECT_SPECIFIC_DOMAINS = {
@@ -92,6 +93,15 @@ GENERALIZABLE_KEYWORDS = [
     "traceability", "quality assurance", "compliance",
     "dashboard", "analytics", "reporting",
     "chatbot", "dialog flow", "intent recognition",
+    "认证资质", "质检标准", "验收流程", "供应链管理",
+    "冷链物流", "溯源", "数字化", "物联网", "传感器",
+    "定价策略", "阶梯价", "促销", "渠道管理", "电商",
+    "售后", "退换货", "客诉", "客户关系", "合同管理",
+    "付款规则", "结算", "风控", "合规", "审计",
+    "仓储", "配送", "SOP", "FAQ", "客服", "营销",
+    "产品标准化", "分类体系", "品质参数", "检测报告",
+    "招商", "代理", "加盟", "分销", "采样", "抽样",
+    "审批流程", "预警", "自动化", "规则引擎", "知识库",
 ]
 
 NOISE_KEYWORDS = [
@@ -104,10 +114,11 @@ NOISE_KEYWORDS = [
 ]
 
 CLIENT_INDICATORS = [
-    "客户", "甲方", "需求方", "项目方",
-    "公司名称", "企业名称", "联系人",
-    "合同", "报价", "发票",
+    "甲方", "需求方",
+    "公司名称", "企业名称",
     "公司地址", "联系电话",
+    "联系邮箱", "身份证号",
+    "银行卡号", "统一社会信用代码",
 ]
 
 
@@ -128,6 +139,7 @@ def classify_entry(entry: Dict[str, Any]) -> ClassificationResult:
     topic = entry.get("topic", "")
     problem = entry.get("problem") or entry.get("summary") or ""
     solution = entry.get("solution") or entry.get("design_pattern") or entry.get("code_pattern_description") or ""
+    content = entry.get("content") or ""
     code_pattern = entry.get("code_pattern", "")
 
     if domain in NOISE_DOMAINS:
@@ -143,7 +155,7 @@ def classify_entry(entry: Dict[str, Any]) -> ClassificationResult:
         reasons.append(f"domain {domain} is generalizable")
 
     content_text = " ".join([
-        topic, problem, solution,
+        topic, problem, solution, content,
         str(code_pattern) if isinstance(code_pattern, str) else "",
     ]).lower()
 
@@ -168,19 +180,22 @@ def classify_entry(entry: Dict[str, Any]) -> ClassificationResult:
         gen_score += 0.2
         reasons.append("has clean code pattern")
 
-    if not problem or len(problem) < 10:
+    has_rich_problem = (problem and len(problem) >= 10) or (content and len(content) >= 50)
+    has_rich_solution = (solution and len(solution) >= 10) or (content and len(content) >= 50)
+
+    if not has_rich_problem:
         gen_score -= 0.15
         reasons.append("short or missing problem/summary")
     else:
         gen_score += 0.05
 
-    if not solution or len(solution) < 10:
+    if not has_rich_solution:
         gen_score -= 0.15
         reasons.append("short or missing solution/pattern")
     else:
         gen_score += 0.05
 
-    if len(topic) > 5 and len(problem) > 20 and len(solution) > 20:
+    if len(topic) > 5 and (len(problem) > 20 or len(content) > 100) and (len(solution) > 20 or len(content) > 100):
         gen_score += 0.15
         reasons.append("well-structured entry (topic + problem + solution)")
 

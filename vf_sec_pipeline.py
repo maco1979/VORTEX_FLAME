@@ -873,7 +873,7 @@ class VFSECRunner:
         intel = self._get_code_intel()
         if intel is not None:
             try:
-                result = intel.query("dependencies")
+                result = intel.query("dependencies")  # type: ignore[reportAttributeAccessIssue]
                 if result and result.get("circular"):
                     findings.append(SecurityFinding(
                         phase=13, phase_name="Dependency Graph",

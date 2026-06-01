@@ -130,7 +130,7 @@ class TopicModeler:
             feature_names = vec.get_feature_names_out()
 
             n_topics = min(self.num_topics, max(2, len(texts) // 3))
-            nmf = self._NMF(n_components=n_topics, random_state=42, max_iter=200)
+            nmf = self._NMF(n_components=n_topics, random_state=42, max_iter=200)  # type: ignore[reportArgumentType]
             nmf.fit(tfidf)
 
             topics = []

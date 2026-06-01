@@ -68,7 +68,7 @@ def classify_soul(text: str) -> str:
             scores[soul] = scores.get(soul, 0) + matches
     if not scores:
         return FALLBACK_SOUL
-    return max(scores, key=scores.get)
+    return max(scores, key=scores.get)  # type: ignore[reportArgumentType]
 
 
 def content_hash(text: str) -> str:

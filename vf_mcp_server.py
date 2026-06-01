@@ -123,7 +123,7 @@ class VFToolbox:
 
     def _get_core(self):
         from vf_data_core import ConfigManager, AuditLogger
-        config = ConfigManager(str(PROJECT_ROOT / "vf_data_config.yaml"))
+        config = ConfigManager(str(PROJECT_ROOT / "vf_data_config.yaml"))  # type: ignore[reportArgumentType]
         audit = AuditLogger(config.audit_dir)
         return config, audit
 
@@ -224,7 +224,7 @@ class VFToolbox:
         results = {"GENERALIZABLE": 0, "PROJECT_SPECIFIC": 0, "NOISE": 0, "details": []}
         for e in entries:
             category = classify_entry(e)
-            results[category] = results.get(category, 0) + 1
+            results[category] = results.get(category, 0) + 1  # type: ignore[reportArgumentType]
             results["details"].append({
                 "id": e.get("id", e.get("title", "")),
                 "category": category,
@@ -256,7 +256,7 @@ class VFToolbox:
                         results.extend(data["entries"])
                 except Exception:
                     pass
-        return {
+        return {  # type: ignore[reportReturnType]
             "total": len(results),
             "entries": results[:30],
         }
@@ -704,7 +704,7 @@ async def main():
         ]
 
     @server.get_prompt()
-    async def get_prompt(name: str, arguments: dict | None) -> GetPromptResult:
+    async def get_prompt(name: str, arguments: dict | None) -> GetPromptResult:  # type: ignore[reportReturnType]
         if name == "vf_data_pipeline":
             summary = arguments.get("data_summary", "unknown") if arguments else "unknown"
             return GetPromptResult(

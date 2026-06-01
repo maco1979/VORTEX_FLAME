@@ -1,4 +1,4 @@
-﻿﻿"""
+﻿﻿﻿﻿"""
 5-Layer JEPA World Model — Unified Interface Specification
 ===========================================================
 Based on Meta's I-JEPA (CVPR 2023) and V-JEPA (ICLR 2024).

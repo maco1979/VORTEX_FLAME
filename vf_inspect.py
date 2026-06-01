@@ -410,9 +410,9 @@ class InspectEngine(BaseProcessor):
         wb = openpyxl.Workbook()
 
         ws_summary = wb.active
-        ws_summary.title = "Summary"
+        ws_summary.title = "Summary"  # type: ignore[reportOptionalMemberAccess]
         headers = ["Metric", "Value"]
-        ws_summary.append(headers)
+        ws_summary.append(headers)  # type: ignore[reportOptionalMemberAccess]
         rows = [
             ("Total Records", self._report.total_records),
             ("Total Fields", self._report.total_fields),
@@ -424,7 +424,7 @@ class InspectEngine(BaseProcessor):
             ("Issues Found", self._report.issues_found),
         ]
         for row in rows:
-            ws_summary.append(row)
+            ws_summary.append(row)  # type: ignore[reportOptionalMemberAccess]
 
         ws_issues = wb.create_sheet("Issues")
         issue_headers = ["ID", "Dimension", "Check", "Severity", "Field", "Record", "Description"]

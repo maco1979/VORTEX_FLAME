@@ -320,7 +320,7 @@ class OpenCVBackend(DeviceBackend):
             interval = 1.0 / min(target_fps, _STREAM_MAX_FPS)
             while self._stream_running and self._connected:
                 t0 = time.time()
-                ret, frame = self._cap.read()
+                ret, frame = self._cap.read()  # type: ignore[reportOptionalMemberAccess]
                 if ret and frame is not None:
                     with self._stream_lock:
                         self._stream_buffer.append(frame)

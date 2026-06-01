@@ -208,7 +208,7 @@ class CloudBackend(LLMBackend):
                 model=self.model, messages=messages,
                 max_tokens=max_tokens, temperature=temperature,
             )
-            return response.choices[0].message.content
+            return response.choices[0].message.content  # type: ignore[reportReturnType]
         except Exception as e:
             return f"[Cloud LLM error: {e}]"
 

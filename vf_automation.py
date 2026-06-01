@@ -400,7 +400,7 @@ class WebhookHandler(http.server.BaseHTTPRequestHandler):
             return
 
         event_name = payload.get("event", self.path.lstrip("/"))
-        self.orchestrator.fire_event(event_name, payload)
+        self.orchestrator.fire_event(event_name, payload)  # type: ignore[reportOptionalMemberAccess]
 
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -413,9 +413,9 @@ class WebhookHandler(http.server.BaseHTTPRequestHandler):
 
         payload = {"event": parsed.path.lstrip("/")}
         for k, v in params.items():
-            payload[k] = v[0] if len(v) == 1 else v
+            payload[k] = v[0] if len(v) == 1 else v  # type: ignore[reportArgumentType]
 
-        self.orchestrator.fire_event(payload["event"], payload)
+        self.orchestrator.fire_event(payload["event"], payload)  # type: ignore[reportOptionalMemberAccess]
 
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -460,15 +460,15 @@ class CrossEnvMonitor:
             def on_created(self, event):
                 if event.is_directory:
                     return
-                fpath = Path(event.src_path)
-                if any(fpath.match(p) for p in patterns):
+                fpath = Path(event.src_path)  # type: ignore[reportArgumentType]
+                if any(fpath.match(p) for p in patterns):  # type: ignore[reportOptionalIterable]
                     self.monitor._handle_file_event("created", fpath)
 
             def on_modified(self, event):
                 if event.is_directory:
                     return
-                fpath = Path(event.src_path)
-                if any(fpath.match(p) for p in patterns):
+                fpath = Path(event.src_path)  # type: ignore[reportArgumentType]
+                if any(fpath.match(p) for p in patterns):  # type: ignore[reportOptionalIterable]
                     self.monitor._handle_file_event("modified", fpath)
 
         handler = VFEventHandler(self)

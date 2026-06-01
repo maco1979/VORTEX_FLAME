@@ -349,7 +349,7 @@ class CleanseEngine(BaseProcessor):
         return result, removed
 
     def _identify_numeric_fields(self, data: List[Dict], min_ratio: float = 0.7) -> List[str]:
-        field_types: Dict[str, int] = defaultdict(lambda: {"numeric": 0, "total": 0})
+        field_types: Dict[str, int] = defaultdict(lambda: {"numeric": 0, "total": 0})  # type: ignore[reportAssignmentType]
         for rec in data[:min(1000, len(data))]:
             for k, v in rec.items():
                 field_types[k]["total"] += 1

@@ -36,6 +36,7 @@ knowledge_base/
 industry_knowledge_graph/
 cezanne_retrain/
 客户提供需要改成通用知识库/
+client_data/
 
 # Training data & cache
 code_jepa_data/

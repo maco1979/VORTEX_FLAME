@@ -116,6 +116,8 @@ We have argued, formalized, and empirically instantiated the following principle
 
 For auditory intelligence specifically: the ear must first learn that volume rises when things approach, that pitch drops when sources recede, that reverberation thickens in enclosed spaces, and that multiple sources can be tracked independently. Only then does alignment with vision become semantic confirmation rather than shallow feature stitching.
 
+A compelling empirical test of this principle comes from human audition itself: **congenitally blind individuals build full physical world models—distance, spatial layout, motion, causality—purely through hearing, independent of vision.** They navigate rooms, estimate crowd sizes, and operate computers via auditory interfaces. Analogously, unimodal audio encoders can learn complete physical regularities without visual supervision. This carries a direct engineering consequence: *audition-first architectures are inherently accessible.* Vision-first architectures, by contrast, implicitly require visual input as a prerequisite to understanding—a barrier for visually impaired users. In our framework, cross-modal alignment is neither necessary nor sufficient for sensory intelligence. It is confirmation, not instruction.
+
 **The ear is not a microphone. It is a prediction engine wearing a filterbank.**
 
 ---

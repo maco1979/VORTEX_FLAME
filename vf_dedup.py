@@ -157,9 +157,20 @@ class RuleDedupEngine:
             return 1.0
         return total_score / total_weight
 
+    _CJK_CHAR = re.compile(r'[\u4e00-\u9fff\u3400-\u4dbf]')
+
+    def _tokenize(self, s: str) -> List[str]:
+        if self._CJK_CHAR.search(s):
+            try:
+                import jieba
+                return [t for t in jieba.cut(s) if len(t.strip()) >= 2]
+            except ImportError:
+                pass
+        return s.split()
+
     def _jaccard_similarity(self, s1: str, s2: str) -> float:
-        set1 = set(s1.split())
-        set2 = set(s2.split())
+        set1 = set(self._tokenize(s1))
+        set2 = set(self._tokenize(s2))
         if not set1 and not set2:
             return 1.0
         if not set1 or not set2:

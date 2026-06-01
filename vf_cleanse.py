@@ -111,6 +111,28 @@ class NumberNormalizer:
 
 
 class TextNormalizer:
+    @staticmethod
+    def _normalize_fullwidth(text: str) -> Tuple[str, bool]:
+        result = []
+        changed = False
+        for ch in text:
+            code = ord(ch)
+            if 0xFF01 <= code <= 0xFF5E:
+                result.append(chr(code - 0xFEE0))
+                changed = True
+            elif 0x3000 == code:
+                result.append(' ')
+                changed = True
+            elif code == 0x2018 or code == 0x2019:
+                result.append("'")
+                changed = True
+            elif code == 0x201C or code == 0x201D:
+                result.append('"')
+                changed = True
+            else:
+                result.append(ch)
+        return ''.join(result), changed
+
     @classmethod
     def normalize(cls, value: Any) -> Tuple[str, bool]:
         if value is None:
@@ -118,13 +140,14 @@ class TextNormalizer:
         if not isinstance(value, str):
             return str(value), False
         s = value.replace('\r\n', '\n').replace('\r', '\n')
+        s, fw_changed = cls._normalize_fullwidth(s)
         s = re.sub(r'[ \t]+', ' ', s)
+        s = re.sub(r'\u3000+', ' ', s)
         s = s.strip()
         s = re.sub(r'\n{3,}', '\n\n', s)
-        total_ws = sum(1 for c in value if c in ' \t')
-        if total_ws > 0 and s != value:
-            return s, True
-        return s, False
+        total_ws = sum(1 for c in value if c in ' \t\u3000')
+        changed = total_ws > 0 or fw_changed or (s != value.replace('\r\n', '\n').replace('\r', '\n'))
+        return s, changed
 
 
 class OutlierDetector:

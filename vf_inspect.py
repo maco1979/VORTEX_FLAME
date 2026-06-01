@@ -93,6 +93,8 @@ class PII_Detector:
     SENSITIVE_KEYWORDS = [
         "password", "secret", "token", "api_key", "apikey",
         "private_key", "secret_key", "access_key",
+        "密码", "口令", "私钥", "密钥", "令牌",
+        "身份证号", "银行卡号", "手机号",
     ]
 
     @classmethod

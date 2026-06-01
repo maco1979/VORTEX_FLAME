@@ -148,30 +148,56 @@ class TopicModeler:
 
     def _fallback_keyword_extraction(self, texts: List[str]) -> List[Dict[str, Any]]:
         combined = " ".join(texts)
-        words = re.findall(r'\b[a-zA-Z]{4,}\b', combined.lower())
+        latin_words = re.findall(r'\b[a-zA-Z]{4,}\b', combined.lower())
+        cjk_words = re.findall(r'[\u4e00-\u9fff]{2,}', combined)
+        all_words = latin_words + cjk_words
         stopwords = {"this", "that", "with", "from", "have", "been", "were", "they", "their"}
-        filtered = [w for w in words if w not in stopwords]
+        filtered = [w for w in all_words if w not in stopwords]
         word_freq = Counter(filtered).most_common(30)
         return [{"topic_id": 0, "top_words": [(w, float(c)) for w, c in word_freq], "label": "keywords"}]
 
 
 class TextSummarizer:
+    _CJK_CHAR = re.compile(r'[\u4e00-\u9fff\u3400-\u4dbf]')
+    _SENTENCE_SPLIT = re.compile(r'(?<=[。！？.!?])\s*')
+
     @classmethod
     def extractive(cls, text: str, target_ratio: float = 0.3) -> str:
         if not text or len(text) < 100:
             return text
 
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = [s.strip() for s in cls._SENTENCE_SPLIT.split(text) if s.strip()]
         if len(sentences) <= 3:
             return text
 
+        has_cjk = bool(cls._CJK_CHAR.search(text))
+
+        if has_cjk:
+            try:
+                import jieba
+            except ImportError:
+                pass
+            else:
+                words_per_sent = []
+                for s in sentences:
+                    tokens = list(jieba.cut(s))
+                    words_per_sent.append([t for t in tokens if len(t.strip()) >= 2])
+                return cls._score_and_select(text, words_per_sent, sentences, target_ratio)
+
         words = [set(re.findall(r'\b\w+\b', s.lower())) for s in sentences]
-        scores = [0.0] * len(sentences)
+        return cls._score_and_select(text, words, sentences, target_ratio)  # type: ignore[reportArgumentType]
+
+    @classmethod
+    def _score_and_select(cls, text: str, words: List[List[str]],
+                           sentences: List[str], target_ratio: float) -> str:
+        if len(sentences) <= 3:
+            return text
 
         word_freq = Counter()
         for ws in words:
             word_freq.update(ws)
 
+        scores = [0.0] * len(sentences)
         for i, ws in enumerate(words):
             for w in ws:
                 if w in word_freq:
@@ -194,13 +220,19 @@ class SkillExtractor:
         "data": ["spark", "hadoop", "kafka", "airflow", "dbt", "snowflake"],
         "ai_ml": ["transformer", "llm", "nerf", "diffusion", "reinforcement", "gan"],
         "soft": ["leadership", "communication", "agile", "scrum", "mentoring"],
+        "chinese_domain": ["供应链", "冷链", "质检", "溯源", "物联网", "数字化", "电商", "报价", "合同", "售后服务", "仓储", "物流", "支付", "金融"],
     }
 
     APTITUDE_PATTERNS = [
         (re.compile(r'(?:proficient|expert|skilled|experienced)\s+(?:in|with)\s+(\w[\w\s]{2,40})'), "proficiency"),
         (re.compile(r'(\d+)\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:experience\s+(?:in|with)\s+)?(\w[\w\s]{2,40})'), "experience"),
         (re.compile(r'(?:built|developed|created|designed|implemented)\s+(?:a|an|the)\s+(\w[\w\s]{3,50})'), "project"),
+        (re.compile(r'(?:精通|熟悉|擅长|掌握|了解)([\u4e00-\u9fff\w]{2,30})'), "proficiency_cn"),
+        (re.compile(r'(\d+)\+?\s*年(?:的)?(?:相关)?(?:工作)?经验(?:.*?)([\u4e00-\u9fff\w]{2,30})'), "experience_cn"),
+        (re.compile(r'(?:开发|搭建|设计|构建|实现)了?([\u4e00-\u9fff\w]{3,40})'), "project_cn"),
     ]
+
+    _CJK_CHAR = re.compile(r'[\u4e00-\u9fff\u3400-\u4dbf]')
 
     @classmethod
     def extract(cls, text: str) -> List[Dict[str, Any]]:
@@ -210,20 +242,33 @@ class SkillExtractor:
         seen = set()
         for category, keywords in cls.SKILL_CATEGORIES.items():
             for kw in keywords:
-                pattern = re.compile(r'\b' + re.escape(kw) + r'\b', re.IGNORECASE)
-                for m in pattern.finditer(text):
-                    if m.group() not in seen:
-                        seen.add(m.group())
-                        skills.append({
-                            "skill": m.group(),
-                            "category": category,
-                            "type": "technical",
-                        })
+                if cls._CJK_CHAR.search(kw):
+                    if kw in text:
+                        if kw not in seen:
+                            seen.add(kw)
+                            skills.append({
+                                "skill": kw,
+                                "category": category,
+                                "type": "domain" if category == "chinese_domain" else "technical",
+                            })
+                else:
+                    pattern = re.compile(r'\b' + re.escape(kw) + r'\b', re.IGNORECASE)
+                    for m in pattern.finditer(text):
+                        if m.group() not in seen:
+                            seen.add(m.group())
+                            skills.append({
+                                "skill": m.group(),
+                                "category": category,
+                                "type": "technical",
+                            })
 
         for pattern, skill_type in cls.APTITUDE_PATTERNS:
             for m in pattern.finditer(text):
-                val = m.group(1).strip() if skill_type == "proficiency" else \
-                      (f"{m.group(1)}y {m.group(2).strip()}" if skill_type == "experience" else m.group(1).strip())
+                if skill_type in ("proficiency", "experience", "project"):
+                    val = m.group(1).strip() if skill_type == "proficiency" else \
+                          (f"{m.group(1)}y {m.group(2).strip()}" if skill_type == "experience" else m.group(1).strip())
+                else:
+                    val = m.group(1).strip()
                 if val not in seen:
                     seen.add(val)
                     skills.append({

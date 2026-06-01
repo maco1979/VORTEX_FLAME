@@ -214,7 +214,7 @@ class SemanticMatcher:
             return []
 
         try:
-            vec = self._tfidf(max_features=1000, stop_words=None)
+            vec = self._tfidf(max_features=1000, stop_words=None)  # type: ignore[reportOptionalCall]
             tfidf_matrix = vec.fit_transform(texts)
             sim = self._cosine(tfidf_matrix)
             return sim.tolist()
@@ -382,12 +382,36 @@ class DedupEngine(BaseProcessor):
             if ra != rb:
                 parent[rb] = ra
 
-        for i in range(n):
-            for j in range(i + 1, n):
-                if parent[i] == parent[j]:
+        bucket_bits = 4
+        bucket_mask = (1 << bucket_bits) - 1
+        num_buckets = self._simhash.fp_len // bucket_bits
+        buckets: Dict[int, Dict[int, List[int]]] = {}
+        for chunk_idx in range(num_buckets):
+            chunk = {}
+            shift = chunk_idx * bucket_bits
+            for i, fp in enumerate(fingerprints):
+                key = (fp >> shift) & bucket_mask
+                chunk.setdefault(key, []).append(i)
+            buckets[chunk_idx] = chunk
+
+        compared: Set[Tuple[int, int]] = set()
+        for chunk_idx in range(num_buckets):
+            chunk = buckets[chunk_idx]
+            for bucket_indices in chunk.values():
+                if len(bucket_indices) < 2:
                     continue
-                if self._simhash.is_similar(fingerprints[i], fingerprints[j], self._simhash_threshold):
-                    union(i, j)
+                for a_idx in range(len(bucket_indices)):
+                    for b_idx in range(a_idx + 1, len(bucket_indices)):
+                        i = bucket_indices[a_idx]
+                        j = bucket_indices[b_idx]
+                        if parent[i] == parent[j]:
+                            continue
+                        pair = (min(i, j), max(i, j))
+                        if pair in compared:
+                            continue
+                        compared.add(pair)
+                        if self._simhash.is_similar(fingerprints[i], fingerprints[j], self._simhash_threshold):
+                            union(i, j)
 
         clusters: Dict[int, List[int]] = defaultdict(list)
         for i in range(n):
@@ -415,22 +439,38 @@ class DedupEngine(BaseProcessor):
             return []
 
         n = len(data)
+        threshold = self._rule_engine.fuzzy_threshold
         used = set()
         groups = []
 
+        snapshots = []
         for i in range(n):
-            if i in used:
+            s = json.dumps(data[i], sort_keys=True, ensure_ascii=False)
+            snapshots.append((len(s), s, i))
+        snapshots.sort(key=lambda x: x[0])
+
+        for idx_a in range(n):
+            len_a, s_a, orig_a = snapshots[idx_a]
+            if orig_a in used:
                 continue
-            group_members = [i]
-            for j in range(i + 1, n):
-                if j in used:
+            group_members = [orig_a]
+            min_allowed_len = int(len_a * threshold)
+            max_allowed_len = int(len_a / threshold)
+
+            for idx_b in range(idx_a + 1, n):
+                len_b, s_b, orig_b = snapshots[idx_b]
+                if orig_b in used:
                     continue
-                score = self._rule_engine.fuzzy_match(data[i], data[j])
-                if score >= self._rule_engine.fuzzy_threshold:
-                    group_members.append(j)
-                    used.add(j)
+                if len_b > max_allowed_len:
+                    break
+                if len_b < min_allowed_len:
+                    continue
+                score = self._rule_engine.fuzzy_match(data[orig_a], data[orig_b])
+                if score >= threshold:
+                    group_members.append(orig_b)
+                    used.add(orig_b)
             if len(group_members) >= 2:
-                used.add(i)
+                used.add(orig_a)
                 original_members = [original_indices[idx] for idx in group_members]
                 groups.append(DuplicateGroup(
                     group_id=str(uuid.uuid4())[:8],
@@ -521,8 +561,8 @@ class DedupEngine(BaseProcessor):
             })
 
         self._preview_cache = {
-            "total_groups": stats.duplicate_groups,
-            "total_duplicates": stats.duplicates_removed,
+            "total_groups": stats.duplicate_groups,  # type: ignore[reportAttributeAccessIssue]
+            "total_duplicates": stats.duplicates_removed,  # type: ignore[reportAttributeAccessIssue]
             "preview_groups": summary,
             "stats": asdict(stats),
         }

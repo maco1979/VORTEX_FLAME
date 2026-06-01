@@ -107,48 +107,62 @@ class GateResult:
         return "\n".join(lines)
 
 
-def get_changed_py_files() -> List[Path]:
+def get_changed_py_files(project_dir: Optional[Path] = None) -> List[Path]:
+    root = project_dir or PROJECT_ROOT
     try:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"],
-            capture_output=True, text=True, cwd=str(PROJECT_ROOT),
+            capture_output=True, text=True, cwd=str(root),
         )
         lines = result.stdout.strip().split("\n") if result.stdout.strip() else []
     except Exception:
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "--diff-filter=ACMR"],
-            capture_output=True, text=True, cwd=str(PROJECT_ROOT),
-        )
-        lines = result.stdout.strip().split("\n") if result.stdout.strip() else []
+        try:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "--diff-filter=ACMR"],
+                capture_output=True, text=True, cwd=str(root),
+            )
+            lines = result.stdout.strip().split("\n") if result.stdout.strip() else []
+        except Exception:
+            return []
 
-    return [PROJECT_ROOT / f for f in lines if f.endswith(".py") and (PROJECT_ROOT / f).exists()]
+    return [root / f for f in lines if f.endswith(".py") and (root / f).exists()]
 
 
-def get_all_tracked_py_files() -> List[Path]:
+def get_all_tracked_py_files(project_dir: Optional[Path] = None) -> List[Path]:
+    root = project_dir or PROJECT_ROOT
     try:
         result = subprocess.run(
             ["git", "ls-files", "*.py"],
-            capture_output=True, text=True, cwd=str(PROJECT_ROOT),
+            capture_output=True, text=True, cwd=str(root),
         )
         lines = result.stdout.strip().split("\n") if result.stdout.strip() else []
+        if lines:
+            return [root / f for f in lines if (root / f).exists()]
     except Exception:
-        return list(PROJECT_ROOT.rglob("*.py"))
+        pass
+    return [f for f in root.rglob("*.py") if not any(x in str(f) for x in ["__pycache__", ".git", ".vf_"])]
 
-    return [PROJECT_ROOT / f for f in lines if (PROJECT_ROOT / f).exists()]
 
-
-def gate_diagnostic(files: Optional[List[Path]] = None) -> GateResult:
+def gate_diagnostic(files: Optional[List[Path]] = None, project_dir: Optional[Path] = None) -> GateResult:
     gate = GateResult("DIAGNOSTIC")
+    root = project_dir or PROJECT_ROOT
 
-    targets = files or get_all_tracked_py_files()
+    targets = files or get_all_tracked_py_files(project_dir)
     if not targets:
         gate.add_warning("no .py files found to check")
         return gate
 
+    pyright_config = root / "pyrightconfig.json"
+    cmd = ["pyright", "--outputjson"]
+    if pyright_config.exists():
+        cmd.extend(["--project", str(pyright_config)])
+    elif PYRIGHT_CONFIG.exists():
+        cmd.extend(["--project", str(PYRIGHT_CONFIG)])
+    cmd.extend([str(f) for f in targets])
+
     try:
         result = subprocess.run(
-            ["pyright", "--outputjson", "--project", str(PYRIGHT_CONFIG)] + [str(f) for f in targets],
-            capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=120,
+            cmd, capture_output=True, text=True, cwd=str(root), timeout=120,
         )
     except FileNotFoundError:
         gate.add_warning("pyright not installed, skipping static analysis")
@@ -179,19 +193,20 @@ def gate_diagnostic(files: Optional[List[Path]] = None) -> GateResult:
     return gate
 
 
-def gate_sensitive(files: Optional[List[Path]] = None) -> GateResult:
+def gate_sensitive(files: Optional[List[Path]] = None, project_dir: Optional[Path] = None) -> GateResult:
     gate = GateResult("SENSITIVE")
+    root = project_dir or PROJECT_ROOT
 
     try:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only"],
-            capture_output=True, text=True, cwd=str(PROJECT_ROOT),
+            capture_output=True, text=True, cwd=str(root),
         )
         staged = set(result.stdout.strip().split("\n")) if result.stdout.strip() else set()
     except Exception:
         staged = set()
 
-    targets = files or get_all_tracked_py_files()
+    targets = files or get_all_tracked_py_files(project_dir)
 
     for fp in targets:
         try:
@@ -239,15 +254,18 @@ def gate_gitignore() -> GateResult:
 
 
 def run_all_gates(files: Optional[List[Path]] = None, warn_only: bool = False,
-                  auto_fix: bool = False) -> int:
+                  auto_fix: bool = False, project_dir: Optional[Path] = None) -> int:
+    root = project_dir or PROJECT_ROOT
     print("=" * 60)
     print("VF PRE-COMMIT GATE")
+    if project_dir:
+        print(f"Project: {project_dir}")
     print("=" * 60)
 
     results = [
-        gate_diagnostic(files),
-        gate_sensitive(files),
-        gate_gitignore(),
+        gate_diagnostic(files, project_dir),
+        gate_sensitive(files, project_dir),
+        gate_gitignore() if project_dir is None else GateResult("GITIGNORE"),
     ]
 
     if auto_fix and results[0].errors:
@@ -262,7 +280,7 @@ def run_all_gates(files: Optional[List[Path]] = None, warn_only: bool = False,
             for detail in fix_result.fixes_detail[-3:]:
                 print(f"  {detail}")
 
-            results[0] = gate_diagnostic(files)
+            results[0] = gate_diagnostic(files, project_dir)
         except ImportError:
             print("[GATE] vf_auto_fix not available, continuing with manual review")
         except Exception as e:
@@ -303,18 +321,20 @@ if __name__ == "__main__":
     parser.add_argument("--auto-fix", action="store_true", help="auto-fix diagnostic errors before gate (iterative loop)")
     parser.add_argument("--diagnostic-only", action="store_true", help="only run diagnostic gate")
     parser.add_argument("--sensitive-only", action="store_true", help="only run sensitive gate")
+    parser.add_argument("--project-dir", type=str, default=None, help="external project directory to gate-check")
     args = parser.parse_args()
 
-    files = get_changed_py_files() if args.staged else None
+    project_dir = Path(args.project_dir).resolve() if args.project_dir else None
+    files = get_changed_py_files(project_dir) if args.staged else None
 
     if args.diagnostic_only:
-        result = gate_diagnostic(files)
+        result = gate_diagnostic(files, project_dir)
         print(result.summary())
         sys.exit(0 if result.passed else 1)
     elif args.sensitive_only:
-        result = gate_sensitive(files)
+        result = gate_sensitive(files, project_dir)
         print(result.summary())
         sys.exit(0 if result.passed else 2)
 
-    code = run_all_gates(files, warn_only=args.warn, auto_fix=getattr(args, 'auto_fix', False))
+    code = run_all_gates(files, warn_only=args.warn, auto_fix=getattr(args, 'auto_fix', False), project_dir=project_dir)
     sys.exit(code)

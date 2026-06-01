@@ -42,6 +42,17 @@ GENERALIZABLE_DOMAINS = {
     "systems.distributed",
     "systems.mcp",
     "engineering.patterns",
+    "engineering.api_design",
+    "engineering.data_pipeline",
+    "business.supply_chain",
+    "business.domain_modeling",
+    "business.workflow",
+    "agriculture.knowledge_base",
+    "agriculture.asset_management",
+    "agriculture.iot_sensor",
+    "agriculture.logistics",
+    "agriculture.fintech",
+    "agriculture.marketplace",
 }
 
 PROJECT_SPECIFIC_DOMAINS = {
@@ -66,6 +77,21 @@ GENERALIZABLE_KEYWORDS = [
     "retrieval strategy", "vector search", "semantic similarity",
     "data pipeline", "feature engineering",
     "causal", "probabilistic", "bayesian",
+    "domain model", "business entity", "data flow",
+    "api design", "rest endpoint", "microservice",
+    "supply chain", "logistics", "inventory",
+    "authentication", "authorization", "role-based",
+    "module architecture", "layered design", "plugin system",
+    "event driven", "message queue", "pub sub",
+    "database schema", "normalization", "indexing",
+    "testing strategy", "integration test", "ci cd",
+    "search engine", "recommendation", "ranking",
+    "notification", "reminder", "subscription",
+    "contract management", "order management", "payment flow",
+    "iot", "sensor data", "real-time monitoring",
+    "traceability", "quality assurance", "compliance",
+    "dashboard", "analytics", "reporting",
+    "chatbot", "dialog flow", "intent recognition",
 ]
 
 NOISE_KEYWORDS = [

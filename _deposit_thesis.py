@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deposit core auditory prediction thesis into soul knowledge bases"""
 import sys, json
-sys.path.insert(0, r"D:\VORTEX_FLAME")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from soul_memory import SoulMemoryEngine
 
 m = SoulMemoryEngine()
@@ -26,7 +26,7 @@ thesis = {
         "对齐: 音频表征+视觉表征→joint embedding space，不需人工配对标注",
     ],
     "data_pipeline": {
-        "mel_cache": "E:\\AI_Data\\mel_cache\\ 3776个.pt文件，每个64s Mel spectrogram",
+        "mel_cache": "mel_cache/ 3776个.pt文件，每个64s Mel spectrogram",
         "music_ratio": "10%采样(177首Deep House)，ESC-50全量(1600首)",
         "speedup": "实时解码每batch 11s → .pt缓存每batch 0.1s，提速110倍",
     },
@@ -56,8 +56,8 @@ m.write(
         "text": json.dumps({
             "pipeline": "scan_audio_files() → Mel cache (.pt) → 10% music + 100% ESC-50 → CAJEPA + Contrastive",
             "config": {"epochs": 50, "batch": 8, "lr": 1e-4, "contrastive_weight": 0.3, "music_ratio": 0.1, "sr": 22050, "n_mels": 128, "segment_frames": 256},
-            "checkpoint": "D:\\VORTEX_FLAME\\ajepa_checkpoints\\ajepa_best.pt (projector weights, warm start)",
-            "cache_dir": "E:\\AI_Data\\mel_cache\\ (3776 .pt files)",
+            "checkpoint": "ajepa_checkpoints/ajepa_best.pt (projector weights, warm start)",
+            "cache_dir": "mel_cache/ (3776 .pt files)",
             "key_files": ["train_ajepa_multiclass.py", "_precache_mel.py"],
         }, ensure_ascii=False),
     },

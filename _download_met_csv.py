@@ -2,7 +2,7 @@ import urllib.request
 import os
 
 CSV_URL = "https://github.com/metmuseum/openaccess/raw/master/MetObjects.csv"
-LOCAL = r"E:\AI_Data\MetObjects.csv"
+LOCAL = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), "MetObjects.csv")
 
 os.makedirs(os.path.dirname(LOCAL), exist_ok=True)
 

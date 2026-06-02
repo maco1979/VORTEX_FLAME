@@ -17,8 +17,8 @@ import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-MET_CSV_PATH = r"E:\AI_Data\MetObjects.csv"
-OUTPUT_ROOT = r"E:\AI_Data\Met_Images"
+MET_CSV_PATH = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), "MetObjects.csv")
+OUTPUT_ROOT = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), "Met_Images")
 
 TARGET_CLASSIFICATIONS = {
     "Paintings",

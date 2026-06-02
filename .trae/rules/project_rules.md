@@ -49,7 +49,7 @@ created_at TEXT DEFAULT (datetime('now'))
 
 ### 4. MCP Servers Config
 ```
-C:\Users\42235\AppData\Roaming\Trae CN\User\mcp.json
+%APPDATA%\Trae CN\User\mcp.json
 ```
 All available MCP tools. Use them — don't write code that duplicates MCP capabilities.
 

@@ -34,16 +34,16 @@ from five_layer_jepa.causal_jepa_v2 import SIGRegWithPredictionLoss
 from jepa_training_guard import TrainingGuard
 
 AUDIO_DIRS = [
-    r"E:\E盘数据\DEEP HOUSE 集成版",
-    r"E:\VORTEX_FLAME_歌词工厂\人声训练包\原始音频\原创音乐",
-    r"E:\VORTEX_FLAME_歌词工厂\人声训练包\降噪后",
-    r"D:\temple_music",
-    r"D:\AppData_New\Local\Mixed In Key",
-    r"C:\ProgramData\Native Instruments\Traktor Pro 4\Factory Sounds",
-    r"C:\Users\42235\Downloads",
+    os.getenv("DEEP_HOUSE", r"E:\E盘数据\DEEP HOUSE 集成版"),
+    os.getenv("VOCAL_RAW", r"E:\VORTEX_FLAME_歌词工厂\人声训练包\原始音频\原创音乐"),
+    os.getenv("VOCAL_DENOISED", r"E:\VORTEX_FLAME_歌词工厂\人声训练包\降噪后"),
+    os.getenv("TEMPLE_MUSIC", r"D:\temple_music"),
+    os.getenv("MIXED_IN_KEY", r"D:\AppData_New\Local\Mixed In Key"),
+    os.getenv("TRAKTOR_FACTORY", r"C:\ProgramData\Native Instruments\Traktor Pro 4\Factory Sounds"),
+    os.path.expanduser("~/Downloads"),
 ]
 
-CHECKPOINT_DIR = r"D:\VORTEX_FLAME\ajepa_checkpoints"
+CHECKPOINT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ajepa_checkpoints")
 
 SAMPLE_RATE = 22050
 N_FFT = 2048

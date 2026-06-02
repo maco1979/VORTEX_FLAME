@@ -17,10 +17,10 @@ import os
 import sys
 import time
 
-sys.path.insert(0, r"D:\VORTEX_FLAME")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from soul_memory import write
 
-MET_CSV_PATH = r"E:\AI_Data\MetObjects.csv"
+MET_CSV_PATH = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), "MetObjects.csv")
 BATCH_SIZE = 500
 
 TARGET_SOULS = {

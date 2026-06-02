@@ -23,7 +23,7 @@ import time
 import pyarrow.ipc as ipc
 import pyarrow.parquet as pq
 
-sys.path.insert(0, r"D:\VORTEX_FLAME")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from soul_memory import write
 
 BATCH_SIZE = 500
@@ -34,7 +34,7 @@ def index_capybara():
     print("  Indexing Capybara Dataset")
     print("=" * 60)
 
-    arrow_path = r"E:\AI_Data\Capybara\LDJnr___capybara\default\0.0.0\c2bc39ac72f24748f60f5fb55b77e08fb0660ba6\capybara-train.arrow"
+    arrow_path = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), r"Capybara\LDJnr___capybara\default\0.0.0\c2bc39ac72f24748f60f5fb55b77e08fb0660ba6\capybara-train.arrow")
 
     with open(arrow_path, "rb") as f:
         reader = ipc.RecordBatchStreamReader(f)
@@ -189,7 +189,7 @@ def index_rstar_coder():
     print("  Indexing rStar-Coder seed_sft Dataset")
     print("=" * 60)
 
-    seed_dir = r"E:\AI_Data\rStar-Coder\seed_sft"
+    seed_dir = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), r"rStar-Coder\seed_sft")
     shard_files = sorted([f for f in os.listdir(seed_dir) if f.endswith(".parquet")])
     print(f"Found {len(shard_files)} shards")
 
@@ -263,7 +263,7 @@ def main():
     index_rstar_coder()
 
     print("\n" + "=" * 60)
-    print("  All E:\\AI_Data indexing complete!")
+    print("  All indexing complete!")
     print("=" * 60)
 
 

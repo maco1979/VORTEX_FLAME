@@ -32,7 +32,7 @@ from soul_memory import write
 logging.basicConfig(level=logging.INFO, format="%(levelname)-8s | %(message)s")
 logger = logging.getLogger("cjk_indexer")
 
-SCAN_ROOT = r"E:\AI_Data"
+SCAN_ROOT = os.getenv("AI_DATA", r"E:\AI_Data")
 SCAN_EXTS = {".txt", ".md", ".json", ".jsonl", ".csv", ".yaml", ".yml", ".py", ".html", ".rst"}
 SKIP_DIRS = {".cache", ".git", "__pycache__", ".huggingface", "venv", "node_modules"}
 SKIP_FILES = {"CACHEDIR.TAG", ".gitattributes", ".gitignore", "config.json"}
@@ -206,7 +206,7 @@ def scan_and_index(max_entries: int = 500, dry_run: bool = False,
                     continue
 
                 soul = force_soul or classify_soul(text)
-                source_path = "E:/AI_Data/{}".format(relpath.replace("\\", "/"))
+                source_path = os.path.join(os.getenv("AI_DATA", "E:/AI_Data"), relpath.replace("\\", "/"))
                 try:
                     write(soul, "knowledge", {
                         "topic": "CJK Content: {}".format(text[:80]),

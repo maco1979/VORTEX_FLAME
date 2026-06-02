@@ -1,14 +1,14 @@
 """
 Auto-Index Engine — Replaces Manual index_supplement_kb.py Injection
 ======================================================================
-Scans E:\\AI_Data\\ periodically, detects new files, and auto-indexes
+Scans AI_DATA/ periodically, detects new files, and auto-indexes
 them into the appropriate soul knowledge bases.
 
 Previously: index_supplement_kb.py → manual hardcoded knowledge injection
 Now:        auto_index_engine.py → automatic file-system-driven indexing
 
 Architecture:
-    E:\\AI_Data\\* → FileDetector → ContentRouter → SoulMemoryEngine.write()
+    {AI_DATA}/* → FileDetector → ContentRouter → SoulMemoryEngine.write()
 
 Routing Rules:
     MetObjects.csv           → monet, vangogh, davinci  (art metadata)
@@ -42,8 +42,8 @@ from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-AI_DATA_ROOT = r"E:\AI_Data"
-JOURNAL_PATH = Path(r"D:\VORTEX_FLAME\.vf_memory\index_journal.json")
+AI_DATA_ROOT = os.getenv("AI_DATA", r"E:\AI_Data")
+JOURNAL_PATH = Path(__file__).parent / ".vf_memory" / "index_journal.json"
 JOURNAL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 SKIP_PATTERNS = {

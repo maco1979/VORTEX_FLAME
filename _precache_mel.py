@@ -10,19 +10,19 @@ import torch
 import torchaudio
 
 AUDIO_DIRS = [
-    r"E:\E盘数据\DEEP HOUSE 集成版",
-    r"E:\VORTEX_FLAME_歌词工厂\人声训练包\原始音频\原创音乐",
-    r"E:\VORTEX_FLAME_歌词工厂\人声训练包\降噪后",
-    r"D:\temple_music",
-    r"D:\AppData_New\Local\Mixed In Key",
-    r"C:\ProgramData\Native Instruments\Traktor Pro 4\Factory Sounds",
-    r"C:\Users\42235\Downloads",
-    r"C:\Users\42235\Music",
+    os.getenv("DEEP_HOUSE", r"E:\E盘数据\DEEP HOUSE 集成版"),
+    os.getenv("VOCAL_RAW", r"E:\VORTEX_FLAME_歌词工厂\人声训练包\原始音频\原创音乐"),
+    os.getenv("VOCAL_DENOISED", r"E:\VORTEX_FLAME_歌词工厂\人声训练包\降噪后"),
+    os.getenv("TEMPLE_MUSIC", r"D:\temple_music"),
+    os.getenv("MIXED_IN_KEY", r"D:\AppData_New\Local\Mixed In Key"),
+    os.getenv("TRAKTOR_FACTORY", r"C:\ProgramData\Native Instruments\Traktor Pro 4\Factory Sounds"),
+    os.path.expanduser("~/Downloads"),
+    os.path.expanduser("~/Music"),
 ]
 
-ESC50_AUDIO_DIR = r"E:\AI_Data\ESC-50\ESC-50-master\audio"
-ESC50_META = r"E:\AI_Data\ESC-50\ESC-50-master\meta\esc50.csv"
-CACHE_DIR = r"E:\AI_Data\mel_cache"
+ESC50_AUDIO_DIR = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), r"ESC-50\ESC-50-master\audio")
+ESC50_META = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), r"ESC-50\ESC-50-master\meta\esc50.csv")
+CACHE_DIR = os.path.join(os.getenv("AI_DATA", r"E:\AI_Data"), "mel_cache")
 
 SAMPLE_RATE = 22050
 N_FFT = 2048

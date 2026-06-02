@@ -17,6 +17,7 @@ AUDIO_DIRS = [
     r"D:\AppData_New\Local\Mixed In Key",
     r"C:\ProgramData\Native Instruments\Traktor Pro 4\Factory Sounds",
     r"C:\Users\42235\Downloads",
+    r"C:\Users\42235\Music",
 ]
 
 ESC50_AUDIO_DIR = r"E:\AI_Data\ESC-50\ESC-50-master\audio"

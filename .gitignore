@@ -18,6 +18,8 @@ ajepa_checkpoints/
 ajepa_multiclass_checkpoints/
 cvjepa_checkpoints/
 finjepa_checkpoints/
+stage_checkpoints/
+stage_logs/
 
 # Soul knowledge bases
 .vf_memory/
@@ -58,6 +60,15 @@ tools/
 # Logs
 *.log
 hermes_logs/
+
+# ============================================================
+# Virtual environments
+.venv*/
+venv*/
+
+# Third-party design specs (not ours)
+design_specs/awesome-design-md
+design_specs/awesome-design-md/**
 
 # ============================================================
 # BUILD ARTIFACTS

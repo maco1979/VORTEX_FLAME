@@ -24,8 +24,8 @@ SUPPLEMENT_KNOWLEDGE = [
 2. Long-running training, simulation tasks MUST route to Prefect/Temporal (never N8N short processes).
 3. GPU state, VRAM usage, compute load MUST real-time stream back to JEPA for hardware world-state modeling.
 4. Prohibit LLM from generating destructive Docker commands or system-level compute reset instructions.
-5. All model weights, checkpoints stored in E:\\models\\ or D:\\VORTEX_FLAME\\soul_lora_v2\\.
-6. Training scripts: D:\\VORTEX_FLAME\\train_ajepa.py (Audio JEPA). Note: train_soul.py is legacy experimental only.
+5. All model weights, checkpoints stored in models/ or soul_lora_v2/.
+6. Training scripts: train_ajepa.py (Audio JEPA). Note: train_soul.py is legacy experimental only.
 7. V100-16GB constraint: SFT training ~8GB, DPO training ~11.5GB, max batch_size=8, always 4bit NF4.
 
 JEPA integration: GPU/VRAM metrics → hardware world-state encoding → predict training stability → alert before OOM.
@@ -46,7 +46,7 @@ Software list: PyTorch, CUDA Toolkit, Docker Desktop, Jupyter, WSL2, ComfyUI, St
 6. Python scientific stack versions locked: torch 2.1.2, transformers 4.36, peft 0.7, bitsandbytes 0.41.
 
 Automation tools: CUDA_VISIBLE_DEVICES control, batch job scheduling, checkpoint auto-save, OOM auto-recovery.
-Model registry: E:\\models\\ for base models, D:\\VORTEX_FLAME\\soul_lora_v2\\ for LoRA weights.""",
+Model registry: models/ for base models, soul_lora_v2/ for LoRA weights.""",
         "tags": ["scientific-computing", "code-execution", "sandbox", "pipeline"],
     },
     {
@@ -116,17 +116,17 @@ Software: Blender 4.0+, SolidWorks, AutoCAD, Unity, Unreal Engine, SketchUp, Rhi
         "topic": "[Database] Qdrant Chroma PostgreSQL Redis Rules",
         "text": """Database & Vector Store Management Rules:
 
-1. Qdrant (primary vector store): E:\\qdrant_storage\\, collection per soul, 384-dim vectors (all-MiniLM-L6-v2).
-2. Chroma (lightweight): D:\\VORTEX_FLAME\\chroma_db\\, for development and local testing.
+1. Qdrant (primary vector store): qdrant_storage/, collection per soul, 384-dim vectors (all-MiniLM-L6-v2).
+2. Chroma (lightweight): chroma_db/, for development and local testing.
 3. PostgreSQL: structured data (orders, users, financial records, training metadata).
 4. Redis: caching layer, session state, real-time JEPA state snapshots, MCP transient memory.
-5. SQLite: D:\\VORTEX_FLAME\\soul_memory_store\\{soul}\\ for per-soul memory persistence.
+5. SQLite: soul_memory_store/{soul}/ for per-soul memory persistence.
 6. ALL writes/deletes/updates to knowledge bases MUST pass VORTEX permission verification.
 7. PROHIBIT LLM from directly deleting databases, clearing vector collections, dropping tables.
 8. Knowledge base changes MUST sync to MCP + JEPA world state in real-time.
 
 ETL pipeline: Airflow for scheduled data sync, incremental updates, data quality checks.
-Backup: daily snapshots to E:\\backups\\, 7-day retention, automated via Windows Task Scheduler.
+Backup: daily snapshots to backups/, 7-day retention, automated via Windows Task Scheduler.
 Monitoring: disk usage alerts at 80%, connection pool health checks, query latency tracking.
 Software: Qdrant, Chroma, PostgreSQL, Redis, Airflow, SQLite, pgAdmin, RedisInsight.""",
         "tags": ["database", "vector-store", "qdrant", "etl", "backup"],
@@ -137,8 +137,8 @@ Software: Qdrant, Chroma, PostgreSQL, Redis, Airflow, SQLite, pgAdmin, RedisInsi
         "topic": "[Database] NAS Cloud Storage File System Strategy",
         "text": """NAS & Cloud Storage File System Strategy:
 
-1. E:\\ = training data, datasets, large models, Stable Diffusion, raw audio/video.
-2. D:\\VORTEX_FLAME\\ = code, knowledge bases, LoRA weights, logs, MCP configs.
+1. E drive = training data, datasets, large models, Stable Diffusion, raw audio/video.
+2. Project root = code, knowledge bases, LoRA weights, logs, MCP configs.
 3. File naming: {project}_{type}_{date}_{version}.{ext}, always timestamped.
 4. Dataset versioning: VORTEX_FLAME_Soul_Training/ with subdirectories by project.
 5. Sync strategy: rsync/robocopy for local backup, never auto-sync to cloud (security).

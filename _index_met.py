@@ -1,7 +1,7 @@
 """
 Index The Met Open Access collection into art soul knowledge bases.
 
-Reads MetObjects.csv (317MB, 470K+ records) from E:\\AI_Data,
+Reads MetObjects.csv (317MB, 470K+ records) from {AI_DATA},
 filters for CC0 public-domain artworks with images, and indexes
 structured metadata into monet/vangogh/davinci domain_memory.
 

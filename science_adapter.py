@@ -85,7 +85,7 @@ SCIENCE_CONFIG = {
         "linux": ["/usr/bin/Rscript"],
     },
     "julia_paths": {
-        "windows": [r"C:\Users\julia\julia-1.10\bin\julia.exe"],
+        "windows": [r"C:\Users\{user}\AppData\Local\Julia-1.10\bin\julia.exe"],
         "darwin": ["/usr/local/bin/julia"],
         "linux": ["/usr/bin/julia"],
     },
@@ -170,7 +170,7 @@ class PythonComputeEngine:
         pkgs = self._check_packages()
         return pkgs.get("numpy", False)
 
-    def evaluate(self, expression: str, variables: Dict[str, float] = None) -> ComputeResult:
+    def evaluate(self, expression: str, variables: Dict[str, float] = None) -> ComputeResult:  # type: ignore[reportArgumentType]
         start = time.time()
         try:
             import numpy as np
@@ -276,7 +276,7 @@ class PythonComputeEngine:
 
 
 class WolframAlphaClient:
-    def __init__(self, appid: str = None):
+    def __init__(self, appid: str = None):  # type: ignore[reportArgumentType]
         self._appid = appid or os.environ.get(SCIENCE_CONFIG["wolfram_appid_env"], "")
         self._base = SCIENCE_CONFIG["wolfram_api_base"]
 
@@ -345,7 +345,7 @@ class ScienceAdapter:
             ],
         }
 
-    def evaluate(self, expression: str, variables: Dict[str, float] = None) -> ComputeResult:
+    def evaluate(self, expression: str, variables: Dict[str, float] = None) -> ComputeResult:  # type: ignore[reportArgumentType]
         return self._python_engine.evaluate(expression, variables)
 
     def symbolic(self, expression: str) -> ComputeResult:
@@ -391,7 +391,7 @@ class ScienceAdapter:
             arr = np.array(data)
             if test == "ttest":
                 stat, pval = stats.ttest_1samp(arr, mu)
-                result = {"statistic": float(stat), "p_value": float(pval)}
+                result = {"statistic": float(stat), "p_value": float(pval)}  # type: ignore[reportArgumentType]
             elif test == "normaltest":
                 stat, pval = stats.normaltest(arr)
                 result = {"statistic": float(stat), "p_value": float(pval)}

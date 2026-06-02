@@ -5,7 +5,7 @@ Strategy:
   - Read MetObjects.csv, filter for CC0 paintings/drawings/sculptures with images
   - Download only high-priority artworks (paintings, drawings, prints, sculpture)
   - Target: ~10,000 images (~50GB at 5MB avg) - enough for C-JEPA fine-tuning
-  - Save to E:\\AI_Data\\Met_Images\\ with structured subdirectories
+  - Save to {AI_DATA}/Met_Images/ with structured subdirectories
 
 This is for the C-JEPA visual encoder, NOT for soul_memory (that's _index_met.py).
 """

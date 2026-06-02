@@ -1,5 +1,5 @@
 """
-Index E:\\AI_Data datasets into VORTEX_FLAME soul knowledge bases.
+Index {AI_DATA} datasets into VORTEX_FLAME soul knowledge bases.
 
 Datasets:
   1. Capybara (16K multi-turn conversations, STEM/logic/roleplay)
@@ -255,7 +255,7 @@ def index_rstar_coder():
 
 def main():
     print("=" * 60)
-    print("  E:\\AI_Data → VORTEX_FLAME Soul Knowledge Bases")
+    print("  AI_DATA → VORTEX_FLAME Soul Knowledge Bases")
     print("=" * 60)
 
     index_capybara()
